@@ -125,7 +125,7 @@ export function NetworkPage() {
           label="Verification"
           value={node ? `${Math.round(node.verificationprogress * 100)}%` : '—'}
         />
-        <Stat label="Chain" value={node?.chain ?? '—'} />
+        <Stat label="Chain" value={status.data.network} />
       </section>
 
       <Panel eyebrow="CHAIN" title="Node details">

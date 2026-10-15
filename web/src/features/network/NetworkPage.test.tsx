@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -83,6 +83,19 @@ afterEach(() => {
 });
 
 describe('NetworkPage', () => {
+  it.each([
+    { state: 'reachable', node: BASE.node },
+    { state: 'unavailable', node: null },
+  ])('labels the chain from the environment when the node is $state', async ({ node }) => {
+    renderNetwork({ ...BASE, node });
+
+    await screen.findByText('Node details');
+    const tile = within(screen.getByText('Chain').parentElement!);
+    // Zakura reports "test" for Regtest; the environment names the network.
+    expect(tile.getByText('Regtest')).toBeInTheDocument();
+    expect(tile.queryByText('test')).not.toBeInTheDocument();
+  });
+
   it('lists every runtime endpoint the server publishes', async () => {
     renderNetwork({ ...BASE, endpoints: ENDPOINTS });
 
