@@ -122,10 +122,20 @@ function usePaymentMutation<T extends SendVariables | FaucetVariables>(
         // An expired wallet journal can preserve the claim even after a
         // rejected proposal. Release only when a keyed lookup proves it absent;
         // a lookup failure must leave the identity available for recovery.
-        if (isPaymentRejection(error) && !(await api.payment(identity.key))) {
-          await clearPayment(identity, ownedKeys.current);
-          lifecycle?.onRejected(identity);
-          submission.key = undefined;
+        if (isPaymentRejection(error)) {
+          let stored: Activity | null;
+          try {
+            stored = await api.payment(identity.key);
+          } catch {
+            // Keep the rejection as the submission error. An unavailable
+            // status lookup cannot prove the saved request is safe to clear.
+            throw error;
+          }
+          if (stored === null) {
+            await clearPayment(identity, ownedKeys.current);
+            lifecycle?.onRejected(identity);
+            submission.key = undefined;
+          }
         }
         throw error;
       }

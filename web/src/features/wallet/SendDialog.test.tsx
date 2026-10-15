@@ -375,11 +375,8 @@ describe('SendDialog', () => {
       });
       renderWithProviders(<SendDialog open onOpenChange={vi.fn()} accounts={testAccounts} />);
       await userEvent.click(screen.getByRole('button', { name: 'Send ZEC' }));
-      expect(
-        await screen.findByText(
-          lookup === 'unavailable' ? 'Payment not confirmed' : 'Payment rejected',
-        ),
-      ).toBeInTheDocument();
+      expect(await screen.findByText('Payment rejected')).toBeInTheDocument();
+      expect(await screen.findByText('Insufficient funds')).toBeInTheDocument();
       const first = body(fetchMock).idempotency_key;
       const name = 'ths:send:[1,2,"ironwood","ironwood","100000000",null]';
       if (lookup === 'absent') {

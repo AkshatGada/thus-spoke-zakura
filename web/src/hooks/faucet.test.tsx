@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api, type Activity } from '@/lib/api';
+import { api, ApiError, type Activity } from '@/lib/api';
 import { useFaucet, useSend } from './mutations';
 import { usePaymentStatus } from './queries';
 import { useRetainedPayments } from './payment-identity';
@@ -75,6 +75,41 @@ describe.each(['faucet', 'send'] as const)('%s operation ownership', (kind) => {
       : 'ths:send:[1,2,"ironwood","ironwood","100000000",null]';
   const tabStorageKey = `${storageKey}:tab`;
   const tab = () => paymentTab(kind);
+
+  describe.each([400, 422])('HTTP %s rejection', (status) => {
+    it.each(['absent', 'retained', 'unavailable'] as const)(
+      'preserves the rejection and releases identity only when lookup proves absence (%s)',
+      async (lookup) => {
+        const rejection = new ApiError(status, 'The original payment rejection');
+        const post = vi.spyOn(api, kind).mockRejectedValue(rejection);
+        const get = vi.spyOn(api, 'payment');
+        if (lookup === 'unavailable') get.mockRejectedValue(new TypeError('status offline'));
+        else get.mockResolvedValue(lookup === 'retained' ? pending('retained-payment') : null);
+        const hook = tab();
+
+        await act(async () => {
+          await expect(hook.result.current.submit()).rejects.toBe(rejection);
+        });
+        const originalKey = post.mock.calls[0]![0].idempotency_key;
+        expect(get).toHaveBeenCalledWith(originalKey);
+        expect(localStorage.getItem(storageKey)).toBe(lookup === 'absent' ? null : originalKey);
+        expect(sessionStorage.getItem(tabStorageKey)).toBe(
+          lookup === 'absent' ? null : originalKey,
+        );
+        expect(localStorage.getItem(`ths:${kind}:retained:${originalKey}`)).toBe(
+          lookup === 'absent' ? null : storageKey,
+        );
+
+        post.mockResolvedValue(pending('retry-payment'));
+        await act(async () => {
+          await hook.result.current.submit();
+        });
+        const retryKey = post.mock.calls[1]![0].idempotency_key;
+        expect(retryKey === originalKey).toBe(lookup !== 'absent');
+      },
+    );
+  });
+
   it('a delayed confirmation cannot erase a newer payment in another tab', async () => {
     const replies: Array<(activity: Activity) => void> = [];
     const post = vi

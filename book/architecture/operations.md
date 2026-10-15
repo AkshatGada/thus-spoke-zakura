@@ -108,6 +108,12 @@ A confirmation can appear before the wallet snapshot catches up. A partial CLI
 account-faucet batch retains its keys until every member has a terminal result;
 keep the same account selection when retrying it.
 
+If Send or Faucet is rejected, the dashboard shows the server's rejection
+message even when the follow-up status lookup fails. A failed lookup keeps
+the saved payment key for recovery; it does not prove the payment absent.
+The dashboard releases a rejected request only after a successful keyed
+lookup finds no record.
+
 ## Decide what to do after a lost response
 
 ![After a lost payment response, direct API callers reuse their saved key, dashboard callers resume retained payments, and CLI callers rerun the same command and instance. A new key requests a new payment. Activity omits keys and external faucet records; inspect txids and wallet snapshots separately.](../images/retry-decisions.svg)
