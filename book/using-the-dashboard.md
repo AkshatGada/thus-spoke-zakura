@@ -6,6 +6,10 @@ The dashboard has **Wallet**, **Explorer**, and **Network** pages. Use `ths
 open` to bring it up. On desktop, the **Mine** button sits at the top of
 each page; on a narrow screen you can always use `ths mine`.
 
+The desktop sidebar's theme selector offers Light, System, and Dark. Tab
+focuses the selected option; the arrow keys move and select, wrapping at
+either end. System follows your operating system's theme.
+
 ## First, observe the starting state
 
 Open **Wallet**. Account 1 should show **5 Ironwood ZEC** after startup;
