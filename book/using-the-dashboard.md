@@ -166,6 +166,10 @@ not exposed as the user-account transfer shown by Recent activity. The
 server's activity record knows the development account IDs, while the
 Explorer follows the public chain.
 
+Transparent input rows link to their resolved address, with the full address
+in the tooltip. When only the previous transaction ID is available, the link
+and tooltip identify that transaction instead.
+
 ![The Explorer page: a single search field accepting a block height, block hash, transaction ID, or t-address, above a Blocks table listing recent heights with their block hash, transaction count, size, and time.](images/explorer.png)
 
 **Network** shows the node height, tip hash, account count, and published

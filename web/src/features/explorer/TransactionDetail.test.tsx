@@ -71,8 +71,27 @@ describe('TransactionDetail', () => {
     });
 
     await waitFor(() => expect(screen.getByText('1 transparent input')).toBeInTheDocument());
-    expect(screen.getByText(INPUT_ADDRESS)).toBeInTheDocument();
+    expect(screen.getByText(INPUT_ADDRESS)).toHaveAttribute('title', INPUT_ADDRESS);
+    expect(screen.getByRole('link', { name: INPUT_ADDRESS })).toHaveAttribute(
+      'href',
+      `/explorer/address/${INPUT_ADDRESS}`,
+    );
     expect(screen.getByText('1 ZEC')).toBeInTheDocument();
+  });
+
+  it('keeps the previous transaction ID as the tooltip when no address is resolved', async () => {
+    renderTx({
+      txid: TXID,
+      vin: [{ txid: PREV_TXID, vout: 0 }],
+      vout: [],
+      vShieldedSpend: [],
+      vShieldedOutput: [],
+    });
+
+    await screen.findByText('1 transparent input');
+    const link = screen.getByRole('link', { name: /abab/ });
+    expect(link).toHaveAttribute('href', `/explorer/tx/${PREV_TXID}`);
+    expect(link.querySelector('span')).toHaveAttribute('title', PREV_TXID);
   });
 
   it('renders two inputs spending different outputs of the same previous transaction', async () => {
