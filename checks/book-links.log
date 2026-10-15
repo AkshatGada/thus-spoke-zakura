@@ -1,0 +1,2 @@
+$ python3 tests/book_links.py
+ok: 0 broken links in the book

@@ -1,0 +1,79 @@
+{
+  "source": "1d00c0b1ea17a4d1184753d937057a0c333069ed",
+  "started": "2026-10-15T14:32:47.125Z",
+  "cases": [
+    {
+      "name": "shielded payment admission, confirmation and same-key replay",
+      "admission_http": 202,
+      "replay_http": 200,
+      "admission_status": "preparing",
+      "activity_id": "69fb70a4-75a0-4582-8942-38ae75e55d02",
+      "txid": "4adfaa94466471daabc1d5a38fe79474726add6064c343add2ffa0f92054b7a6",
+      "block_hash": "346467853e108b8f72a9a0bf054cb233e72ff820323617e14fe2bb69cf36934a",
+      "start_height": 103,
+      "end_height": 104,
+      "recipient_zatoshi": 10000000,
+      "replay_unchanged": true
+    },
+    {
+      "name": "real-browser storage getter failure",
+      "mining_posts": 0,
+      "height_unchanged": true,
+      "dialog_closable": true,
+      "page_errors": []
+    },
+    {
+      "name": "real-browser storage read failure",
+      "mining_posts": 0,
+      "height_unchanged": true,
+      "dialog_closable": true,
+      "page_errors": []
+    },
+    {
+      "name": "real-browser storage write failure",
+      "mining_posts": 0,
+      "height_unchanged": true,
+      "dialog_closable": true,
+      "page_errors": []
+    },
+    {
+      "name": "real-browser storage nonretaining failure",
+      "mining_posts": 0,
+      "height_unchanged": true,
+      "dialog_closable": true,
+      "page_errors": []
+    },
+    {
+      "name": "real mining normal",
+      "job_id": "d6754cdc-d756-466d-b5aa-84cb45e7ddca",
+      "requested_blocks": 1,
+      "completed_blocks": 1,
+      "chain_height_delta": 1,
+      "mining_posts": 1,
+      "page_errors": []
+    },
+    {
+      "name": "real mining cleanup",
+      "job_id": "2ceb48a0-dff4-4f5b-bec5-1dbfd3ed2dbb",
+      "requested_blocks": 2,
+      "completed_blocks": 2,
+      "chain_height_delta": 2,
+      "mining_posts": 1,
+      "page_errors": []
+    },
+    {
+      "name": "real mining denied-after-unmount",
+      "job_id": "3c319556-6fd4-4212-a33d-ee7fefec9d45",
+      "requested_blocks": 3,
+      "completed_blocks": 3,
+      "chain_height_delta": 3,
+      "mining_posts": 1,
+      "page_errors": []
+    }
+  ],
+  "finished": "2026-10-15T14:32:58.308Z",
+  "app_image": "sha256:5116bc69bfbecd13dc06a0fbaa05dde5ac483a65414fc9b70228a9a125441dcb",
+  "node_image": "zakuracore/zakura:1.6.0",
+  "lightwalletd_image": "ghcr.io/zcashlabs/thus-spoke-zakura-lightwalletd:0.3.0 (built from repository Dockerfile)",
+  "fault_injection": "Storage getter/method failures injected with Playwright in real Chrome; mining POSTs forwarded to the actual local server and responses preserved."
+}

@@ -1,0 +1,14 @@
+$ npm test --prefix web
+
+> thus-spoke-zakura-web@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.1 /checkout/web
+
+
+ Test Files  27 passed (27)
+      Tests  299 passed (299)
+   Start at  20:07:06
+   Duration  15.41s (tests 57%, environment 26%, import 8%, transform 5%, setup 4%)
+
