@@ -1,0 +1,30 @@
+{
+  "wallet_to_account": true,
+  "copied_values_match_api": {
+    "unified_address": true,
+    "transparent_address": true,
+    "unified_full_viewing_key": true
+  },
+  "direct_reload": true,
+  "known_unified_search": true,
+  "unknown_unified_rejected": "Unified addresses are shielded and have no public chain history. Only known development accounts can be opened here.",
+  "mobile_dimensions": {
+    "body": 375,
+    "client": 375,
+    "headings": 1,
+    "viewport": 390
+  },
+  "known_transparent_account_link": "/wallet/accounts/2",
+  "no_key_on_address_page": true,
+  "address_label_opens_detail": true,
+  "real_transaction_labels": {
+    "input": "/wallet/accounts/2",
+    "output": "/wallet/accounts/3"
+  },
+  "no_key_on_transaction_page": true,
+  "output_label_opens_detail": true,
+  "raw_input_link_keeps_address_history": true,
+  "miner_address_keeps_public_history": true,
+  "miner_address_has_no_account_link": true,
+  "treasury_detail_rejected": true
+}

@@ -1,0 +1,19 @@
+$ npm test --prefix web
+
+> thus-spoke-zakura-web@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.1 <checkout>/web
+
+Not implemented: navigation to another Document
+
+ Test Files  34 passed (34)
+      Tests  376 passed (376)
+   Start at  04:16:19
+   Duration  16.56s (tests 55%, environment 26%, import 8%, transform 7%, setup 3%, worker 1%)
+
+Environment  jsdom was created 34 times · 17.45s total, 26% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

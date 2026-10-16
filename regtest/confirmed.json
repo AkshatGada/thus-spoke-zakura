@@ -1,0 +1,81 @@
+{
+  "payment": {
+    "id": "3caf15c2-0d16-4341-ba8d-cc0f4d9d091e",
+    "kind": "send",
+    "from_account": 1,
+    "to_account": 2,
+    "to_address": null,
+    "source_pool": "ironwood",
+    "destination_pool": "transparent",
+    "amount_zatoshi": 10000000,
+    "txid": "3aca5560bc7b75ea3d903ade467b2c18193af62e0929256b907238208d77d4e1",
+    "block_hash": "eec2871dc98d7203dc9d2fdd2e8d98d7e1837f32aa0955b4cc7c50cf263359c9",
+    "status": "confirmed",
+    "created_at": "2026-10-16 22:48:36",
+    "last_error": null
+  },
+  "transaction": {
+    "txid": "3aca5560bc7b75ea3d903ade467b2c18193af62e0929256b907238208d77d4e1",
+    "version": 6,
+    "height": 106,
+    "blockhash": "eec2871dc98d7203dc9d2fdd2e8d98d7e1837f32aa0955b4cc7c50cf263359c9",
+    "confirmations": 1,
+    "vin": [],
+    "vout": [
+      {
+        "n": 0,
+        "scriptPubKey": {
+          "addresses": [
+            "tmF3CKFqQ68GdisHK3D9S8pMty7a7Fr2wiN"
+          ],
+          "asm": "OP_DUP OP_HASH160 3a69019671bae36172e2abe930f58f84466d77f5 OP_EQUALVERIFY OP_CHECKSIG",
+          "hex": "76a9143a69019671bae36172e2abe930f58f84466d77f588ac",
+          "reqSigs": 1,
+          "type": "pubkeyhash"
+        },
+        "value": 0.1,
+        "valueZat": 10000000
+      }
+    ]
+  },
+  "canonical_block": {
+    "height": 106,
+    "hash": "eec2871dc98d7203dc9d2fdd2e8d98d7e1837f32aa0955b4cc7c50cf263359c9"
+  },
+  "initial_height": 105,
+  "final_height": 106,
+  "balances": [
+    {
+      "id": 1,
+      "ironwood_zatoshi": 489985000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 2,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 10000000
+    },
+    {
+      "id": 3,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 4,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 5,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    }
+  ],
+  "same_key_replay_unchanged": true,
+  "app_image": "sha256:dc0df16562a6af4931c035e17615f68f016db75c85d1423e89b7e32f86e06856",
+  "assets": {
+    "index-C7VQvHJ4.css": "cccec4f0048ce03eae46caaadc96fe5efd097ee6420a7ae4d0caf0406e0ac588",
+    "index-DhASQbJc.js": "49cf3ced901051f02f826ac3ac33e194f2580ffd27a6b00013af33c2eaad2ff0"
+  },
+  "publication_note": "Selected transaction fields retained; raw transaction bytes and shielded bundle proof/ciphertext omitted for readability."
+}

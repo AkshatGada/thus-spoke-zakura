@@ -1,0 +1,2061 @@
+
+> thus-spoke-zakura-web@0.1.0 test
+> vitest run src/features/wallet/AccountIdentity.test.tsx
+
+
+ RUN  v5.0.1 <checkout>/web
+
+ ❯ src/features/wallet/AccountIdentity.test.tsx (11 tests | 11 failed) 10366ms
+   ❯ Development account identity (11)
+     × opens the same stable account destination from the Wallet card and copies full identities 1044ms
+     × resolves a known unified address to account detail instead of public address history 1087ms
+     × links a known transparent address to its account without exposing a key in Explorer 1016ms
+     × annotates known transaction inputs and outputs while preserving public-address links 1021ms
+     × omits a missing viewing key supplied by an older server 1028ms
+     × keeps treasury out of Wallet cards and totals even if the response contains it 34ms
+     × rejects a non-user account route 6 1021ms
+     × rejects a non-user account route 01 1024ms
+     × rejects a non-user account route 1junk 1028ms
+     × rejects a non-user account route 99 1025ms
+     × derives account details from the shared query after a refresh 1038ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > opens the same stable account destination from the Wallet card and copies full identities
+TestingLibraryElementError: Unable to find role="link" and name "View Account 2 details"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/wallet/AccountIdentity.test.tsx:43:35
+     41|     const write = vi.spyOn(navigator.clipboard, 'writeText').mockResol…
+     42|     renderAt('/wallet');
+     43|     await user.click(await screen.findByRole('link', { name: 'View Acc…
+       |                                   ^
+     44|     expect(await screen.findByRole('heading', { level: 1, name: 'Accou…
+     45|     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > resolves a known unified address to account detail instead of public address history
+TestingLibraryElementError: Unable to find role="heading" and name "Account 2"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/wallet/AccountIdentity.test.tsx:59:25
+     57|     await userEvent.type(screen.getByLabelText('Search the chain'), ` …
+     58|     await userEvent.click(screen.getByRole('button', { name: 'Search' …
+     59|     expect(await screen.findByRole('heading', { name: 'Account 2', lev…
+       |                         ^
+     60|     expect(address).not.toHaveBeenCalled();
+     61|     expect(search).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > links a known transparent address to its account without exposing a key in Explorer
+TestingLibraryElementError: Unable to find role="link" and name "Account 2"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/wallet/AccountIdentity.test.tsx:67:31
+     65|     vi.spyOn(api, 'address').mockResolvedValue({ address: accounts[1].…
+     66|     renderAt(`/explorer/address/${accounts[1].transparent_address}`);
+     67|     const link = await screen.findByRole('link', { name: 'Account 2' }…
+       |                               ^
+     68|     expect(link).toHaveAttribute('href', '/wallet/accounts/2');
+     69|     expect(document.body).not.toHaveTextContent(accounts[1].unified_fu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > annotates known transaction inputs and outputs while preserving public-address links
+TestingLibraryElementError: Unable to find role="link" and name "Account 1"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/wallet/AccountIdentity.test.tsx:77:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > omits a missing viewing key supplied by an older server
+TestingLibraryElementError: Unable to find an element with the text: tmaaaaaaaaaaaaaaaaaaaaaaaaaaaa2. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/wallet/AccountIdentity.test.tsx:88:25
+     86|     const older = accounts.map(({ unified_full_viewing_key: _key, ...a…
+     87|     renderAt('/wallet/accounts/2', older);
+     88|     expect(await screen.findByText(accounts[1].transparent_address, { …
+       |                         ^
+     89|     expect(screen.queryByText('Unified full viewing key')).not.toBeInT…
+     90|     expect(screen.queryByRole('button', { name: /viewing key/i })).not…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > keeps treasury out of Wallet cards and totals even if the response contains it
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <h3
+  class="min-w-0 flex-1 truncate text-[13px] font-bold"
+>
+  Treasury
+</h3> instead
+ ❯ src/features/wallet/AccountIdentity.test.tsx:96:48
+     94|     renderAt('/wallet', [...accounts, { ...treasury, ironwood_zatoshi:…
+     95|     expect(await screen.findByText('Account 1')).toBeInTheDocument();
+     96|     expect(screen.queryByText('Treasury')).not.toBeInTheDocument();
+       |                                                ^
+     97|     expect(screen.queryByText('14 ZEC')).not.toBeInTheDocument();
+     98|     expect(document.body).not.toHaveTextContent(treasury.unified_addre…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > rejects a non-user account route 6
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > rejects a non-user account route 01
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > rejects a non-user account route 1junk
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > rejects a non-user account route 99
+TestingLibraryElementError: Unable to find role="alert"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/wallet/AccountIdentity.test.tsx:103:25
+    101|   it.each(['6', '01', '1junk', '99'])('rejects a non-user account rout…
+    102|     renderAt(`/wallet/accounts/${id}`, [...accounts, treasury]);
+    103|     expect(await screen.findByRole('alert')).toHaveTextContent('Accoun…
+       |                         ^
+    104|     expect(document.body).not.toHaveTextContent(treasury.unified_addre…
+    105|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  src/features/wallet/AccountIdentity.test.tsx > Development account identity > derives account details from the shared query after a refresh
+TestingLibraryElementError: Unable to find an element with the text: uregtest1updatedaccount2. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="min-h-screen md:grid md:grid-cols-[220px_minmax(0,1fr)]"
+    >
+      <aside
+        class="border-line bg-panel fixed bottom-0 z-10 flex h-16 w-full flex-row border-t px-2 md:top-0 md:h-screen md:w-[220px] md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5"
+      >
+        <div
+          class="mb-12 hidden items-center gap-3 md:flex"
+        >
+          <div
+            class="xp-raised text-accent bg-accent-soft grid size-8 place-items-center rounded-xs"
+          >
+            <svg
+              aria-label="Zakura"
+              class="size-5"
+              role="img"
+              viewBox="0 0 24 24"
+            >
+              <g
+                fill="currentColor"
+              >
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(0 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(72 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(144 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(216 12 12)"
+                />
+                <path
+                  d="M12 12 C 8.6 11.2, 6.6 8.2, 7.3 5.3 C 7.7 3.7, 9.1 2.8, 10.3 3.6 L 12 5.4 L 13.7 3.6 C 14.9 2.8, 16.3 3.7, 16.7 5.3 C 17.4 8.2, 15.4 11.2, 12 12 Z"
+                  transform="rotate(288 12 12)"
+                />
+              </g>
+              <circle
+                class="fill-accent-strong/45"
+                cx="12"
+                cy="12"
+                r="1.6"
+              />
+            </svg>
+          </div>
+          <div>
+            <b
+              class="block text-sm"
+            >
+              Thus Spoke
+            </b>
+            <span
+              class="text-ink-muted block text-xs tracking-[0.1em] uppercase"
+            >
+              Zakura
+            </span>
+          </div>
+        </div>
+        <nav
+          class="grid w-full grid-cols-3 gap-1.5 md:grid-cols-1"
+        >
+          <a
+            aria-current="page"
+            class="hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px] bg-accent-soft text-accent-strong border-accent border-l-2 font-semibold"
+            data-discover="true"
+            href="/wallet"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-wallet-cards size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3 11h3.75a2 2 0 0 1 1.6.8l.45.6a4 4 0 0 0 6.4 0l.45-.6a2 2 0 0 1 1.6-.8H21"
+              />
+              <path
+                d="M3 7h18"
+              />
+              <rect
+                height="18"
+                rx="2"
+                width="18"
+                x="3"
+                y="3"
+              />
+            </svg>
+            Wallet
+          </a>
+          <a
+            class="text-ink-muted hover:bg-accent-soft flex cursor-pointer items-center gap-2.5 rounded-xs px-2.5 py-2 text-left text-[13px] transition-colors max-md:flex-col max-md:justify-center max-md:gap-0.5 max-md:text-[11px]"
+            data-discover="true"
+            href="/explorer"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-box size-4"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+              />
+              <path
+                d="m3.3 7 8.7 5 8.7-5"
+              />
+              <path
+                d="M12 22V12"
+              />
+            </svg>
+            Explorer
+          </a>
+          <a
+            class=[32...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/wallet/AccountIdentity.test.tsx:111:25
+    109|     await screen.findByText(accounts[1].unified_address, { exact: true…
+    110|     act(() => client.setQueryData(queryKeys.accounts, accounts.map((ac…
+    111|     expect(await screen.findByText('uregtest1updatedaccount2', { exact…
+       |                         ^
+    112|     expect(screen.queryByText(accounts[1].unified_address, { exact: tr…
+    113|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  04:12:44
+   Duration  10.95s (tests 95%, environment 2%, transform 1%, import 1%)
+

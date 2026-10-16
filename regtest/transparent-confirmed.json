@@ -1,0 +1,93 @@
+{
+  "payment": {
+    "id": "b51a5d0b-19b2-4518-aae7-dbb07ddbe8b3",
+    "kind": "send",
+    "from_account": 2,
+    "to_account": 3,
+    "to_address": null,
+    "source_pool": "transparent",
+    "destination_pool": "transparent",
+    "amount_zatoshi": 5000000,
+    "txid": "d43279bd0a9c296f9a680c5ec53e1e10d9ba59e02515292e32c85accf0ef1432",
+    "block_hash": "5825b17ad434266b1e40535c19d08a7ca94c700379864b2359b60d65b396ed5f",
+    "status": "confirmed",
+    "created_at": "2026-10-16 22:49:23",
+    "last_error": null
+  },
+  "transaction": {
+    "txid": "d43279bd0a9c296f9a680c5ec53e1e10d9ba59e02515292e32c85accf0ef1432",
+    "version": 6,
+    "height": 107,
+    "blockhash": "5825b17ad434266b1e40535c19d08a7ca94c700379864b2359b60d65b396ed5f",
+    "confirmations": 1,
+    "vin": [
+      {
+        "scriptPubKey": {
+          "addresses": [
+            "tmF3CKFqQ68GdisHK3D9S8pMty7a7Fr2wiN"
+          ],
+          "asm": "OP_DUP OP_HASH160 3a69019671bae36172e2abe930f58f84466d77f5 OP_EQUALVERIFY OP_CHECKSIG",
+          "hex": "76a9143a69019671bae36172e2abe930f58f84466d77f588ac",
+          "reqSigs": 1,
+          "type": "pubkeyhash"
+        },
+        "scriptSig": {
+          "asm": "304502210081c3b74009ff55e8784974ac07379d4c2e23c855342ed10b50fa635506ac34b1022014687ad110e3872d65420a4f7695f5bbfb62a3b7d7768f74fc91df213eb07aa4[ALL] 02daf6adfdf2036ac52ad8375453fd183d74428a6e345c35d8a004bfe98a9d6fa1",
+          "hex": "48304502210081c3b74009ff55e8784974ac07379d4c2e23c855342ed10b50fa635506ac34b1022014687ad110e3872d65420a4f7695f5bbfb62a3b7d7768f74fc91df213eb07aa4012102daf6adfdf2036ac52ad8375453fd183d74428a6e345c35d8a004bfe98a9d6fa1"
+        },
+        "sequence": 4294967295,
+        "txid": "3aca5560bc7b75ea3d903ade467b2c18193af62e0929256b907238208d77d4e1",
+        "valueZat": 10000000,
+        "vout": 0
+      }
+    ],
+    "vout": [
+      {
+        "n": 0,
+        "scriptPubKey": {
+          "addresses": [
+            "tmRmiMusmfipcUmWeQ4YUVc6rKtckdd2aV3"
+          ],
+          "asm": "OP_DUP OP_HASH160 b024d0bdecc858f320f6d89d24a666f2a6fd3639 OP_EQUALVERIFY OP_CHECKSIG",
+          "hex": "76a914b024d0bdecc858f320f6d89d24a666f2a6fd363988ac",
+          "reqSigs": 1,
+          "type": "pubkeyhash"
+        },
+        "value": 0.05,
+        "valueZat": 5000000
+      }
+    ]
+  },
+  "height": 107,
+  "balances": [
+    {
+      "id": 1,
+      "ironwood_zatoshi": 489985000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 2,
+      "ironwood_zatoshi": 4985000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 3,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 5000000
+    },
+    {
+      "id": 4,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 5,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    }
+  ],
+  "same_key_replay_unchanged": true,
+  "matched_input_account": 2,
+  "matched_output_account": 3,
+  "publication_note": "Selected transaction fields retained; raw transaction bytes and shielded bundle proof/ciphertext omitted for readability."
+}

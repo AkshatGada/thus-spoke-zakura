@@ -1,0 +1,16 @@
+{
+  "fixture_cleanup": {
+    "resources": [
+      "qa-356-fd12ac2b",
+      "qa-356-fd12ac2b-chain",
+      "qa-356-fd12ac2b-lightwalletd-data",
+      "qa-356-fd12ac2b-zakura",
+      "qa-356-fd12ac2b-lightwalletd",
+      "qa-356-fd12ac2b-app"
+    ],
+    "failures": []
+  },
+  "pre_existing_containers_preserved": 17,
+  "missing": [],
+  "free_gib": 74.89
+}

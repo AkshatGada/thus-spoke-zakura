@@ -1,0 +1,32 @@
+{
+  "height": 107,
+  "wallet_ready": "ready",
+  "balances": [
+    {
+      "id": 1,
+      "ironwood_zatoshi": 489985000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 2,
+      "ironwood_zatoshi": 4985000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 3,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 5000000
+    },
+    {
+      "id": 4,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 5,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    }
+  ],
+  "unchanged_after_ui": true
+}
