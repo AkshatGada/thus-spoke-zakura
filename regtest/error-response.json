@@ -1,0 +1,9 @@
+{
+  "http_status": 500,
+  "body": {
+    "error": {
+      "message": "Zakura getrawmempool failed",
+      "status": 500
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "transaction": "5e669b7383f92aade8120cf576ac0bf8cdd77bb2fb95e211386d717d15739d2f",
+  "empty_state_checked": true,
+  "arrival_without_navigation_or_height_change": true,
+  "pending_link_opened": true,
+  "pending_detail_confirmations": 0,
+  "pending_detail_block_label": "Pending",
+  "mine_dialog_default_blocks": 1,
+  "mining_completed": true,
+  "confirmed_detail_confirmations": 1,
+  "confirmed_detail_block": 106,
+  "removed_from_pending_list": true,
+  "mempool_error_visible": true,
+  "error_not_shown_as_empty": true,
+  "retry_recovered": true,
+  "mobile_width": 390,
+  "mobile_body_width": 375,
+  "mobile_client_width": 375,
+  "mobile_heading_width": 137.625,
+  "mobile_heading_scroll_width": 138,
+  "viewport_reset": true
+}

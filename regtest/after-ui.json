@@ -1,0 +1,47 @@
+{
+  "mempool": {
+    "transactions": []
+  },
+  "node_height": 106,
+  "block_hash": "3bc05eb57904c0e3b5995c718ff0b3142dcbfdc98d1c36d67736202f6767bffd",
+  "wallet_ready": "ready",
+  "balances": [
+    {
+      "id": 1,
+      "ironwood_zatoshi": 489990000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 2,
+      "ironwood_zatoshi": 10000000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 3,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 4,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 5,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    }
+  ],
+  "mining_job": {
+    "completed_blocks": 1,
+    "error": null,
+    "hashes": [
+      "3bc05eb57904c0e3b5995c718ff0b3142dcbfdc98d1c36d67736202f6767bffd"
+    ],
+    "id": "30efe492-5a4c-4c94-bccb-f81ffbadfccf",
+    "progress_uncertain": false,
+    "requested_blocks": 1,
+    "state": "completed"
+  },
+  "error_recovery_preserved_chain_and_balances": true
+}

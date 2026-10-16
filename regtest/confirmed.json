@@ -1,0 +1,85 @@
+{
+  "payment": {
+    "id": "b3d881d6-8146-4544-ab62-804093c209bd",
+    "kind": "send",
+    "from_account": 1,
+    "to_account": 2,
+    "to_address": null,
+    "source_pool": "ironwood",
+    "destination_pool": "ironwood",
+    "amount_zatoshi": 10000000,
+    "txid": "5e669b7383f92aade8120cf576ac0bf8cdd77bb2fb95e211386d717d15739d2f",
+    "block_hash": "3bc05eb57904c0e3b5995c718ff0b3142dcbfdc98d1c36d67736202f6767bffd",
+    "status": "confirmed",
+    "created_at": "2026-10-16 22:13:04",
+    "last_error": null
+  },
+  "block_height": 106,
+  "block_hash": "3bc05eb57904c0e3b5995c718ff0b3142dcbfdc98d1c36d67736202f6767bffd",
+  "height_delta": 1,
+  "initial_balances": [
+    {
+      "id": 1,
+      "ironwood_zatoshi": 500000000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 2,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 3,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 4,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 5,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    }
+  ],
+  "final_balances": [
+    {
+      "id": 1,
+      "ironwood_zatoshi": 489990000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 2,
+      "ironwood_zatoshi": 10000000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 3,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 4,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 5,
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    }
+  ],
+  "same_key_replay_unchanged": true,
+  "counters": {
+    "blocked_auto_mines": 31,
+    "manual_mines": 1,
+    "mempool_faults": 0
+  },
+  "app_image": "sha256:e330466b199cb15c530dac6ecc50f09944db884a7a44ff8da6d63eb44000b178",
+  "assets": {
+    "index-BBuGY_RW.css": "7c5939f300b6e681d9851af0144c7649ca6ff3932e80950fd5d883fa442bdde7",
+    "index-DDa1omDl.js": "78e988d0b02789c8e69233a4406e405bfed223af90f41f9b24353ccf84b57894"
+  }
+}

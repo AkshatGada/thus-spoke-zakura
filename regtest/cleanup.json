@@ -1,0 +1,11 @@
+{
+  "resources": [
+    "qa-354-ecd1cea9",
+    "qa-354-ecd1cea9-chain",
+    "qa-354-ecd1cea9-lightwalletd-data",
+    "qa-354-ecd1cea9-zakura",
+    "qa-354-ecd1cea9-lightwalletd",
+    "qa-354-ecd1cea9-app"
+  ],
+  "failures": []
+}

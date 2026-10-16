@@ -1,0 +1,18 @@
+$ npm test --prefix web
+
+> thus-spoke-zakura-web@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.1 <checkout>/web
+
+Not implemented: navigation to another Document
+
+ Test Files  34 passed (34)
+      Tests  357 passed (357)
+   Start at  03:37:46
+   Duration  15.59s (tests 55%, environment 26%, import 9%, transform 6%, setup 4%)
+
+    Isolate  34 workers spawned · ~525ms startup each (spawn + environment, per file)
+             at least ~848ms faster with isolate: false — reuses workers across files instead of one per file
+

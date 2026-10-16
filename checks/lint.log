@@ -1,0 +1,5 @@
+$ npm run lint --prefix web
+
+> thus-spoke-zakura-web@0.1.0 lint
+> eslint .
+

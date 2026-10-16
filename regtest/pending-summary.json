@@ -1,0 +1,29 @@
+{
+  "note": "Selected fields from the saved pending receipt; raw signed transaction bytes and proof data omitted for readability. Zakura omits confirmations for this pending transaction.",
+  "payment": {
+    "id": "b3d881d6-8146-4544-ab62-804093c209bd",
+    "kind": "send",
+    "from_account": 1,
+    "to_account": 2,
+    "to_address": null,
+    "source_pool": "ironwood",
+    "destination_pool": "ironwood",
+    "amount_zatoshi": 10000000,
+    "txid": "5e669b7383f92aade8120cf576ac0bf8cdd77bb2fb95e211386d717d15739d2f",
+    "block_hash": null,
+    "status": "broadcast",
+    "created_at": "2026-10-16 22:13:04",
+    "last_error": "automatically mining and synchronizing payment: automatically mining payment blocks: Zakura generate failed: RPC error -32000: injected local QA failure: generate"
+  },
+  "height": 105,
+  "block_hash": "0cb69479bf442b17e4d92361e4d669603d70dcad96fb17943e0a6b52e5e1029c",
+  "transaction": {
+    "txid": "5e669b7383f92aade8120cf576ac0bf8cdd77bb2fb95e211386d717d15739d2f",
+    "version": 6
+  },
+  "counter_snapshot": {
+    "blocked_auto_mines": 1,
+    "manual_mines": 0,
+    "mempool_faults": 0
+  }
+}
