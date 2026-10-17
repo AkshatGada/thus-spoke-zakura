@@ -19,7 +19,7 @@
   "checks.json": "53cc62c686557a5e781bbc89610427211a81419fc89de8f2f6cad6bbc8107a4d",
   "cleanup.json": "21e7e990fb892bf28326affb7c8c4e76ecdc2751ccbf13afa6d0dd10a5e8b92f",
   "clippy.log": "af71e7704ad2b6d5adfd1df58fbe0dffb10c3764331a74344700bb90b3aab6a0",
-  "fmt.log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "lifecycle-isolated.log": "82ea890c9e434e851bd3990a891bd7203daecf4eb2a15faef61acc4c552d510f",
   "live-cli.py": "1339fd6f5f6d2026750d881b97a4cbf04821e3d5bfb8ecd16a5c2a2c7c0a148e",
   "regression-before.log": "73fc9b7e097b7424d5e53448cb725f973e8f0d2391502da5e24acdd7499fbe7e",
