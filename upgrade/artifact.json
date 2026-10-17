@@ -1,0 +1,17 @@
+{
+  "run": "qa-spent-c3b4a896bf",
+  "apis": {
+    "a": "http://127.0.0.1:53408",
+    "b": "http://127.0.0.1:53215"
+  },
+  "rpc": "http://127.0.0.1:53070",
+  "app_image": "sha256:dc0df16562a6af4931c035e17615f68f016db75c85d1423e89b7e32f86e06856",
+  "lightwalletd_image": "sha256:01f2ba37c0905e7f31439060a1f317769dfbf139caecad95499306794d451583",
+  "node_image": "sha256:bf53c178e9549217fce7cfaa21efc85c478129ba6dc5307d55640514affeb0ac",
+  "source_base": "9e89a4dd16361353bdfb325e9309a0359bb505ee",
+  "server_source_changed": true,
+  "primary_binary": "<workspace>/qa/transparent-spend-sync/ths-server-final",
+  "primary_binary_sha256": "f48f1cacbedf4c06e98bfbbe4c49241097680bc8492b58e30fdc971a7ece0d44",
+  "stage": "upgrade",
+  "database_clients_are_separate": true
+}

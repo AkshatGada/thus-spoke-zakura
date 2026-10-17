@@ -1,0 +1,8 @@
+{
+  "cause": "Shared Cargo target allowed the baseline build to overwrite the executable while the patched build fingerprint remained fresh.",
+  "invalid_acceptance_log": "live-green-final.log",
+  "invalid_log_had_compilation": false,
+  "wrong_binary_sha256": "d49a5ec656b95d87bb624a16e19c975ac3c3d768e127b0a637327d3752d55ff8",
+  "wrong_binary_has_new_migration_marker": false,
+  "remedy": "Separate task-owned target, cargo clean -p ths-server, fresh patched compilation, binary hash and migration-marker checks; repeat actual Regtest."
+}

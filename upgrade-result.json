@@ -1,0 +1,22 @@
+{
+  "verified": true,
+  "before_transparent_zatoshi": 10000000,
+  "after_transparent_zatoshi": 0,
+  "same_canonical_height_without_mining": 107,
+  "matching_checkpoint_hash": "8d6f2852cfa67cc84972fd9ba1f900ab9f602c9e665e72e4d331296e664c6335",
+  "extra_block_and_restart_height": 108,
+  "pinned_final_binary_sha256": "f48f1cacbedf4c06e98bfbbe4c49241097680bc8492b58e30fdc971a7ece0d44",
+  "protected_containers": 17,
+  "cleanup": {
+    "remaining": {
+      "container": "",
+      "volume": "",
+      "network": ""
+    },
+    "failures": [],
+    "protected_count": 17,
+    "missing_protected": [],
+    "free_gib": 58.91
+  },
+  "scope": "offline assertions over actual final live Regtest evidence, not a further live run"
+}

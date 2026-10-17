@@ -1,0 +1,10 @@
+{
+  "expected_regression_failure": true,
+  "exit": 101,
+  "exact_assertion": "ready wallet retained externally spent transparent output: 10000000",
+  "production_base": "9e89a4dd16361353bdfb325e9309a0359bb505ee",
+  "identical_live_test_sha256": {
+    "crates/ths-server/tests/activity_recovery.rs": "6f49913860cacd9580d5c0b798c2b8b2a56c942827a2c30ab3acb32a542f67ad",
+    "crates/ths-server/tests/scenarios/activity_recovery/transparent_history.rs": "b4b4d2845db9815b3f4a8e6a3a113879b21da341535d6c3a0c1db82e9d468aad"
+  }
+}

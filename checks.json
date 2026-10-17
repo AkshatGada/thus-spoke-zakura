@@ -1,0 +1,139 @@
+{
+  "rust_and_docs": {
+    "fmt-final": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.0,
+      "free_gib": 59.86,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "clippy-final": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 7.02,
+      "free_gib": 59.86,
+      "log_sha256": "ec4567e505abc59189eab3cfdf2d7128028297cded7886ad43b8b2f227ae0942"
+    },
+    "workspace-tests": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit": 0,
+      "seconds": 237.94,
+      "free_gib": 59.01,
+      "log_sha256": "eccd143beb3731bcf2c58d2a8885b1598bd844fd327c30498f4d013a18860453"
+    },
+    "release-distribution-tests": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "thus-spoke-zakura",
+        "--features",
+        "release-distribution",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit": 0,
+      "seconds": 54.2,
+      "free_gib": 58.94,
+      "log_sha256": "338094422dd5ecc50ead34dadbd58d3cddb88729e53ecb9659ae3a3b4bb27cf5"
+    },
+    "book-links": {
+      "command": [
+        "python3",
+        "tests/book_links.py"
+      ],
+      "exit": 0,
+      "seconds": 1.0,
+      "free_gib": 58.94,
+      "log_sha256": "7956a511a03475a69b3055674417b78cf86b5d3b37085e1d266f7bb7eda06f54"
+    },
+    "diff-check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.0,
+      "free_gib": 58.94,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "web": [
+    {
+      "name": "web-lint",
+      "command": [
+        "npm",
+        "run",
+        "lint",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "seconds": 4.77
+    },
+    {
+      "name": "web-format",
+      "command": [
+        "npm",
+        "run",
+        "format:check",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "seconds": 0.76
+    },
+    {
+      "name": "web-tests",
+      "command": [
+        "npm",
+        "run",
+        "test",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "seconds": 16.07
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "seconds": 2.25
+    }
+  ]
+}

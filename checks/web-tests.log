@@ -1,0 +1,17 @@
+
+> thus-spoke-zakura-web@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.1 <workspace>/worktrees/transparent-spend-sync/web
+
+Not implemented: navigation to another Document
+
+ Test Files  32 passed (32)
+      Tests  345 passed (345)
+   Start at  08:04:04
+   Duration  15.73s (tests 56%, environment 27%, import 8%, transform 5%, setup 4%)
+
+    Isolate  32 workers spawned · ~597ms startup each (spawn + environment, per file)
+             at least ~873ms faster with isolate: false — reuses workers across files instead of one per file
+

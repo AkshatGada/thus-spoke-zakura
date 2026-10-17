@@ -1,0 +1,21 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "ths-server",
+    "--test",
+    "activity_recovery",
+    "external_transparent_spend_reconciles_after_restart",
+    "--",
+    "--ignored",
+    "--exact",
+    "--nocapture"
+  ],
+  "exit": 0,
+  "seconds": 67.28,
+  "free_gib": 58.91,
+  "log_sha256": "2220d8ea9316216fbde8e393582c579a8e78f163786b1827593f0da20dd3f5b2"
+}

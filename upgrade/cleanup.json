@@ -1,0 +1,11 @@
+{
+  "remaining": {
+    "container": "",
+    "volume": "",
+    "network": ""
+  },
+  "failures": [],
+  "protected_count": 17,
+  "missing_protected": [],
+  "free_gib": 58.91
+}

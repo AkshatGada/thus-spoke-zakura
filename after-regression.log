@@ -1,0 +1,10 @@
+   Compiling ths-server v0.3.0 (<workspace>/worktrees/transparent-spend-sync/crates/ths-server)
+    Finished `test` profile [unoptimized] target(s) in 24.24s
+     Running tests/activity_recovery.rs (<workspace>/qa/transparent-spend-sync/target/debug/deps/activity_recovery-8b77e3dd85fd4059)
+
+running 1 test
+Confirmed external transparent-only spend, unspent control, restart, same-height reorg and distinct replacement spend at height 110
+test external_transparent_spend_reconciles_after_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 50 filtered out; finished in 42.31s
+

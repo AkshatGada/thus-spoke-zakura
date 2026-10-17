@@ -1,0 +1,40 @@
+    Finished `test` profile [unoptimized] target(s) in 0.38s
+     Running unittests src/lib.rs (<workspace>/qa/payment-output-retry/target/debug/deps/ths_server-67b3c528e2b8224a)
+
+running 15 tests
+test reconcile::transparent_history::tests::canonical_history_validation_retries_missing_unmined_or_reorged_transactions ... ok
+test reconcile::transparent_history::tests::empty_successful_history_keeps_unspent_outputs_and_advances_coverage ... ok
+test reconcile::transparent_history::tests::completed_history_imports_external_transparent_only_spends_at_both_range_boundaries ... ok
+test reconcile::transparent_history::tests::fork_bad_transaction_or_deadline_never_advances_history_coverage ... ok
+test reconcile::transparent_history::tests::stale_compact_checkpoint_retries_before_requesting_or_importing_history ... ok
+test wallet::transparent_history::tests::external_transparent_only_spend_updates_sdk_balances_without_deleting_receipts ... ok
+test wallet::transparent_history::tests::failed_history_cursor_commit_stays_retryable_and_rejects_wrong_checkpoints ... ok
+test wallet::transparent_history::tests::history_coverage_is_public_incremental_and_survives_reopen ... ok
+test wallet::transparent_history::tests::history_decoder_rejects_unmined_out_of_range_malformed_and_trailing_data ... ok
+test wallet::transparent_history::tests::import_is_atomic_and_cannot_run_ahead_of_compact_scanning ... ok
+test wallet::transparent_history::tests::legacy_wallet_gets_empty_history_coverage_without_changing_old_migrations ... ok
+test wallet::transparent_history::tests::newly_generated_receiver_does_not_inherit_another_receivers_history_coverage ... ok
+test reconcile::transparent_history::tests::interrupted_stream_keeps_coverage_behind_committed_chunks_and_retries_idempotently ... ok
+test wallet::transparent_history::tests::pending_spend_does_not_hide_a_canonical_replacement_or_change_a_payment_journal ... ok
+test wallet::transparent_history::tests::rewind_couples_history_and_sdk_state_and_allows_a_replacement_spend ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 249 filtered out; finished in 10.04s
+
+     Running unittests src/main.rs (<workspace>/qa/payment-output-retry/target/debug/deps/ths_server-ca9f3087c2ee89cb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/activity_recovery.rs (<workspace>/qa/payment-output-retry/target/debug/deps/activity_recovery-8b77e3dd85fd4059)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 51 filtered out; finished in 0.00s
+
+     Running tests/entrypoint.rs (<workspace>/qa/payment-output-retry/target/debug/deps/entrypoint-2483b4bf6e089f5b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+

@@ -1,0 +1,68 @@
+{
+  "accounts_a": [
+    {
+      "id": 1,
+      "transparent_address": "tmBsTi2xWTjUdEXnuTceL7fecEQKeWaPDJd",
+      "ironwood_zatoshi": 489985000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 2,
+      "transparent_address": "tmF3CKFqQ68GdisHK3D9S8pMty7a7Fr2wiN",
+      "ironwood_zatoshi": 4985000,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 3,
+      "transparent_address": "tmRmiMusmfipcUmWeQ4YUVc6rKtckdd2aV3",
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 5000000
+    },
+    {
+      "id": 4,
+      "transparent_address": "tmDGByq79K3SJdCt3aGCTjYquv45Nf3ExaL",
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    },
+    {
+      "id": 5,
+      "transparent_address": "tmAsyD1UHXiomo6na1z7b1UtMSpFJArgPv9",
+      "ironwood_zatoshi": 0,
+      "transparent_zatoshi": 0
+    }
+  ],
+  "status_a": {
+    "instance": "qa-spent-c3b4a896bf-a",
+    "node": {
+      "chain": "test",
+      "blocks": 108,
+      "bestblockhash": "225881aaff6252dcf6a3eb2f49bddfe89887b70b3ffc779d7bcc9801d8433e69",
+      "verificationprogress": 1.0
+    },
+    "account_count": 5,
+    "auto_mine": true,
+    "network": "Regtest",
+    "endpoints": {
+      "dashboard": "http://127.0.0.1:8080",
+      "zakura_rpc": "http://127.0.0.1:18232",
+      "lightwalletd": "http://127.0.0.1:9067",
+      "p2p": "127.0.0.1:18233"
+    },
+    "wallet_sync": {
+      "state": "ready",
+      "fully_scanned_height": 108,
+      "fully_scanned_hash": "225881aaff6252dcf6a3eb2f49bddfe89887b70b3ffc779d7bcc9801d8433e69",
+      "observed_height": 108,
+      "observed_hash": "225881aaff6252dcf6a3eb2f49bddfe89887b70b3ffc779d7bcc9801d8433e69",
+      "last_success_at": 1792203738,
+      "error": null
+    },
+    "node_height": 108,
+    "lightwalletd_height": 108,
+    "wallet_scanned_height": 108,
+    "wallet_sync_state": "ready",
+    "settled": true,
+    "settlement_blocker": null
+  },
+  "gettxout": null
+}

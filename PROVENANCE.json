@@ -1,0 +1,53 @@
+{
+  "code_commit": "3e0194bdc810f37b5a50600b3c5b15027234e889",
+  "base": "9e89a4dd16361353bdfb325e9309a0359bb505ee",
+  "audited_tree": "c84803400e995461bca2da56797aa249cd7c5a64",
+  "final_binary_sha256": "f48f1cacbedf4c06e98bfbbe4c49241097680bc8492b58e30fdc971a7ece0d44",
+  "binary_source": "Fresh native Cargo server build in isolated target; not an app-image rebuild.",
+  "node_and_lightwalletd": {
+    "run": "qa-spent-c3b4a896bf",
+    "apis": {
+      "a": "http://127.0.0.1:53408",
+      "b": "http://127.0.0.1:53215"
+    },
+    "rpc": "http://127.0.0.1:53070",
+    "app_image": "sha256:dc0df16562a6af4931c035e17615f68f016db75c85d1423e89b7e32f86e06856",
+    "lightwalletd_image": "sha256:01f2ba37c0905e7f31439060a1f317769dfbf139caecad95499306794d451583",
+    "node_image": "sha256:bf53c178e9549217fce7cfaa21efc85c478129ba6dc5307d55640514affeb0ac",
+    "source_base": "9e89a4dd16361353bdfb325e9309a0359bb505ee",
+    "server_source_changed": true,
+    "primary_binary": "<workspace>/qa/transparent-spend-sync/ths-server-final",
+    "primary_binary_sha256": "f48f1cacbedf4c06e98bfbbe4c49241097680bc8492b58e30fdc971a7ece0d44",
+    "stage": "upgrade",
+    "database_clients_are_separate": true
+  },
+  "source_sha256": {
+    "book/development.md": "81c124212597edb3b3e7442f333502c01cc4b621925d47b571d015ba67159122",
+    "book/mining-and-sync.md": "4beb2f8644922a779d9f26f456a70803621eed4e2e2cdd8edd0082585c221c92",
+    "crates/ths-server/src/reconcile.rs": "3fde82c8097b35b9f092ecf827d5d9f279b8141e6ab7a4172565a29f88221254",
+    "crates/ths-server/src/reconcile/transparent_history.rs": "94b2a86f2c84a3bbb3ea0612f20f9d72dc5e65c49d373c7a1dc2e147271ef7de",
+    "crates/ths-server/src/wallet.rs": "e9986375da65c99da70e2e929c08b4e7baed0bf59e282c1f575824c036da7a88",
+    "crates/ths-server/src/wallet/transparent_history.rs": "422d410eb4cbba694fb5f51b0fa12c9b13ce75241a1f0f90faa640ca00932f91",
+    "crates/ths-server/tests/activity_recovery.rs": "6f49913860cacd9580d5c0b798c2b8b2a56c942827a2c30ab3acb32a542f67ad",
+    "crates/ths-server/tests/scenarios/activity_recovery/transparent_history.rs": "b4b4d2845db9815b3f4a8e6a3a113879b21da341535d6c3a0c1db82e9d468aad",
+    "crates/ths-server/tests/support/transparent_history.rs": "0e07a5fe8243d9901ea93aafe19a5c6d0695f88b8e6d81bdb10b343c9a552354",
+    "crates/ths-server/tests/unit/reconcile/transparent_history/tests.rs": "e5a7620ef2077994262edc3ecf09c6deec9df851d6e88646e94e9249269489ec",
+    "crates/ths-server/tests/unit/wallet/transparent_history/tests.rs": "88ca5509b5d4aaaa627db779b985a35ed06054a8cf39eae658b8f89ad3d8d066"
+  },
+  "audit_model": "Astra medium",
+  "audit_tests": 15,
+  "workspace_tests": {
+    "passed": 575,
+    "ignored": 25
+  },
+  "release_tests": {
+    "passed": 279,
+    "ignored": 4
+  },
+  "web_tests": 345,
+  "red_and_green_test_identity": {
+    "crates/ths-server/tests/activity_recovery.rs": "6f49913860cacd9580d5c0b798c2b8b2a56c942827a2c30ab3acb32a542f67ad",
+    "crates/ths-server/tests/scenarios/activity_recovery/transparent_history.rs": "b4b4d2845db9815b3f4a8e6a3a113879b21da341535d6c3a0c1db82e9d468aad"
+  },
+  "run_scope": "Real isolated local Regtest. Separate wallet files; no third-party wallet import UI tested. Auditor inspected live evidence and independently ran focused tests; no independent Docker rerun."
+}

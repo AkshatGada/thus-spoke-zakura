@@ -1,0 +1,33 @@
+{
+  "protected_count": 17,
+  "missing_protected": [],
+  "running_container_count": 17,
+  "owned_harness_resources_remaining": {
+    "qa-spent-9e2f2f788f": {
+      "container": [],
+      "volume": [],
+      "network": []
+    },
+    "qa-spent-1fef61b08d": {
+      "container": [],
+      "volume": [],
+      "network": []
+    },
+    "qa-spent-c3b4a896bf": {
+      "container": [],
+      "volume": [],
+      "network": []
+    },
+    "qa-spent-b9e618d996": {
+      "container": [],
+      "volume": [],
+      "network": []
+    }
+  },
+  "recovery_fixture_resources_remaining": {
+    "container": [],
+    "volume": [],
+    "network": []
+  },
+  "free_gib": 58.91
+}

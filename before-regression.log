@@ -1,0 +1,16 @@
+   Compiling ths-server v0.3.0 (<workspace>/qa/transparent-spend-sync/before-checkout/crates/ths-server)
+    Finished `test` profile [unoptimized] target(s) in 11.84s
+     Running tests/activity_recovery.rs (<workspace>/qa/payment-output-retry/target/debug/deps/activity_recovery-8b77e3dd85fd4059)
+
+running 1 test
+Error: ready wallet retained externally spent transparent output: 10000000
+test external_transparent_spend_reconciles_after_restart ... FAILED
+
+failures:
+
+failures:
+    external_transparent_spend_reconciles_after_restart
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 50 filtered out; finished in 26.57s
+
+error: test failed, to rerun pass `-p ths-server --test activity_recovery`
