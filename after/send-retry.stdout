@@ -1,0 +1,14 @@
+{
+  "id": "c314bef7-0c7d-448a-b7a7-844839e131f5",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": 2,
+  "to_address": null,
+  "source_pool": "ironwood",
+  "destination_pool": "transparent",
+  "amount_zatoshi": 1000000,
+  "txid": "45a383d733b0550e0889453ebd0f5fe8ab7ddc998780ec62615dc0a6bcc5edbc",
+  "block_hash": "3c029c3958e38c0f700cbf316f3a894d7d558af28ffaa0eaba984a95eee56412",
+  "status": "confirmed",
+  "last_error": null
+}

@@ -1,0 +1,888 @@
+   Compiling rand_core v0.10.1
+   Compiling subtle v2.6.1
+   Compiling getrandom v0.2.17
+   Compiling getrandom v0.4.3
+   Compiling typenum v1.20.1
+   Compiling zeroize v1.9.0
+   Compiling log v0.4.34
+   Compiling serde_core v1.0.229
+   Compiling tracing-core v0.1.36
+   Compiling fnv v1.0.7
+   Compiling tracing v0.1.44
+   Compiling generic-array v0.14.7
+   Compiling scopeguard v1.2.0
+   Compiling lock_api v0.4.14
+   Compiling crypto-common v0.1.7
+   Compiling arrayvec v0.7.8
+   Compiling parking_lot_core v0.9.12
+   Compiling serde v1.0.229
+   Compiling parking_lot v0.12.5
+   Compiling indexmap v2.14.2
+   Compiling futures-sink v0.3.34
+   Compiling tokio v1.53.1
+   Compiling constant_time_eq v0.4.2
+   Compiling memuse v0.2.2
+   Compiling tempfile v3.27.0
+   Compiling zerofrom v0.1.8
+   Compiling yoke v0.8.3
+   Compiling slab v0.4.12
+   Compiling tap v1.0.1
+   Compiling wyz v0.5.1
+   Compiling radium v0.7.0
+   Compiling blake2b_simd v1.0.5
+   Compiling rand_core v0.6.4
+   Compiling funty v2.0.0
+   Compiling bitvec v1.1.1
+   Compiling tokio-util v0.7.19
+   Compiling zerovec v0.11.8
+   Compiling crossbeam-utils v0.8.23
+   Compiling libm v0.2.16
+   Compiling futures-util v0.3.34
+   Compiling num-traits v0.2.19
+   Compiling crossbeam-epoch v0.9.21
+   Compiling ff v0.14.0
+   Compiling regex-syntax v0.8.11
+   Compiling httpdate v1.0.3
+   Compiling h2 v0.4.19
+   Compiling group v0.14.0
+   Compiling crossbeam-deque v0.8.8
+   Compiling zerocopy v0.8.58
+   Compiling futures-channel v0.3.34
+   Compiling hyper v1.11.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling rayon-core v1.13.0
+   Compiling tinystr v0.8.4
+   Compiling chacha20 v0.10.2
+   Compiling cpufeatures v0.2.17
+   Compiling lazy_static v1.5.0
+   Compiling mime v0.3.17
+   Compiling rand v0.10.2
+   Compiling icu_locale_core v2.3.0
+   Compiling hyper-util v0.1.20
+   Compiling rayon v1.12.0
+   Compiling rand_chacha v0.3.1
+   Compiling zerotrie v0.2.5
+   Compiling potential_utf v0.1.6
+   Compiling wait-timeout v0.2.1
+   Compiling bit-vec v0.8.0
+   Compiling quick-error v1.2.3
+   Compiling icu_collections v2.3.0
+   Compiling bit-set v0.8.0
+   Compiling rusty-fork v0.3.1
+   Compiling icu_provider v2.3.1
+   Compiling rand v0.8.8
+   Compiling tower v0.5.3
+   Compiling rand_xorshift v0.3.0
+   Compiling block-buffer v0.10.4
+   Compiling hex v0.4.3
+   Compiling unarray v0.1.4
+   Compiling proptest v1.6.0
+   Compiling serde_urlencoded v0.7.1
+   Compiling thiserror v2.0.20
+   Compiling digest v0.10.7
+   Compiling serde_json v1.0.151
+   Compiling maybe-rayon v0.1.1
+   Compiling inout v0.1.4
+   Compiling hybrid-array v0.2.3
+   Compiling rustls-pki-types v1.15.1
+   Compiling static_assertions v1.1.0
+   Compiling ring v0.17.14
+   Compiling zakura-pasta-curves v2.2.0
+   Compiling incrementalmerkletree v0.8.2
+   Compiling cipher v0.4.4
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling corez v0.1.1
+   Compiling idna_adapter v1.2.2
+   Compiling rustls-webpki v0.103.15
+   Compiling block-buffer v0.11.0-rc.3
+   Compiling crypto-common v0.2.0-rc.1
+   Compiling zakura-pairing v2.2.0
+   Compiling uuid v1.26.1
+   Compiling digest v0.11.0-pre.9
+   Compiling rustls v0.23.44
+   Compiling idna v1.1.0
+   Compiling sha2 v0.10.9
+   Compiling bech32 v0.11.1
+   Compiling nonempty v0.11.0
+   Compiling bs58 v0.5.1
+   Compiling mime_guess v2.0.5
+   Compiling url v2.5.8
+   Compiling zakura-bls12-381 v2.2.0
+   Compiling tokio-rustls v0.26.5
+   Compiling webpki-roots v1.0.9
+   Compiling universal-hash v0.5.1
+   Compiling http-range-header v0.4.2
+   Compiling opaque-debug v0.3.1
+   Compiling poly1305 v0.8.0
+   Compiling tower-http v0.6.11
+   Compiling hyper-rustls v0.27.9
+   Compiling zakura-jubjub v2.2.0
+   Compiling secp256k1-sys v0.10.1
+   Compiling zcash_encoding v0.4.0
+   Compiling chacha20 v0.9.1
+   Compiling incrementalmerkletree-testing v0.3.0
+   Compiling num-integer v0.1.47
+   Compiling zcash_spec v0.2.1
+   Compiling aead v0.5.2
+   Compiling zip32 v0.2.1
+   Compiling chacha20poly1305 v0.10.1
+   Compiling num-bigint v0.4.8
+   Compiling zakura-protocol v2.2.0
+   Compiling clap v4.6.6
+   Compiling secp256k1 v0.29.1
+   Compiling reqwest v0.12.28
+   Compiling zakura-reddsa v2.2.0
+   Compiling hmac v0.13.0-pre.4
+   Compiling ripemd v0.2.0-pre.4
+   Compiling sha2 v0.11.0-pre.4
+   Compiling cbc v0.1.2
+   Compiling f4jumble v0.1.1
+   Compiling zakura-halo2-legacy-pdqsort v2.2.0
+   Compiling zakura-halo2-proofs v2.2.0
+   Compiling zakura-address v2.2.0
+   Compiling fpe v0.6.1
+   Compiling bip32 v0.6.0-pre.1
+   Compiling zcash_note_encryption v0.4.2
+   Compiling zakura-halo2-poseidon v2.2.0
+   Compiling zakura-sinsemilla v2.2.0
+   Compiling aes v0.8.4
+   Compiling sha1 v0.10.7
+   Compiling ripemd v0.1.3
+   Compiling bounded-vec v0.9.0
+   Compiling blake2s_simd v1.0.5
+   Compiling zcash_script v0.4.5
+   Compiling zakura-bellman v2.2.0
+   Compiling zakura-halo2-gadgets v2.2.0
+   Compiling zakura-redjubjub v2.2.0
+   Compiling zakura-sapling-crypto v2.2.0
+   Compiling zakura-transparent v2.2.0
+   Compiling zakura-equihash v2.2.0
+   Compiling zakura-orchard v2.2.0
+   Compiling axum-core v0.5.6
+   Compiling serde_path_to_error v0.1.20
+   Compiling matchit v0.8.4
+   Compiling deranged v0.5.8
+   Compiling powerfmt v0.2.0
+   Compiling time v0.3.55
+   Compiling zakura-primitives v2.2.0
+   Compiling axum v0.8.9
+   Compiling pin-project v1.1.13
+   Compiling petgraph v0.7.1
+   Compiling hyper-timeout v0.5.2
+   Compiling regex-automata v0.4.18
+   Compiling tokio-stream v0.1.19
+   Compiling minimal-lexical v0.2.1
+   Compiling wagyu-zcash-parameters-3 v0.2.0
+   Compiling wagyu-zcash-parameters-6 v0.2.0
+   Compiling hashbrown v0.12.3
+   Compiling wagyu-zcash-parameters-1 v0.2.0
+   Compiling wagyu-zcash-parameters-5 v0.2.0
+   Compiling wagyu-zcash-parameters-2 v0.2.0
+   Compiling wagyu-zcash-parameters-4 v0.2.0
+   Compiling wagyu-zcash-parameters v0.2.0
+   Compiling indexmap v1.9.3
+   Compiling nom v7.1.3
+   Compiling thiserror v1.0.69
+   Compiling tonic v0.14.6
+   Compiling daggy v0.8.1
+   Compiling libsqlite3-sys v0.35.0
+   Compiling prost v0.14.4
+   Compiling hashlink v0.10.0
+   Compiling cobs v0.3.0
+   Compiling spin v0.9.9
+   Compiling secrecy v0.8.0
+   Compiling nanorand v0.7.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling byteorder v1.5.0
+   Compiling fallible-iterator v0.3.0
+   Compiling tinyvec_macros v0.1.1
+   Compiling tinyvec v1.13.2
+   Compiling rusqlite v0.37.0
+   Compiling zakura-keys v2.2.0
+   Compiling flume v0.11.1
+   Compiling postcard v1.1.3
+   Compiling tonic-prost v0.14.6
+   Compiling serde_with v3.23.0
+   Compiling schemerz v0.2.0
+   Compiling zakura-zip321 v2.2.0
+   Compiling zakura-proofs v2.2.0
+   Compiling shardtree v0.7.1
+   Compiling hex-conservative v0.2.3
+   Compiling semver v1.0.28
+   Compiling assert_matches v1.5.0
+   Compiling zakura-pir-enhance-types v0.0.1-rc0
+   Compiling zakura-client-backend v0.1.0-rc7
+   Compiling bitcoin_hashes v0.14.101
+   Compiling zakura-pczt v0.1.0-rc4
+   Compiling schemerz-rusqlite v0.370.0
+   Compiling unicode-normalization v0.1.25
+   Compiling matchers v0.2.0
+   Compiling regex v1.13.1
+   Compiling rand_distr v0.6.0
+   Compiling sharded-slab v0.1.7
+   Compiling tracing-log v0.2.0
+   Compiling thread_local v1.1.10
+   Compiling nu-ansi-term v0.50.3
+   Compiling async-stream v0.3.6
+   Compiling zakura-client-sqlite v0.1.0-rc7
+   Compiling tracing-subscriber v0.3.23
+   Compiling bip39 v2.2.2
+   Compiling thus-spoke-zakura v0.3.0 (<workspace>/worktrees/payment-output-retry/crates/ths-cli)
+   Compiling ths-server v0.3.0 (<workspace>/worktrees/payment-output-retry/crates/ths-server)
+    Finished `test` profile [unoptimized] target(s) in 58.60s
+     Running unittests src/lib.rs (<workspace>/qa/payment-output-retry/target/debug/deps/ths_server-47dd99cad7f34449)
+
+running 249 tests
+test api::explorer::tests::copies_the_ironwood_root_from_the_treestate ... ok
+test api::error::tests::parse_errors_use_the_same_language_as_handler_checks ... ok
+test api::error::tests::a_dry_treasury_is_reported_as_unavailable ... ok
+test api::error::tests::an_unaffordable_send_is_reported_as_a_client_error ... ok
+test api::explorer::tests::leaves_coinbase_inputs_untouched ... ok
+test api::explorer::tests::copies_spent_output_address_and_value_onto_vin ... ok
+test api::error::tests::api_error_logs_full_rpc_error_chain ... ok
+test api::error::tests::api_error_logs_skip_explorer_misses ... ok
+test api::error::tests::api_error_logs_skip_expected_failures ... ok
+test api::dashboard::tests::a_missing_shell_is_reported_rather_than_served_empty ... ok
+test api::payments::tests::absent_and_null_memos_differ_from_an_explicit_empty_memo ... ok
+test api::dashboard::tests::real_assets_are_still_served ... ok
+test api::dashboard::tests::missing_assets_and_unknown_api_paths_stay_404 ... ok
+test api::dashboard::tests::client_side_routes_return_the_shell ... ok
+test api::explorer::tests::explorer_rejects_malformed_addresses_before_reaching_zakura ... ok
+test api::mining::tests::mining_legacy_waits_for_sync_and_preserves_full_response ... ok
+test api::payments::tests::address_faucet_resolver_propagates_store_errors ... ok
+test api::mining::tests::mining_survives_http_disconnect_and_discarded_async_response ... ok
+test api::error::tests::request_parsing_errors_use_the_json_error_envelope ... ok
+test api::mining::tests::mining_legacy_sync_failure_uses_error_envelope ... ok
+test api::payments::tests::address_faucet_dispatches_internal_transparent_and_unified ... ok
+test api::mining::tests::mining_routes_validate_admit_replay_and_preserve_capacity_history ... ok
+test api::payments::tests::a_valid_replay_returns_the_original_without_the_wallet_or_network ... ok
+test api::payments::tests::any_present_memo_is_rejected_for_a_transparent_destination ... ok
+test api::explorer::tests::explorer_reports_unknown_blocks_and_transactions_as_404 ... ok
+test api::payments::tests::address_faucet_dispatch_preserves_external_behavior ... ok
+test api::explorer::tests::search_does_not_mask_a_block_node_failure_as_404 ... ok
+test api::payments::tests::address_faucet_internal_errors_do_not_fall_back ... ok
+test api::payments::tests::memos_are_bounded_by_utf8_bytes ... ok
+test api::payments::tests::memos_must_not_end_with_nul ... ok
+test api::payments::tests::faucet_accepts_only_regtest_unified_and_transparent_addresses ... ok
+test api::events::tests::a_lagging_event_stream_asks_the_client_to_resync ... ok
+test api::payments::tests::address_faucet_rejects_missing_or_invalid_operation_keys_before_network_work ... ok
+test api::payments::tests::address_faucet_response_preserves_pending_and_confirmed_status ... ok
+test api::payments::tests::address_faucet_status_reads_internal_and_external_records ... ok
+test api::payments::tests::address_faucet_rejects_dust_for_unified_transparent_fallbacks ... ok
+test api::payments::tests::address_faucet_retries_preserve_the_client_key ... ok
+test api::payments::tests::payment_uri_accepts_transparent_and_external_regtest_addresses ... ok
+test api::payments::tests::payment_uri_rejects_unsupported_requests ... ok
+test api::payments::tests::rejects_orchard_as_a_pool_after_nu6_3 ... ok
+test api::payments::tests::reserves_the_treasury_account_from_public_operations ... ok
+test api::payments::tests::payment_uri_resolves_a_development_account_with_amount_and_memo ... ok
+test api::payments::tests::payment_admission_replays_enforce_fingerprints_and_cross_store_identity ... ok
+test api::payments::tests::confirmed_address_faucet_replays_without_sending_a_second_payment ... ok
+test api::payments::tests::invalid_sends_are_rejected_before_replay_or_synchronization ... ok
+test api::payments::tests::send_validation_allows_same_account_only_between_pools ... ok
+test api::payments::tests::send_validation_requires_a_matching_pool_for_an_address ... ok
+test api::payments::tests::address_faucet_validation_precedes_dispatch ... ok
+test api::payments::tests::send_addresses_map_to_their_pool ... ok
+test api::payments::tests::address_faucet_resolves_only_published_user_addresses ... ok
+test api::payments::tests::all_payment_posts_admit_without_execution_while_payments_are_busy ... ok
+test api::payments::tests::payment_request_endpoint_omits_an_optional_amount_and_memo ... ok
+test api::status::tests::public_dashboard_endpoint_uses_configured_port_or_loopback_default ... ok
+test api::status::tests::settlement_allows_a_canonical_tip_before_the_wallet_birthday ... ok
+test api::status::tests::settlement_reports_the_first_blocking_component ... ok
+test api::status::tests::settlement_requires_all_three_components_at_the_same_tip ... ok
+test api::status::tests::settlement_waits_for_startup_after_the_components_agree ... ok
+test api::payments::tests::payment_request_endpoint_rejects_invalid_accounts_amounts_and_memos ... ok
+test api::payments::tests::payment_request_endpoint_round_trips_an_exact_amount_and_memo ... ok
+test bootstrap::config::tests::activates_ironwood_with_a_lockbox_marker ... ok
+test bootstrap::config::tests::configures_the_hidden_treasury_as_miner ... ok
+test bootstrap::config::tests::prints_mnemonic_and_exactly_five_user_account_keys ... ok
+test bootstrap::config::tests::selects_nu7_from_the_first_regtest_block ... ok
+test bootstrap::tests::background_task_exit_stops_http_and_cancels_siblings ... ok
+test bootstrap::tests::background_task_panic_stops_http_and_cancels_siblings ... ok
+test api::status::tests::activity_lookup_by_key_returns_every_state_regardless_of_list_limits ... ok
+test bootstrap::tests::fatal_startup_error_stops_http_and_cancels_siblings ... ok
+test bootstrap::tests::invalid_rpc_endpoints_remain_fatal_during_startup ... ok
+test bootstrap::tests::startup_does_not_cancel_a_slow_preparation_or_release_its_guard ... ok
+test api::payments::tests::send_rejects_invalid_pools_before_wallet_work ... ok
+test api::status::tests::health_and_chain_effects_wait_until_startup_finishes ... ok
+test bootstrap::tests::startup_retries_only_typed_transient_failures ... ok
+test bootstrap::tests::startup_retries_past_two_minutes_with_a_delay_then_recovers ... ok
+test api::payments::tests::send_quote_rejects_unknown_pools_as_bad_requests ... ok
+test api::status::tests::health_checks_current_dependencies_without_requiring_settlement ... ok
+test api::status::tests::non_loopback_host_cannot_access_the_seed_endpoint ... ok
+test bootstrap::tests::startup_recovers_when_rpc_disconnects_before_response_headers ... ok
+test bootstrap::tests::startup_recovers_when_rpc_disconnects_during_the_response_body ... ok
+test chain::tests::depth_retains_the_requested_ancestor_and_respects_both_floors ... ok
+test chain::tests::chain_changes_reject_other_networks_before_any_mutation ... ok
+test chain::tests::keep_txs_retries_dependencies_and_reports_invalid_transactions ... ok
+test api::payments::tests::internal_address_faucet_replays_preserve_activity_after_store_reopen ... ok
+test chain::tests::failed_mutations_reconcile_without_retrying_chain_changes ... ok
+test chain::tests::regtest_is_identified_despite_the_shared_testnet_rpc_label ... ok
+test chain::tests::reorg_replaces_exactly_the_suffix_and_preserves_the_payment_identity ... ok
+test api::status::tests::status_counts_accounts_without_reading_the_seed ... ok
+test db::accounts::tests::creates_user_accounts_and_hidden_treasury ... ok
+test db::activity::tests::broadcast_reconciliation_preserves_a_concurrent_confirmation ... ok
+test chain::tests::rollback_does_not_mine_and_invalid_depth_does_not_mutate ... ok
+test db::activity::tests::clearing_payment_errors_requires_the_exact_pending_state_and_transaction ... ok
+test db::activity::tests::concurrent_claims_create_one_payment ... ok
+test db::accounts::tests::fresh_stores_derive_the_same_development_accounts ... ok
+test db::activity::tests::confirm_rejects_an_empty_block_hash ... ok
+test db::activity::tests::discarding_a_failed_prepare_removes_its_claim ... ok
+test db::accounts::tests::existing_store_exports_user_viewing_keys_without_migration ... ok
+test api::status::tests::stored_status_reads_have_no_wallet_or_node_side_effects ... ok
+test db::activity::tests::memo_is_part_of_the_claimed_payment ... ok
+test db::activity::tests::payment_errors_and_failures_never_overwrite_newer_state ... ok
+test db::activity::tests::prepared_payment_can_be_reset_after_expiry ... ok
+test db::activity::tests::external_recipient_survives_recovery_and_shares_the_faucet_key_namespace ... ok
+test db::activity::tests::recording_prepared_bytes_backfills_a_legacy_broadcast ... ok
+test db::activity::tests::recording_the_same_prepared_transaction_converges ... ok
+test db::activity::tests::records_a_send_to_an_external_address ... ok
+test db::activity::tests::prepared_transaction_survives_restart ... ok
+test db::activity::tests::records_real_transfer_without_mutating_balances ... ok
+test db::activity::tests::rejects_reusing_a_key_for_a_different_payment ... ok
+test db::activity::tests::repaired_preparation_never_replaces_a_newer_or_terminal_transaction ... ok
+test db::activity::tests::reusing_a_key_conflicts_on_every_payment_field ... ok
+test db::activity::tests::send_and_faucet_validate_their_own_requests ... ok
+test db::activity::tests::stale_retry_does_not_reset_a_replacement_transaction ... ok
+test db::activity::tests::unconfirmed_activities_skip_unprepared_and_confirmed_rows ... ok
+test db::activity::tests::unconfirming_blocks_preserves_internal_and_external_requests_and_signed_bytes ... ok
+test db::activity::tests::unconfirming_both_payment_collections_is_atomic ... ok
+test bootstrap::tests::complete_malformed_rpc_json_stops_http_during_startup ... ok
+test db::activity::tests::unresolved_intents_include_unprepared_claims_and_exclude_terminal_records ... ok
+test db::address_faucet::tests::address_faucet_errors_and_failures_never_overwrite_newer_state ... ok
+test db::address_faucet::tests::clearing_address_errors_requires_the_exact_pending_state_and_transaction ... ok
+test db::address_faucet::tests::concurrent_address_faucet_claims_share_one_operation ... ok
+test db::activity::tests::unresolved_external_sends_preserve_recipient_key_and_memo_after_reopen ... ok
+test db::schema::tests::existing_idempotency_tables_gain_a_memo_column ... ok
+test mining::tests::capacity_keeps_old_replays_and_history_without_eviction ... ok
+test mining::tests::chain_operation_excludes_new_mining_but_preserves_job_replays ... ok
+test mining::tests::concurrent_replay_has_one_worker_and_conflicts_are_rejected ... ok
+test db::address_faucet::tests::address_faucet_replay_survives_restart_and_rejects_conflicting_intents ... ok
+test chain::tests::accepted_broadcast_without_inclusion_is_reported_as_a_retention_failure ... ok
+test mining::tests::mining_continues_with_zero_receivers ... ok
+test mining::tests::mining_continues_without_request_receiver ... ok
+test mining::tests::mining_holds_chain_exclusion_through_wallet_synchronization ... ok
+test mining::tests::rpc_failure_preserves_acknowledged_count_without_retry ... ok
+test mining::tests::synchronization_failure_has_full_known_count ... ok
+test mining::tests::syncing_keeps_admission_busy ... ok
+test mining::tests::validates_blocks_and_keys ... ok
+test mining::tests::worker_panic_publishes_failure_and_releases_admission ... ok
+test db::schema::tests::migrates_activity_created_before_address_sends ... ok
+test db::schema::tests::restores_the_hidden_treasury_for_existing_stores ... ok
+test db::schema::tests::older_stores_gain_payment_errors_without_losing_claims ... ok
+test db::schema::tests::recipient_and_status_upgrades_preserve_errors_and_signed_payments_in_both_orders ... ok
+test api::payments::tests::same_account_cross_pool_replays_preserve_activity_and_identity ... ok
+test payments::confirmation::tests::apply_confirmation_uses_node_blockhash_not_a_generate_hash ... ok
+test chain::tests::admission_rejects_other_chain_work_and_http_disconnect_does_not_cancel ... ok
+test payments::confirmation::tests::confirmed_block_hash_requires_confirmations_and_blockhash ... ok
+test payments::confirmation::tests::payment_confirmation_cursor_survives_a_confirmed_record_leaving_the_set ... ok
+test payments::confirmation::tests::payment_confirmation_does_not_confirm_a_mempool_transaction_or_a_replacement ... ok
+test api::status::tests::health_returns_unavailable_when_lightwalletd_stalls ... ok
+test bootstrap::tests::stored_status_survives_repeated_rpc_response_disconnects ... ok
+test payments::confirmation::tests::payment_confirmation_pass_continues_after_unknown_or_unavailable_transactions ... ok
+test payments::confirmation::tests::payment_confirmation_pass_resumes_after_a_stalled_lookup_exhausts_budget ... ok
+test payments::confirmation::tests::stale_confirmation_does_not_confirm_a_replacement_transaction ... ok
+test mining::tests::mining_adapter_accepts_one_nonempty_rpc_hash_and_forwards_events ... ok
+test payments::attempt::tests::attempt_bounds_treasury_and_wallet_sync_serialization_waits ... ok
+test payments::attempt::tests::automatic_mining_waits_for_chain_operation_within_the_dispatch_budget ... ok
+test payments::execution::tests::payment_lifecycle_does_not_discard_after_recording_failure ... ok
+test payments::execution::tests::payment_lifecycle_prepares_again_after_expiry ... ok
+test payments::attempt::tests::expired_attempt_observes_preparation_and_keeps_guards_until_recording_finishes ... ok
+test payments::execution::tests::payment_lifecycle_returns_confirmed_replays_without_preparation ... ok
+test payments::execution::tests::payment_lifecycle_returns_failed_replays_without_preparation ... ok
+test payments::execution::tests::payment_lifecycle_returns_pending_after_confirmation_failure ... ok
+test payments::execution::tests::payment_lifecycle_submits_prepared_replays_without_preparation ... ok
+test payments::execution::tests::startup_funding_retries_the_original_key_and_signed_bytes_across_failure_windows ... ok
+test payments::confirmation::tests::payment_confirmation_loop_recovers_reopened_records_without_wallet_sync ... ok
+test payments::attempt::tests::startup_confirmation_keeps_its_stage_limit_while_dispatch_uses_remaining_time ... ok
+test payments::confirmation::tests::payment_confirmation_loop_survives_request_confirmation_cancellation ... ok
+test payments::execution::tests::failed_preparation_preserves_the_claim_and_records_the_error ... ok
+test payments::execution::tests::failed_recovery_keeps_a_claim_with_a_wallet_journal ... ok
+test payments::attempt::tests::automatic_mining_stages_share_the_remaining_attempt_budget ... ok
+test payments::progression::tests::progression_errors_are_recorded_against_post_transition_state ... ok
+test payments::confirmation::tests::canonical_payment_reads_share_the_remaining_attempt_deadline ... ok
+test payments::progression::tests::expired_wallet_journals_restore_both_server_rows_without_network ... ok
+test payments::progression::tests::dispatch_deadline_bounds_waiting_for_payment_serialization ... ok
+test payments::submission::tests::a_broadcast_error_is_success_when_the_transaction_is_known ... ok
+test payments::submission::tests::a_forgotten_broadcast_is_resubmitted_from_the_saved_bytes ... ok
+test payments::submission::tests::a_known_transaction_does_not_require_saved_bytes ... ok
+test payments::submission::tests::a_legacy_broadcast_recovers_bytes_from_the_wallet ... ok
+test payments::submission::tests::a_lookup_failure_does_not_broadcast_or_change_status ... ok
+test payments::submission::tests::a_transaction_seen_at_expiry_is_not_replaced ... ok
+test payments::submission::tests::address_faucet_reconciles_the_original_txid_after_a_lost_broadcast_response ... ok
+test payments::submission::tests::an_expired_missing_transaction_is_reset_for_preparation ... ok
+test payments::submission::tests::original_presence_accepts_zakura_mempool_responses_without_confirmations ... ok
+test payments::progression::tests::insufficient_send_is_terminal_for_same_key_but_a_new_key_can_retry ... ok
+test payments::progression::tests::insufficient_send_policy_waits_for_wallet_journal_and_checks_server_transaction ... ok
+test payments::progression::tests::insufficient_send_keeps_the_uncertain_original_lookup_error_pending ... ok
+test payments::submission::tests::queued_external_faucet_retry_preserves_its_payment_and_bytes ... ok
+test payments::submission::tests::queued_retry_keeps_the_original_payment_pending_until_confirmation ... ok
+test payments::submission::tests::retry_submits_the_same_prepared_transaction_after_a_lost_response ... ok
+test payments::submission::tests::zero_expiry_and_mempool_presence_retain_the_original_payment ... ok
+test payments::treasury::tests::insufficient_funds_discovers_only_the_needed_mature_reward_and_retries ... ok
+test reconcile::tests::one_attempt_deadline_is_shared_across_network_calls ... ok
+test payments::progression::tests::orphaned_requests_survive_restart_and_are_only_observed_not_reexecuted ... ok
+test reconcile::tests::scan_ranges_are_split_without_gaps ... ok
+test rpc::tests::call_gives_up_on_a_node_that_never_answers ... ok
+test rpc::tests::explicit_availability_statuses_are_retryable_without_a_json_rpc_body ... ok
+test rpc::tests::only_rpc_not_found_means_a_transaction_is_missing ... ok
+test mining::tests::mining_adapter_rejects_missing_empty_and_multiple_rpc_hashes ... ok
+test sync::tests::a_scan_behind_the_tip_publishes_only_while_it_is_canonical ... ok
+test payments::progression::tests::payment_lookup_uses_remaining_dispatch_time ... ok
+test payments::progression::tests::server_store_repairs_preparation_from_the_wallet_journal ... ok
+test payments::submission::tests::payment_presence_rejects_a_mismatched_transaction_identity ... ok
+test payments::progression::tests::slow_internal_lookup_does_not_starve_external_faucet_dispatch ... ok
+test payments::treasury::tests::deliberately_orphaned_startup_funding_is_not_reexecuted_or_required_again ... ok
+test reconcile::tests::same_height_and_lower_tip_reorgs_find_the_last_common_block ... ok
+test state::tests::account_reads_return_the_snapshot_without_contacting_lightwalletd ... ok
+test sync::tests::synchronization_failure_preserves_the_last_good_snapshot ... ok
+test sync::tests::publication_keeps_the_last_snapshot_unless_the_scan_reached_its_target ... ok
+test wallet::journal::tests::prepared_payment_journal_survives_reopen ... ok
+test payments::progression::tests::slow_journal_height_lookup_preserves_recovery_and_external_dispatch_across_passes ... ok
+test wallet::journal::tests::shielding_retirement_cannot_remove_a_newer_journal_or_user_payment ... ok
+test wallet::payments::tests::ironwood_quote_max_is_zero_when_balance_is_below_the_fee ... ok
+test wallet::payments::tests::canonical_balances_ignore_unmined_effects_without_deleting_them ... ok
+test wallet::payments::tests::ironwood_quote_max_is_zero_when_balance_only_covers_the_fee ... ok
+test wallet::payments::tests::ironwood_quote_reports_fee_and_max ... ok
+test wallet::payments::tests::ironwood_quote_reports_zero_max_for_an_empty_account ... ok
+test payments::confirmation::tests::startup_confirmation_preserves_fatal_mining_errors_and_normal_post_pending_behavior ... ok
+test wallet::payments::tests::replacement_authorization_rechecks_the_journal_inside_the_worker ... ok
+test wallet::payments::tests::replacement_authorization_requires_the_original_journal ... ok
+test wallet::payments::tests::matching_replacement_authorization_keeps_the_journal_after_proposal_failure ... ok
+test wallet::payments::tests::scanned_expiry_does_not_authorize_replacing_a_journal ... ok
+test wallet::payments::tests::shielding_stale_replacement_authorization_returns_the_newer_journal ... ok
+test wallet::payments::tests::shielding_scanned_expiry_preserves_retained_signed_bytes_without_authorization ... ok
+test wallet::submission::tests::only_the_exact_already_queued_rejection_is_accepted ... ok
+test wallet::payments::tests::transparent_quote_max_is_zero_when_balance_is_below_the_fee ... ok
+test wallet::payments::tests::transparent_quote_reports_fee_and_max ... ok
+test wallet::payments::tests::transparent_quote_to_transparent_reports_fee_and_max ... ok
+test wallet::payments::tests::transparent_quote_reports_zero_max_for_dust ... ok
+test wallet::recovery::tests::cursor_at_birthday_floor_can_rewind_before_the_first_scan ... ok
+test wallet::tests::invalid_lightwalletd_configuration_is_fatal_before_connection ... ok
+test wallet::recovery::tests::known_spender_must_be_stored_and_spend_the_exact_reward_output ... ok
+test wallet::recovery::tests::failed_cursor_commit_rolls_back_reward_import_and_reopen_keeps_progress ... ok
+test wallet::submission::tests::wallet_broadcast_accepts_the_lightwalletd_queued_response ... ok
+test wallet::recovery::tests::rewind_updates_sdk_and_cursor_atomically ... ok
+test wallet::tests::delayed_has_prepared_does_not_block_the_async_executor ... ok
+test wallet::tests::delayed_prepare_does_not_block_the_async_executor ... ok
+test wallet::tests::delayed_recover_prepared_does_not_block_the_async_executor ... ok
+test wallet::tests::delayed_send_quote_does_not_block_the_async_executor ... ok
+test wallet::tests::operation_cancelled_while_waiting_for_the_wallet_never_runs ... ok
+test wallet::tests::payment_errors_stay_typed_through_the_wallet_worker ... ok
+test wallet::tests::prepared_payment_is_recorded_after_its_caller_is_dropped ... ok
+test wallet::submission::tests::broadcast_times_out_after_lightwalletd_accepts_the_request ... ok
+test wallet::tests::started_operation_finishes_after_its_caller_is_cancelled ... ok
+test wallet::tests::startup_does_not_retry_a_panicked_wallet_worker ... ok
+test wallet::tests::startup_keeps_serialization_while_the_real_preparation_worker_records_signed_bytes ... ok
+test wallet::tests::subtree_roots_reject_malformed_data_and_route_by_protocol ... ok
+test payments::submission::tests::saved_original_inclusion_wins_over_expiry_only_on_the_selected_chain ... ok
+test wallet::treasury_sync_tests::database_work_does_not_block_the_async_executor ... ok
+test wallet::treasury_sync_tests::height_wait_deadline_includes_stalled_lightwalletd_calls ... ok
+test wallet::treasury_sync_tests::routine_transparent_queries_exclude_the_treasury ... ok
+test wallet::treasury_sync_tests::wallet_migration_installs_only_the_treasury_cursor ... ok
+test api::payments::tests::payment_admission_rejects_transparent_dust_before_claiming ... ok
+test api::payments::tests::payment_replays_use_stored_status_and_exact_encoded_location ... ok
+test bootstrap::tests::stored_payments_are_served_after_restart_while_dependencies_are_unavailable has been running for over 60 seconds
+test bootstrap::tests::stored_payments_are_served_after_restart_while_dependencies_are_unavailable ... ok
+
+test result: ok. 249 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 140.49s
+
+     Running unittests src/main.rs (<workspace>/qa/payment-output-retry/target/debug/deps/ths_server-8402c447afd3843a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/activity_recovery.rs (<workspace>/qa/payment-output-retry/target/debug/deps/activity_recovery-e2c66cdf19382949)
+
+running 50 tests
+test address_faucet_retry_after_server_restart_pays_each_destination_once ... ignored, requires Docker and prepared regtest images
+test background_recovers_prepare_interrupted_before_store_recording ... ignored, requires Docker and prepared regtest images
+test broadcast_recovers_after_auto_mine_failure ... ignored, requires Docker and prepared regtest images
+test concurrent_identical_sends_have_one_chain_effect ... ignored, requires Docker and prepared regtest images
+test disconnected_payment_preparation_keeps_the_original_transaction ... ignored, requires Docker and prepared regtest images
+test expired_unseen_send_replaces_once_under_the_original_key ... ignored, requires Docker and prepared regtest images
+test external_address_faucet_behavior_is_unchanged ... ignored, requires Docker and prepared regtest images
+test external_address_send_progresses_without_caller_replay ... ignored, requires Docker and prepared regtest images
+test insufficient_send_stays_failed_after_restart_and_later_funding ... ignored, requires Docker and prepared regtest images
+test internal_address_faucet_recovers_after_auto_mine_failure ... ignored, requires Docker and prepared regtest images
+test internal_address_faucets_record_confirmed_activity ... ignored, requires Docker and prepared regtest images
+test large_reward_history_keeps_treasury_faucet_responsive ... ignored, requires Docker and prepared regtest images
+test prepare_rolls_back_constructed_transaction_when_journal_write_fails ... ignored, requires Docker and prepared regtest images
+test queued_external_faucet_retry_survives_lost_response_and_restart ... ignored, requires Docker and prepared regtest images
+test queued_send_retry_survives_lost_response_and_restart ... ignored, requires Docker and prepared regtest images
+test reorg_and_rollback_preserve_canonical_wallet_and_payment_state ... ignored, requires Docker and prepared regtest images
+test restart_recovers_claim_before_preparation_without_payment_post ... ignored, requires Docker and prepared regtest images
+test same_account_cross_pool_round_trip_is_replay_safe ... ignored, requires Docker and prepared regtest images
+test startup_funding_retry_after_auto_mine_failure_has_one_payout ... ignored, requires Docker and prepared regtest images
+test startup_outage_serves_stored_status_and_recovers ... ignored, requires Docker and prepared regtest images
+test support::regtest::tests::regtest_stack_is_sync_for_the_spawned_live_scenario ... ok
+test support::regtest::tests::deadline_exhaustion_names_the_fixture_phase ... ok
+test support::regtest::tests::reporter_is_available_before_setup_and_emits_only_allowlisted_fields ... ok
+test support::regtest::tests::rootless_docker_not_found_output_is_absent ... ok
+test support::regtest::tests::published_loopback_port_requires_one_valid_loopback_binding ... ok
+test support::regtest::tests::exact_not_found_inspection_is_absent_for_each_owned_resource_kind ... ok
+test support::regtest::tests::other_nonzero_inspection_failure_retains_cleanup_ownership ... ok
+test support::regtest::tests::daemon_unavailable_inspection_retains_cleanup_ownership ... ok
+test support::regtest::tests::executor_timeout_inspection_retains_cleanup_ownership ... ok
+test support::regtest::tests::permission_denied_inspection_retains_cleanup_ownership ... ok
+test support::regtest::tests::failed_partial_startup_cleans_exact_names_in_reverse_order_and_retries ... ok
+test support::regtest::tests::local_cancellation_runs_explicit_reverse_order_cleanup ... ok
+test support::regtest::tests::failed_docker_removal_is_retained_while_later_cleanup_continues ... ok
+test support::regtest::tests::reporter_marks_failed_explicit_cleanup_with_cleanup_route ... ok
+test support::regtest::tests::exited_services_abort_readiness_and_recovery_without_raw_process_output ... ok
+test support::payment_proxy::tests::queued_proxy_returns_exact_response_over_grpc ... ok
+test tests::cleanup_error_does_not_mask_a_scenario_error ... ok
+test tests::timestamp_normalization_excludes_only_the_immediate_send_timestamp ... ok
+test support::payment_proxy::tests::lost_response_proxy_finishes_upstream_without_returning_to_client ... ok
+test tests::test_local_cancellation_aborts_awaits_then_records_cleanup ... ok
+test support::tests::request_json_uses_get_without_a_body_and_post_with_json ... ok
+test support::rpc_proxy::tests::separate_proxy_instances_do_not_consume_each_others_faults ... ok
+test support::rpc_proxy::tests::proxy_forwards_unarmed_requests_and_consumes_only_matching_generate_once ... ok
+test support::tests::malformed_and_non_success_responses_are_safe_and_not_retryable ... ok
+test support::rpc_proxy::tests::startup_outage_affects_readiness_only_and_can_be_released ... ok
+test support::rpc_proxy::tests::proxy_preserves_upstream_errors_and_bounds_transport_shutdown ... ok
+test support::tests::rpc_validates_result_id_error_and_missing_result ... ok
+test support::tests::complete_read_timeout_is_retryable_only_by_a_read_deadline_loop ... ok
+test support::rpc_proxy::tests::startup_mining_fault_waits_for_broadcast_bytes_and_is_consumed_once ... ok
+test support::regtest::tests::synchronous_command_output_retains_child_stdout ... ok
+
+test result: ok. 30 passed; 0 failed; 20 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/entrypoint.rs (<workspace>/qa/payment-output-retry/target/debug/deps/entrypoint-0517ea0a5b984a32)
+
+running 2 tests
+test help_and_invalid_arguments_return_typed_errors ... ok
+test binary_preserves_help_and_parse_error_exits ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.59s
+
+     Running unittests src/lib.rs (<workspace>/qa/payment-output-retry/target/debug/deps/thus_spoke_zakura-620838d8383e4c60)
+
+running 268 tests
+test commands::wallet::tests::sends_are_checked_before_contacting_the_environment ... ok
+test commands::wallet::tests::sends_allow_the_same_account_only_between_pools ... ok
+test args::tests::memo_values_follow_the_server_contract ... ok
+test args::amount::tests::parses_exact_zec_amounts ... ok
+test args::tests::parses_wallet_balances_with_global_json_after_subcommand ... ok
+test commands::tests::parses_wait_and_run_without_reusing_the_default_name ... ok
+test args::tests::parses_wallet_activity_flags_and_rejects_invalid_limits ... ok
+test commands::tests::checks_for_updates_only_during_human_readable_startup ... ok
+test args::tests::parses_log_line_selection ... ok
+test args::tests::shield_and_unshield_accept_exactly_one_amount_mode ... ok
+test args::tests::parses_reorg_and_rollback_depths ... ok
+test lifecycle::tests::production_policy_matches_the_lifecycle_contract ... ok
+test lifecycle::tests::failed_termination_and_reaping_preserve_both_errors ... ok
+test lifecycle::tests::termination_reserve_is_inside_the_allowance ... ok
+test args::tests::wallet_send_takes_a_payment_uri_instead_of_a_destination ... ok
+test args::tests::separates_building_from_starting ... ok
+test runtime::docker_lifecycle_tests::lost_create_reply_retains_uncertainty_and_recovery ... ignored, requires a disposable Docker daemon and prepared runtime images
+test runtime::docker_lifecycle_tests::lost_remove_reply_is_verified_against_daemon_state ... ignored, requires a disposable Docker daemon
+test runtime::docker_lifecycle_tests::lost_start_reply_is_cleaned_up_and_can_be_retried ... ignored, requires a disposable Docker daemon and prepared runtime images
+test runtime::docker_lifecycle_tests::partial_cleanup_preserves_foreign_resources_and_other_instances ... ignored, requires a disposable Docker daemon
+test args::tests::wallet_send_and_shield_accept_bounded_memos ... ok
+test lifecycle::tests::spawn_failure_does_not_invent_a_helper ... ok
+test lifecycle::tests::capture_setup_failure_reaps_the_child ... ok
+test lifecycle::tests::unverified_reap_retains_the_helper_and_is_not_success ... ok
+test lifecycle::tests::clipping_does_not_restart_the_phase_budget ... ok
+test lifecycle::tests::capture_failure_preserves_failed_kill_and_reap_diagnostics ... ok
+test lifecycle::tests::nonzero_exit_keeps_diagnostics_and_reaps_the_helper ... ok
+test lifecycle::tests::cancellation_terminates_an_active_helper ... ok
+test lifecycle::tests::null_output_still_reaps_a_finite_helper ... ok
+test lifecycle::tests::cancellation_after_child_exit_interrupts_descendant_held_pipe_collection ... ok
+test runtime::lifecycle_tests::cleanup::mismatched_or_invalid_recovery_refuses_destructive_cleanup ... ok
+test runtime::lifecycle_tests::cleanup::mismatched_volume_identity_refuses_destructive_recovery ... ok
+test lifecycle::tests::timeout_kills_and_reaps_within_the_operation_allowance ... ok
+test lifecycle::tests::captured_output_is_capped_while_both_streams_are_drained ... ok
+test runtime::lifecycle_tests::cleanup::success_after_the_phase_deadline_is_still_a_timeout ... ok
+test lifecycle::tests::hold_pipe_reaps_the_direct_child_without_waiting_for_the_grandchild ... ok
+test runtime::lifecycle_tests::images::cancelled_image_check_is_not_classified_as_a_missing_image ... ok
+test runtime::lifecycle_tests::readiness::cancellation_before_send_does_not_open_a_probe ... ok
+test runtime::lifecycle_tests::cleanup::recorded_identity_is_removed_without_adopting_a_replacement ... ok
+test runtime::lifecycle_tests::readiness::failed_or_malformed_inspection_is_not_reported_as_stopped ... ok
+test runtime::lifecycle_tests::readiness::oversized_body_is_rejected_before_waiting_for_the_rest ... ok
+test runtime::lifecycle_tests::readiness::health_accepts_statuses_below_400_and_rejects_503 ... ok
+test runtime::lifecycle_tests::readiness::hanging_diagnostic_logs_expire_on_the_readiness_budget ... ok
+test runtime::lifecycle_tests::cleanup::hanging_removal_leaves_the_termination_reserve_for_helpers ... ok
+test runtime::lifecycle_tests::readiness::shutdown_during_retry_uses_the_original_readiness_deadline ... ok
+test runtime::lifecycle_tests::images::missing_image_advice_requires_a_completed_listing ... ok
+test runtime::lifecycle_tests::cleanup::cleanup_journal_write_failure_is_reported_and_retained ... ok
+test runtime::lifecycle_tests::readiness::slow_body_cannot_restart_an_http_attempt ... ok
+test runtime::lifecycle_tests::readiness::stopped_container_keeps_log_failures_with_the_readiness_error ... ok
+test runtime::lifecycle_tests::readiness::shutdown_during_an_active_http_attempt_is_observed ... ok
+test runtime::lifecycle_tests::cleanup::acknowledged_removal_without_verified_absence_is_incomplete ... ok
+test runtime::lifecycle_tests::readiness::zakura_tip_accepts_a_string_result_and_rejects_malformed_bodies ... ok
+test runtime::lifecycle_tests::cleanup::cleanup_of_a_legacy_instance_records_failed_removal ... ok
+test runtime::lifecycle_tests::cleanup::fresh_cleanup_budget_ignores_a_latched_shutdown ... ok
+test runtime::lifecycle_tests::cleanup::missing_recorded_identity_is_absence_when_the_listing_omits_it ... ok
+test runtime::lifecycle_tests::cleanup::failed_inspect_of_a_listed_identity_stays_uncertain ... ok
+test runtime::lifecycle_tests::readiness::stalled_connect_headers_and_body_stay_inside_one_attempt ... ok
+test runtime::lifecycle_tests::cleanup::recorded_volume_identity_does_not_delete_a_foreign_replacement ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_rewrite_keeps_the_previous_record_and_skips_the_mutation ... ok
+test runtime::lifecycle_tests::cleanup::reloaded_unresolved_helpers_prevent_verified_cleanup ... ok
+test runtime::lifecycle_tests::cleanup::same_name_container_and_volume_are_both_removed ... ok
+test runtime::lifecycle_tests::readiness::run_deadline_interrupts_a_blocked_network_create ... ok
+test runtime::lifecycle_tests::readiness::repeated_probes_share_one_phase_deadline ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_preserves_full_ownership_preflight ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_reconciliation_write_failure_keeps_the_valid_record ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_never_adopts_a_replacement ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_inspection_error_keeps_dependencies ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_create_retries_cleanup_after_docker_recovers ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_identity_listing_failure_keeps_dependencies ... ok
+test runtime::lifecycle_tests::recovery_suite::pending_mutation_survives_without_endpoint_metadata ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_keeps_dependencies_until_absence_is_verified ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_reconciliation_survives_an_interrupted_cleanup ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_start_foreign_ownership_and_identity_conflicts_keep_dependencies ... ok
+test runtime::lifecycle_tests::recovery_suite::unidentified_create_stays_uncertain_for_either_snapshot ... ok
+test runtime::lifecycle_tests::recovery_suite::lost_failed_start_removal_reply_preserves_diagnostics_and_releases_dependencies ... ok
+test runtime::lifecycle_tests::recovery_suite::missing_failed_start_identity_releases_dependencies ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_create_reconciles_an_already_missing_container ... ok
+test runtime::lifecycle_tests::recovery_suite::pending_known_start_is_reconciled_after_reload ... ok
+test runtime::lifecycle_tests::recovery_suite::unresolved_create_does_not_match_a_start ... ok
+test runtime::lifecycle_tests::recovery_suite::pending_known_create_is_reconciled_without_a_resource_summary ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_allocation_cleanup_gates_dependencies_on_reconciliation_write ... ok
+test runtime::tests::client::activity_history_forwards_only_explicit_limits ... ok
+test runtime::tests::client::activity_output_distinguishes_routes_and_hides_the_treasury ... ok
+test runtime::tests::client::activity_output_handles_empty_history_and_preserves_json_fields ... ok
+test runtime::lifecycle_tests::recovery_suite::resolved_start_does_not_release_shared_unresolved_create_dependencies ... ok
+test runtime::tests::client::balances_print_each_account_without_viewing_keys ... ok
+test runtime::tests::client::balances_reject_syncing_and_failed_wallets_before_reading_accounts ... ok
+test runtime::tests::client::balances_require_a_ready_wallet_before_reading_accounts ... ok
+test runtime::tests::client::chain_changes_do_not_retry_rejected_or_lost_responses ... ok
+test runtime::tests::client::chain_changes_forward_the_command_and_report_retention_failures_in_both_outputs ... ok
+test runtime::lifecycle_tests::recovery_suite::pending_start_identity_can_be_loaded_without_a_resource_summary ... ok
+test runtime::tests::client::expired_max_deadline_does_not_quote_submit_or_save_an_intent ... ok
+test runtime::tests::client::delayed_max_quote_respects_the_payment_deadline_without_saving_an_intent ... ok
+test runtime::tests::client::max_quote_errors_are_reported_without_submitting ... ok
+test runtime::lifecycle_tests::recovery_suite::unresolved_create_keeps_its_dependencies ... ok
+test runtime::lifecycle_tests::recovery_suite::uncertain_service_creates_record_every_mounted_dependency ... ok
+test runtime::tests::client::an_unresolved_submission_key_survives_for_the_next_invocation ... ok
+test runtime::tests::client::mine_keeps_the_journal_key_when_writing_the_json_result_fails ... ok
+test runtime::tests::client::a_dropped_poll_connection_is_retried_within_the_deadline ... ok
+test runtime::tests::client::mine_status_line_reports_progress_for_every_state ... ok
+test runtime::tests::client::max_send_quotes_then_submits_the_quoted_amount ... ok
+test runtime::tests::client::a_stalled_poll_times_out_within_the_deadline_instead_of_hanging ... ok
+test runtime::tests::client::max_send_retains_its_resolved_amount_after_a_result_write_error ... ok
+test runtime::tests::client::responses_decode_or_report_their_status_and_body ... ok
+test runtime::tests::client::refused_send_is_not_polled_and_keeps_its_key ... ok
+test runtime::tests::client::pending_max_send_reuses_its_quote_and_idempotency_key ... ok
+test runtime::tests::client::send_fingerprints_distinguish_every_field_including_an_empty_memo ... ok
+test runtime::tests::client::send_journal_failure_prevents_submission ... ok
+test runtime::lifecycle_tests::recovery_suite::resolved_create_preserves_shared_unidentified_create_dependencies_and_diagnostics ... ok
+test runtime::lifecycle_tests::recovery_suite::failed_create_recovers_after_inspection_failure ... ok
+test runtime::tests::client::mine_reports_partial_progress_alongside_the_servers_error ... ok
+test runtime::tests::client::resumed_send_reports_a_stored_failure_and_clears_only_its_key ... ok
+test runtime::tests::client::mine_polls_until_completion_and_reports_the_confirmed_count ... ok
+test runtime::tests::client::unresolved_json_adds_the_key_to_the_operation_fields ... ok
+test runtime::tests::client::terminal_payment_failures_still_release_keys_in_text_mode ... ok
+test runtime::tests::client::uri_amount_rejects_max_before_quoting_or_submitting ... ok
+{
+  "id": "uri-max",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+{
+  "id": "uri-send",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+test runtime::tests::client::send_key_survives_an_interrupted_process_and_resumes_the_same_payment ... ok
+test runtime::tests::client::address_faucet_reads_status_by_key_and_keeps_it_while_absent ... ok
+test runtime::tests::client::uri_max_uses_the_parsed_destination_pool_for_the_quote ... ok
+{
+  "id": "uri-send",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+test runtime::lifecycle_tests::recovery_suite::failed_start_recovery_can_be_retried ... ok
+test runtime::tests::client::address_faucet_retains_identity_when_reporting_a_terminal_result_fails ... ok
+test runtime::tests::client::wallet_faucet_keeps_unfinished_batch_keys_after_an_output_error ... ok
+test runtime::tests::deletion::deletion_monitor_follows_the_original_container_not_its_name ... ok
+test runtime::tests::deletion::deletion_monitor_reports_a_container_already_gone ... ok
+test runtime::tests::deletion::deletion_monitor_reports_a_destroy_event ... ok
+test runtime::tests::deletion::deletion_monitor_resubscribes_after_a_disconnect ... ok
+test runtime::tests::client::uri_sends_resolve_the_amount_before_submission ... ok
+test runtime::tests::deletion::deletion_monitor_uses_allocation_identity_after_initial_docker_errors ... ok
+test runtime::tests::deletion::deletion_monitor_treats_docker_errors_as_unknown ... ok
+test runtime::tests::deletion::deletion_monitor_uses_allocation_identity_when_replaced_before_monitoring ... ok
+test runtime::tests::faucet_journal_lock_probe ... ok
+test runtime::tests::deletion::dropping_the_deletion_monitor_stops_the_watch ... ok
+test runtime::tests::images::project_images_are_version_locked ... ok
+test runtime::tests::instance::default_offset_uses_stable_loopback_ports ... ok
+test runtime::tests::instance::docker_timestamps_parse_to_unix_seconds ... ok
+test runtime::tests::client::zero_max_does_not_submit_a_payment ... ok
+test runtime::tests::instance::endpoints_json_includes_regtest_and_plaintext_lightwalletd ... ok
+test runtime::tests::instance::endpoints_json_without_network_fields_still_deserializes ... ok
+test runtime::tests::instance::environments_are_classified_by_their_long_running_services ... ok
+test runtime::tests::instance::environments_recorded_before_creation_times_still_list ... ok
+test runtime::tests::instance::environments_still_list_when_docker_is_unavailable ... ok
+test runtime::tests::client::wallet_faucet_keeps_funding_after_a_failed_account_and_keeps_its_keys ... ok
+test runtime::tests::instance::invalid_port_offset_is_rejected_before_any_deletion_or_allocation ... ok
+test runtime::tests::instance::listing_checks_container_ownership_and_reports_paused_stacks ... ok
+test runtime::tests::instance::port_offset_accepts_the_largest_value_that_keeps_every_port_in_range ... ok
+test runtime::tests::instance::port_offset_rejects_values_that_are_not_multiples_of_ten ... ok
+test runtime::tests::instance::port_offset_rejects_values_that_overflow_a_host_port ... ok
+test runtime::tests::instance::port_offset_shifts_all_four_hosts_by_the_same_stride ... ok
+test runtime::tests::instance::reports_the_conflicting_loopback_port ... ok
+test runtime::tests::instance::shutdown_reports_interrupt_from_channel ... ok
+test runtime::tests::instance::a_damaged_generation_file_does_not_lock_the_name_out ... ok
+test runtime::tests::instance::the_json_list_keeps_its_fields_and_adds_absolute_status ... ok
+test runtime::tests::instance::an_exiting_session_keeps_a_newer_session_file ... ok
+test runtime::tests::instance::validates_instance_names ... ok
+test runtime::tests::instance::the_list_groups_active_before_inactive_and_hints_only_for_inactive ... ok
+test runtime::tests::instance::listed_environments_do_not_expose_the_launcher_session ... ok
+test runtime::tests::intents::a_running_send_locks_its_journal_without_blocking_faucet_commands ... ok
+test runtime::tests::intents::dropping_the_journal_releases_the_lock_while_a_child_holds_its_descriptor ... ok
+test runtime::tests::intents::dropping_faucet_journal_releases_lock_with_a_duplicated_handle ... ok
+test runtime::tests::intents::a_late_result_cannot_clear_a_newer_key ... ok
+test runtime::tests::logs::builds_docker_logs_arguments ... ok
+test runtime::tests::logs::copies_only_the_requested_leading_lines ... ok
+test runtime::tests::client::pending_send_keeps_its_key_after_the_wait ... ok
+test runtime::tests::overlapping_faucet_process_rejects_the_locked_journal ... ok
+test runtime::tests::intents::unfinished_wallet_batch_rejects_an_overlapping_subset ... ok
+test runtime::tests::resources::commands_report_docker_errors_instead_of_a_stopped_environment ... ok
+test runtime::tests::intents::faucet_keys_survive_cli_restart_until_the_whole_intent_is_confirmed ... ok
+test runtime::tests::client::submission_retries_pause_between_attempts_instead_of_busy_looping ... ok
+test runtime::tests::resources::docker_errors_are_not_reported_as_missing_resources ... ok
+test runtime::tests::resources::foreign_container_collision_is_not_deleted ... ok
+test runtime::tests::resources::foreign_volume_collision_preserves_all_resources ... ok
+test runtime::tests::resources::duplicate_network_names_are_rejected ... ok
+test runtime::tests::resources::deleting_keeps_metadata_while_docker_is_unreachable ... ok
+test runtime::tests::resources::app_identity_capture_does_not_fall_back_to_a_replacement_on_docker_errors ... ok
+test runtime::tests::client::resumed_wallet_faucet_replays_completed_components_and_clears_once_all_settle ... ok
+test runtime::tests::resources::app_allocation_captures_identity_before_a_name_replacement ... ok
+test runtime::tests::resources::unlabeled_network_collision_preserves_data_and_metadata ... ok
+test runtime::tests::resources::initial_cleanup_failure_does_not_retry_on_drop ... ok
+test runtime::tests::resources::new_networks_are_labeled_for_owned_cleanup ... ok
+test runtime::tests::runner::child_exit_code_is_preserved ... ok
+test runtime::tests::resources::readiness_failure_deletes_the_started_instance ... ok
+test runtime::tests::resources::volume_create_does_not_accept_a_racing_foreign_volume ... ok
+test runtime::tests::client::unavailable_status_keeps_the_key_and_is_not_a_failure ... ok
+test runtime::tests::runner::child_receives_project_directory_and_regtest_endpoints ... ok
+test runtime::tests::runner::a_run_marks_its_own_teardown_as_stopping ... ok
+test runtime::tests::runner::interrupted_child_terminates_its_background_process_group ... ok
+test runtime::tests::resources::owned_resources_still_clean_up ... ok
+test runtime::tests::runner::run_refuses_existing_instance_without_cleanup ... ok
+test runtime::tests::runner::failed_cleanup_reports_error_without_replacing_child_exit_code ... ok
+test runtime::tests::runner::run_timeout_after_allocation_skips_child_and_cleans_its_instance ... FAILED
+test runtime::lifecycle_tests::recovery_suite::failed_create_keeps_dependencies_when_cleanup_cannot_verify_ownership_or_absence ... ok
+test runtime::tests::runner::run_preserves_child_exit_code_and_cleans_after_settlement ... ok
+test runtime::tests::runner::wait_ignores_a_stopping_marker_nobody_holds ... ok
+test runtime::tests::runner::settlement_does_not_accept_a_late_status_response ... ok
+test runtime::tests::runner::stop_routes_through_a_running_run ... ok
+test runtime::tests::client::send_retains_identity_when_reporting_a_terminal_result_fails ... ok
+test runtime::lifecycle_tests::recovery_suite::unidentified_start_keeps_dependencies ... ok
+test runtime::tests::client::lost_send_response_follows_the_key_through_a_replaced_transaction ... ok
+test runtime::tests::client::wallet_faucet_retains_every_identity_when_reporting_terminal_results_fails ... ok
+test runtime::tests::runner::wait_rejects_a_settled_answer_read_across_a_stop_without_an_owner ... ok
+test runtime::tests::instance::owner_probes_never_refuse_a_start ... ok
+test runtime::tests::runner::wait_ignores_the_readiness_of_a_launcher_that_died ... ok
+test runtime::tests::runner::wait_follows_an_environment_that_is_still_starting ... ok
+test runtime::tests::runner::wait_does_not_settle_before_the_launcher_is_ready ... ok
+test runtime::tests::send_interruption_probe ... ok
+test runtime::tests::runner::wait_ends_when_the_environment_is_deleted ... ok
+test runtime::tests::runner::wait_does_not_settle_while_a_stop_is_pending ... ok
+test runtime::tests::runner::wait_ignores_metadata_left_by_a_previous_owner ... ok
+test runtime::tests::runner::wait_ignores_metadata_without_a_session_while_a_launcher_prepares ... ok
+test runtime::tests::runner::stop_does_not_delete_an_instance_locked_by_another_command ... ok
+test runtime::tests::startup::a_launcher_that_cannot_record_readiness_says_so ... ok
+test runtime::tests::startup::a_stop_cleans_leftovers_older_than_the_launcher_it_stopped ... ok
+test runtime::tests::runner::wait_rejects_a_settled_answer_after_the_metadata_is_deleted ... ok
+test runtime::tests::runner::wait_rejects_a_settled_answer_from_a_replaced_generation ... ok
+test runtime::tests::startup::an_owner_marks_its_own_teardown_as_stopping ... ok
+test runtime::tests::startup::an_owner_tearing_down_never_looks_ready ... ok
+test runtime::tests::startup::an_owner_that_panics_never_looks_ready_while_it_tears_down ... ok
+test runtime::tests::startup::browser_open_failure_keeps_environment_running_until_shutdown ... ok
+test runtime::tests::startup::a_delayed_stop_keeps_a_replacement_that_exited ... ok
+test runtime::tests::runner::wait_rejects_a_settled_answer_read_across_the_owners_exit ... ok
+test runtime::tests::startup::dropping_shutdown_joins_signal_worker_without_a_signal ... ok
+test runtime::tests::startup::deletion_elsewhere_ends_start_without_deleting_again ... ok
+test runtime::tests::startup::a_delayed_stop_keeps_a_replacement_that_left_only_metadata ... ok
+test runtime::tests::startup::a_delayed_stop_keeps_a_replacement_that_failed_before_writing_metadata ... ok
+test runtime::tests::startup::interrupt_before_ready_deletes_the_started_instance ... ok
+test runtime::tests::startup::interrupt_during_allocate_deletes_only_the_named_instance ... ok
+test runtime::tests::startup::no_open_skips_browser_and_waits_for_shutdown ... ok
+test runtime::tests::startup::shutdown_check_bails_when_latched ... ok
+test runtime::tests::startup::concurrent_stops_both_wait_for_the_owner ... ok
+test runtime::tests::startup::shutdown_wait_keeps_a_deletion_notice_that_arrived_first ... ok
+test runtime::tests::startup::shutdown_wait_returns_after_signal ... ok
+test runtime::tests::startup::reset_without_force_does_not_request_shutdown ... ok
+test runtime::tests::startup::shutdown_wait_returns_when_the_environment_is_gone ... ok
+test runtime::tests::startup::partial_startup_cleanup_removes_only_owned_resources ... ok
+test runtime::tests::startup::shutdown_wait_timeout_wakes_on_signal ... ok
+test runtime::tests::startup::shutdown_wait_timeout_returns_on_idle ... ok
+test runtime::tests::startup::startup_and_cleanup_failures_are_both_reported_once ... ok
+test runtime::tests::startup::shutdown_collision_removes_owned_resources_and_preserves_foreign_container ... ok
+test runtime::tests::startup::a_stop_never_targets_a_session_published_after_its_owner_check ... ok
+test runtime::tests::runner::wait_rejects_an_environment_that_no_command_is_creating ... ok
+test runtime::tests::startup::stop_cleans_what_the_owner_left_behind ... ok
+test runtime::tests::startup::stop_refuses_a_launcher_that_replaced_its_target ... ok
+test runtime::tests::startup::a_stop_keeps_a_replacement_for_a_launcher_that_crashed_before_publishing ... ok
+test runtime::tests::runner::wait_reports_leftovers_of_a_launcher_that_exited ... ok
+test runtime::tests::startup::wait_for_zakura_tip_aborts_when_shutdown_is_signaled ... ok
+test runtime::tests::startup::wait_ready_aborts_when_shutdown_is_signaled ... ok
+test test_support::helper_process ... ok
+test updater::tests::check_uses_a_distinct_update_available_exit_code ... ok
+test updater::tests::discovers_latest_release_and_rejects_http_errors ... ok
+test runtime::tests::startup::stop_without_an_owner_cleans_leftovers ... ok
+test updater::tests::parses_prefixed_versions_and_compares_all_states ... ok
+test updater::tests::source_builds_cannot_mutate_themselves ... ok
+test updater::tests::startup_notice_is_actionable_and_fail_open ... ok
+test updater::tests::uninstall_removes_only_an_executable_named_ths ... ok
+test runtime::tests::startup::stale_stop_request_does_not_stop_a_new_session ... ok
+test updater::tests::embedded_installer_receives_exact_version_and_destination ... ok
+test updater::tests::update_and_uninstall_act_on_the_launcher_behind_a_symlink ... ok
+test runtime::tests::startup::stop_while_ready_routes_through_the_owner ... ok
+test runtime::tests::startup::stop_reports_leftovers_it_cannot_remove ... ok
+test runtime::tests::startup::a_stop_queued_behind_another_stop_keeps_a_launcher_that_started_after_it ... ok
+test runtime::tests::startup::a_stop_after_wait_settles_ends_start_cleanly ... ok
+test runtime::tests::startup::stop_during_startup_aborts_the_owner_and_verifies_cleanup ... ok
+test runtime::tests::runner::wait_outlasts_the_grace_while_startup_holds_the_lock ... ok
+test runtime::tests::runner::wait_rejects_a_settled_answer_when_a_stop_arrives_mid_read ... ok
+test runtime::tests::startup::second_start_is_refused_before_touching_a_running_environment ... ok
+test runtime::tests::startup::start_reports_a_stop_in_progress ... ok
+test runtime::tests::startup::stopped_launcher_keeps_the_name_until_its_cleanup_ends ... ok
+test runtime::tests::instance::start_refusal_names_what_holds_the_environment ... ok
+
+failures:
+
+---- runtime::tests::runner::run_timeout_after_allocation_skips_child_and_cleans_its_instance stdout ----
+
+thread 'runtime::tests::runner::run_timeout_after_allocation_skips_child_and_cleans_its_instance' (25657709) panicked at crates/ths-cli/src/../tests/unit/runtime/tests/runner.rs:22:5:
+assertion failed: events.contains(&"allocate:alpha".to_owned())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    runtime::tests::runner::run_timeout_after_allocation_skips_child_and_cleans_its_instance
+
+test result: FAILED. 263 passed; 1 failed; 4 ignored; 0 measured; 0 filtered out; finished in 8.72s
+
+error: test failed, to rerun pass `-p thus-spoke-zakura --lib`

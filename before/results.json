@@ -1,0 +1,495 @@
+[
+  {
+    "case": "send",
+    "command": [
+      "wallet",
+      "send",
+      "--from",
+      "1",
+      "--to",
+      "2",
+      "--amount",
+      "0.01",
+      "--destination-pool",
+      "transparent"
+    ],
+    "failed_exit": 1,
+    "captured_keys": {
+      "{\"amount_zatoshi\":1000000,\"destination_pool\":\"transparent\",\"from_account\":1,\"memo\":null,\"source_pool\":\"ironwood\",\"to_account\":2}": "5f1d2355-55ec-4f6a-ac38-7e58ba359d00"
+    },
+    "journal_after_output_error": {},
+    "original_receipts": [
+      {
+        "id": "8435abf5-4334-47ec-b590-6ed0b1cdd296",
+        "kind": "send",
+        "from_account": 1,
+        "to_account": 2,
+        "to_address": null,
+        "source_pool": "ironwood",
+        "destination_pool": "transparent",
+        "amount_zatoshi": 1000000,
+        "txid": "8e3e674b222cd5a96987846003470f3a35c6db09adddb827644ea9fcf7dcd5bf",
+        "block_hash": "f63410b3301d453d0dd606d89c0e634779ca19bc6d44140944e1bdeda5f8e09d",
+        "status": "confirmed",
+        "created_at": "2026-10-17 00:38:43",
+        "last_error": null
+      }
+    ],
+    "retry_receipts": [
+      {
+        "id": "71cd70bf-6437-4297-b329-650bdf5ce6da",
+        "kind": "send",
+        "from_account": 1,
+        "to_account": 2,
+        "to_address": null,
+        "source_pool": "ironwood",
+        "destination_pool": "transparent",
+        "amount_zatoshi": 1000000,
+        "txid": "6a363f8657ee59500d8f7b88ec946629dbfce6734b2c02a67bd00526ee2de09f",
+        "block_hash": "5dbe414a6682e1d75bababf67c562a0aae4a6babe61f68f123311eb2444623a8",
+        "status": "confirmed",
+        "last_error": null
+      }
+    ],
+    "distinct_txids_after_retry": [
+      "6a363f8657ee59500d8f7b88ec946629dbfce6734b2c02a67bd00526ee2de09f",
+      "8e3e674b222cd5a96987846003470f3a35c6db09adddb827644ea9fcf7dcd5bf"
+    ],
+    "retry_reused_original": false,
+    "deliberate_new_receipts": [
+      {
+        "id": "9780308f-8171-489c-a8fd-34357b90e4b2",
+        "kind": "send",
+        "from_account": 1,
+        "to_account": 2,
+        "to_address": null,
+        "source_pool": "ironwood",
+        "destination_pool": "transparent",
+        "amount_zatoshi": 1000000,
+        "txid": "75ce85978ee2f300402324376c9e984a367822aa9e89b8a764cf064efbb7afc5",
+        "block_hash": "5e2cf0c7bf3fb1f2ce6c7c0b9be9a42eab1331eb6d4ba959267ee0e7b3917f30",
+        "status": "confirmed",
+        "last_error": null
+      }
+    ],
+    "balances_before": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 500000000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "balances_after_output_error": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 498985000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 1000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "balances_after_retry": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 497970000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 2000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "height_before": 105,
+    "height_after_output_error": 106,
+    "height_after_retry": 107
+  },
+  {
+    "case": "address",
+    "command": [
+      "faucet",
+      "tmLsxVXS6vRmk1yuZ237KobfMCcMKbRPgym",
+      "--amount",
+      "0.01"
+    ],
+    "failed_exit": 1,
+    "captured_keys": {
+      "address:tmLsxVXS6vRmk1yuZ237KobfMCcMKbRPgym:1000000": "e2c1359f-4dda-4202-b879-b041cd43edce"
+    },
+    "journal_after_output_error": {},
+    "original_receipts": [
+      {
+        "address": "tmLsxVXS6vRmk1yuZ237KobfMCcMKbRPgym",
+        "amount_zatoshi": 1000000,
+        "txid": "ce701c9f92152d69bfde67630ff4e3dc895df1c7405a5ef6f6c90a255a9a3dad",
+        "block_hash": "622a71eb86391869a205d5fa8fa76de2745d9f69b85151aeaa45ac1b62191992",
+        "status": "confirmed",
+        "last_error": null
+      }
+    ],
+    "retry_receipts": [
+      {
+        "address": "tmLsxVXS6vRmk1yuZ237KobfMCcMKbRPgym",
+        "amount_zatoshi": 1000000,
+        "txid": "26f4ddd9f51dabac156b1d038f20935882d9d1530f0a1c390728a860faefaa6f",
+        "block_hash": "fe1b425f92c5189761614fd03ddb02761e463bcdff03dcb4198d14b8df06ef28",
+        "status": "confirmed",
+        "last_error": null
+      }
+    ],
+    "distinct_txids_after_retry": [
+      "26f4ddd9f51dabac156b1d038f20935882d9d1530f0a1c390728a860faefaa6f",
+      "ce701c9f92152d69bfde67630ff4e3dc895df1c7405a5ef6f6c90a255a9a3dad"
+    ],
+    "retry_reused_original": false,
+    "deliberate_new_receipts": [
+      {
+        "address": "tmLsxVXS6vRmk1yuZ237KobfMCcMKbRPgym",
+        "amount_zatoshi": 1000000,
+        "txid": "4d2373f8a2b56bb2a478c27061dbc41eabc7a468aa564a79e468a14a575cae09",
+        "block_hash": "a6d56f39caa258b2af933577e844768b60e5f5eeb0bb87659c14e88cb2efe2ad",
+        "status": "confirmed",
+        "last_error": null
+      }
+    ],
+    "balances_before": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 496955000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 3000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "balances_after_output_error": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 496955000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 3000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "balances_after_retry": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 496955000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 3000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "height_before": 108,
+    "height_after_output_error": 109,
+    "height_after_retry": 110
+  },
+  {
+    "case": "batch",
+    "command": [
+      "wallet",
+      "faucet",
+      "--accounts",
+      "3,4",
+      "--amount",
+      "0.01",
+      "--pool",
+      "transparent"
+    ],
+    "failed_exit": 1,
+    "captured_keys": {
+      "wallet:transparent:1000000:3,4:3": "b8b63166-04c2-4147-ae2b-6fab79adddb6",
+      "wallet:transparent:1000000:3,4:4": "4acd60b7-9310-4a2a-9f6e-9e03dc1e6f26"
+    },
+    "journal_after_output_error": {},
+    "original_receipts": [
+      {
+        "id": "96712b9d-d3e0-4ac8-8528-c3ee4aeadd20",
+        "kind": "faucet",
+        "from_account": null,
+        "to_account": 3,
+        "to_address": null,
+        "source_pool": "ironwood",
+        "destination_pool": "transparent",
+        "amount_zatoshi": 1000000,
+        "txid": "0ddc6372086ede0a3c74b9709842b347386cea475dad30f807e82fc6884b2782",
+        "block_hash": "0e69b49d485043725cb5b6601ba4e44409744dec722c12e5075d868ec037bce5",
+        "status": "confirmed",
+        "created_at": "2026-10-17 00:38:56",
+        "last_error": null
+      },
+      {
+        "id": "6fbb42e0-0385-4a7e-abca-f787cc9a8184",
+        "kind": "faucet",
+        "from_account": null,
+        "to_account": 4,
+        "to_address": null,
+        "source_pool": "ironwood",
+        "destination_pool": "transparent",
+        "amount_zatoshi": 1000000,
+        "txid": "8e3300c789f4d2b8d4b5c61be0b99be80128da26a4e58093e14e7f3c0388d12b",
+        "block_hash": "dee0345b629e8c2a909f68bfe7de44ed105232c3c2db3ff6537e3259f8e647fc",
+        "status": "confirmed",
+        "created_at": "2026-10-17 00:38:56",
+        "last_error": null
+      }
+    ],
+    "retry_receipts": [
+      {
+        "amount_zatoshi": 1000000,
+        "block_hash": "d0580691fe7e13355bc0420026f12f9833433d176d786aa31df5449dd2d36d2d",
+        "destination_pool": "transparent",
+        "from_account": null,
+        "id": "952b824f-2f21-4525-9b76-f23a73348cd8",
+        "kind": "faucet",
+        "last_error": null,
+        "source_pool": "ironwood",
+        "status": "confirmed",
+        "to_account": 3,
+        "to_address": null,
+        "txid": "8281c0f06715859517b2112a3077cf7bbfa16daa77a71b181cd1d69683af5de6"
+      },
+      {
+        "amount_zatoshi": 1000000,
+        "block_hash": "99f7193b1b15b4521f5aec83aa68148acd8cafa32a47ff71d464a5526ce40446",
+        "destination_pool": "transparent",
+        "from_account": null,
+        "id": "e7949a13-f28f-47da-b97e-2201c64fec51",
+        "kind": "faucet",
+        "last_error": null,
+        "source_pool": "ironwood",
+        "status": "confirmed",
+        "to_account": 4,
+        "to_address": null,
+        "txid": "86a3c98e2249d3e1347d375545f0816ea7b8bb4e6dc74c3dbe501536f9b1e1a9"
+      }
+    ],
+    "distinct_txids_after_retry": [
+      "0ddc6372086ede0a3c74b9709842b347386cea475dad30f807e82fc6884b2782",
+      "8281c0f06715859517b2112a3077cf7bbfa16daa77a71b181cd1d69683af5de6",
+      "86a3c98e2249d3e1347d375545f0816ea7b8bb4e6dc74c3dbe501536f9b1e1a9",
+      "8e3300c789f4d2b8d4b5c61be0b99be80128da26a4e58093e14e7f3c0388d12b"
+    ],
+    "retry_reused_original": false,
+    "deliberate_new_receipts": [
+      {
+        "amount_zatoshi": 1000000,
+        "block_hash": "8951deee00debe44e2cd982c2a7f8b9d7607e9cfba00cf5addd886a24863fb3e",
+        "destination_pool": "transparent",
+        "from_account": null,
+        "id": "a1c0f177-214a-4e43-9069-d6972631dc01",
+        "kind": "faucet",
+        "last_error": null,
+        "source_pool": "ironwood",
+        "status": "confirmed",
+        "to_account": 3,
+        "to_address": null,
+        "txid": "3c2762af7e4c7aab51120f3e61758d13dc6e90bb3bc7cc4dfce66e622fc79fcc"
+      },
+      {
+        "amount_zatoshi": 1000000,
+        "block_hash": "b9c0c451f914a369b32e3ca60a592290be6078a26518329edee3ce89ffe6cc2c",
+        "destination_pool": "transparent",
+        "from_account": null,
+        "id": "f1a607a6-8e09-4356-b4fb-125aff43c057",
+        "kind": "faucet",
+        "last_error": null,
+        "source_pool": "ironwood",
+        "status": "confirmed",
+        "to_account": 4,
+        "to_address": null,
+        "txid": "a7692c5f294d7b299b3b5b2f3894a5848a905dfe2d5b1758e985304fb433fe5e"
+      }
+    ],
+    "balances_before": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 496955000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 3000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "balances_after_output_error": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 496955000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 3000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 1000000
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 1000000
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "balances_after_retry": [
+      {
+        "id": 1,
+        "ironwood_zatoshi": 496955000,
+        "transparent_zatoshi": 0
+      },
+      {
+        "id": 2,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 3000000
+      },
+      {
+        "id": 3,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 2000000
+      },
+      {
+        "id": 4,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 2000000
+      },
+      {
+        "id": 5,
+        "ironwood_zatoshi": 0,
+        "transparent_zatoshi": 0
+      }
+    ],
+    "height_before": 111,
+    "height_after_output_error": 113,
+    "height_after_retry": 115
+  }
+]

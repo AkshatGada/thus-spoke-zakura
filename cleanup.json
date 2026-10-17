@@ -1,0 +1,13 @@
+{
+  "protected_count": 17,
+  "missing_protected": [],
+  "remaining_owned": {
+    "before_containers": "",
+    "before_volumes": "",
+    "before_networks": "",
+    "after_containers": "",
+    "after_volumes": "",
+    "after_networks": ""
+  },
+  "free_gib": 66.44
+}

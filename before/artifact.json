@@ -1,0 +1,15 @@
+{
+  "instance": "qa-output-before-37467c73",
+  "binary": "<workspace>/qa/payment-output-retry/ths-before",
+  "binary_sha256": "e2f9936dbcc2e30f9b1301755cc2c3f8c819262326d43a0ce255bbc929b4beae",
+  "images": {
+    "ghcr.io/zcashlabs/thus-spoke-zakura-app:0.3.0": "sha256:dc0df16562a6af4931c035e17615f68f016db75c85d1423e89b7e32f86e06856",
+    "ghcr.io/zcashlabs/thus-spoke-zakura-lightwalletd:0.3.0": "sha256:01f2ba37c0905e7f31439060a1f317769dfbf139caecad95499306794d451583",
+    "zakuracore/zakura:1.6.0": "sha256:bf53c178e9549217fce7cfaa21efc85c478129ba6dc5307d55640514affeb0ac"
+  },
+  "app_running_image": "sha256:dc0df16562a6af4931c035e17615f68f016db75c85d1423e89b7e32f86e06856",
+  "api": "http://127.0.0.1:33305",
+  "node": "http://127.0.0.1:18732",
+  "metadata": "<config-root>/com.zakura.thus-spoke-zakura/qa-output-before-37467c73",
+  "network": "Regtest"
+}

@@ -1,0 +1,123 @@
+   Compiling thus-spoke-zakura v0.3.0 (<workspace>/worktrees/payment-output-retry/crates/ths-cli)
+    Finished `test` profile [unoptimized] target(s) in 2.87s
+     Running unittests src/lib.rs (<workspace>/qa/payment-output-retry/astra-target/debug/deps/thus_spoke_zakura-c2efdee2c946e4de)
+
+running 44 tests
+test runtime::tests::client::activity_output_handles_empty_history_and_preserves_json_fields ... ok
+test runtime::tests::client::balances_print_each_account_without_viewing_keys ... ok
+test runtime::tests::client::activity_output_distinguishes_routes_and_hides_the_treasury ... ok
+test runtime::tests::client::balances_require_a_ready_wallet_before_reading_accounts ... ok
+test runtime::tests::client::chain_changes_do_not_retry_rejected_or_lost_responses ... ok
+test runtime::tests::client::activity_history_forwards_only_explicit_limits ... ok
+test runtime::tests::client::balances_reject_syncing_and_failed_wallets_before_reading_accounts ... ok
+test runtime::tests::client::chain_changes_forward_the_command_and_report_retention_failures_in_both_outputs ... ok
+test runtime::tests::client::expired_max_deadline_does_not_quote_submit_or_save_an_intent ... ok
+test runtime::tests::client::mine_status_line_reports_progress_for_every_state ... ok
+test runtime::tests::client::max_quote_errors_are_reported_without_submitting ... ok
+test runtime::tests::client::delayed_max_quote_respects_the_payment_deadline_without_saving_an_intent ... ok
+test runtime::tests::client::mine_keeps_the_journal_key_when_writing_the_json_result_fails ... ok
+test runtime::tests::client::responses_decode_or_report_their_status_and_body ... ok
+test runtime::tests::client::refused_send_is_not_polled_and_keeps_its_key ... ok
+test runtime::tests::client::max_send_quotes_then_submits_the_quoted_amount ... ok
+test runtime::tests::client::send_fingerprints_distinguish_every_field_including_an_empty_memo ... ok
+test runtime::tests::client::max_send_retains_its_resolved_amount_after_a_result_write_error ... ok
+test runtime::tests::client::pending_max_send_reuses_its_quote_and_idempotency_key ... ok
+test runtime::tests::client::send_journal_failure_prevents_submission ... ok
+test runtime::tests::client::resumed_send_reports_a_stored_failure_and_clears_only_its_key ... ok
+test runtime::tests::client::mine_reports_partial_progress_alongside_the_servers_error ... ok
+test runtime::tests::client::an_unresolved_submission_key_survives_for_the_next_invocation ... ok
+test runtime::tests::client::unresolved_json_adds_the_key_to_the_operation_fields ... ok
+test runtime::tests::client::send_key_survives_an_interrupted_process_and_resumes_the_same_payment ... ok
+test runtime::tests::client::uri_amount_rejects_max_before_quoting_or_submitting ... ok
+{
+  "id": "uri-max",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+{
+  "id": "uri-send",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+test runtime::tests::client::terminal_payment_failures_still_release_keys_in_text_mode ... ok
+test runtime::tests::client::uri_max_uses_the_parsed_destination_pool_for_the_quote ... ok
+{
+  "id": "uri-send",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+test runtime::tests::client::a_stalled_poll_times_out_within_the_deadline_instead_of_hanging ... ok
+test runtime::tests::client::a_dropped_poll_connection_is_retried_within_the_deadline ... ok
+test runtime::tests::client::mine_polls_until_completion_and_reports_the_confirmed_count ... ok
+test runtime::tests::client::uri_sends_resolve_the_amount_before_submission ... ok
+test runtime::tests::client::wallet_faucet_keeps_unfinished_batch_keys_after_an_output_error ... ok
+test runtime::tests::client::zero_max_does_not_submit_a_payment ... ok
+test runtime::tests::client::wallet_faucet_keeps_funding_after_a_failed_account_and_keeps_its_keys ... ok
+test runtime::tests::client::address_faucet_retains_identity_when_reporting_a_terminal_result_fails ... ok
+test runtime::tests::client::send_retains_identity_when_reporting_a_terminal_result_fails ... ok
+test runtime::tests::client::address_faucet_reads_status_by_key_and_keeps_it_while_absent ... ok
+test runtime::tests::client::submission_retries_pause_between_attempts_instead_of_busy_looping ... ok
+test runtime::tests::client::pending_send_keeps_its_key_after_the_wait ... ok
+test runtime::tests::client::resumed_wallet_faucet_replays_completed_components_and_clears_once_all_settle ... ok
+test runtime::tests::client::wallet_faucet_retains_every_identity_when_reporting_terminal_results_fails ... ok
+test runtime::tests::client::unavailable_status_keeps_the_key_and_is_not_a_failure ... ok
+test runtime::tests::client::lost_send_response_follows_the_key_through_a_replaced_transaction ... ok
+
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 224 filtered out; finished in 2.11s
+
+     Running unittests src/main.rs (<workspace>/qa/payment-output-retry/astra-target/debug/deps/ths-17f750104bb996d5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/doctor.rs (<workspace>/qa/payment-output-retry/astra-target/debug/deps/doctor-6a10eb0a51f5ef60)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/entrypoint.rs (<workspace>/qa/payment-output-retry/astra-target/debug/deps/entrypoint-b21d38958f8696e0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/start_output.rs (<workspace>/qa/payment-output-retry/astra-target/debug/deps/start_output-a3b5a95bdc8221ff)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+     Running tests/start_ownership.rs (<workspace>/qa/payment-output-retry/astra-target/debug/deps/start_ownership-b9b4ebf51317dd5f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s

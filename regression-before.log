@@ -1,0 +1,244 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.24
+   Compiling libc v0.2.189
+   Compiling syn v3.0.5
+   Compiling syn v2.0.119
+   Compiling synstructure v0.13.2
+   Compiling stable_deref_trait v1.2.1
+   Compiling zerovec-derive v0.11.6
+   Compiling zerofrom-derive v0.1.7
+   Compiling zerofrom v0.1.8
+   Compiling yoke-derive v0.8.2
+   Compiling displaydoc v0.2.7
+   Compiling yoke v0.8.3
+   Compiling pin-project-lite v0.2.17
+   Compiling bytes v1.12.1
+   Compiling cfg-if v1.0.4
+   Compiling itoa v1.0.18
+   Compiling find-msvc-tools v0.1.12
+   Compiling shlex v2.0.1
+   Compiling zerovec v0.11.8
+   Compiling futures-core v0.3.34
+   Compiling cc v1.4.5
+   Compiling tinystr v0.8.4
+   Compiling litemap v0.8.3
+   Compiling writeable v0.6.4
+   Compiling smallvec v1.16.0
+   Compiling ring v0.17.14
+   Compiling potential_utf v0.1.6
+   Compiling zerotrie v0.2.5
+   Compiling icu_locale_core v2.3.0
+   Compiling mio v1.2.3
+   Compiling socket2 v0.6.5
+   Compiling futures-sink v0.3.34
+   Compiling once_cell v1.21.4
+   Compiling serde_core v1.0.229
+   Compiling icu_normalizer_data v2.3.0
+   Compiling utf8_iter v1.0.4
+   Compiling icu_properties_data v2.3.0
+   Compiling icu_collections v2.3.0
+   Compiling tokio v1.53.1
+   Compiling icu_provider v2.3.1
+   Compiling http v1.5.0
+   Compiling percent-encoding v2.3.2
+   Compiling memchr v2.8.3
+   Compiling zeroize v1.9.0
+   Compiling http-body v1.1.0
+   Compiling rustls-pki-types v1.15.1
+   Compiling getrandom v0.2.17
+   Compiling futures-task v0.3.34
+   Compiling untrusted v0.9.0
+   Compiling slab v0.4.12
+   Compiling httparse v1.10.1
+   Compiling futures-io v0.3.34
+   Compiling futures-util v0.3.34
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling tower-service v0.3.3
+   Compiling try-lock v0.2.5
+   Compiling bitflags v2.13.2
+   Compiling rustls v0.23.44
+   Compiling want v0.3.1
+   Compiling idna_adapter v1.2.2
+   Compiling rustls-webpki v0.103.15
+   Compiling form_urlencoded v1.2.2
+   Compiling tracing-core v0.1.36
+   Compiling futures-channel v0.3.34
+   Compiling errno v0.3.14
+   Compiling zmij v1.0.23
+   Compiling utf8parse v0.2.2
+   Compiling atomic-waker v1.1.2
+   Compiling getrandom v0.4.3
+   Compiling serde v1.0.229
+   Compiling subtle v2.6.1
+   Compiling hyper v1.11.1
+   Compiling anstyle-parse v1.0.0
+   Compiling tracing v0.1.44
+   Compiling idna v1.1.0
+   Compiling sync_wrapper v1.0.2
+   Compiling serde_derive v1.0.229
+   Compiling anstyle v1.0.14
+   Compiling ipnet v2.12.2
+   Compiling colorchoice v1.0.5
+   Compiling serde_json v1.0.151
+   Compiling base64 v0.22.1
+   Compiling rustix v1.1.4
+   Compiling cfg_aliases v0.2.2
+   Compiling anstyle-query v1.1.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling tower-layer v0.3.3
+   Compiling tower v0.5.3
+   Compiling anstream v1.0.0
+   Compiling nix v0.31.3
+   Compiling hyper-util v0.1.20
+   Compiling tokio-rustls v0.26.5
+   Compiling url v2.5.8
+   Compiling webpki-roots v1.0.9
+   Compiling heck v0.5.0
+   Compiling clap_lex v1.1.0
+   Compiling signal-hook v0.3.18
+   Compiling strsim v0.11.1
+   Compiling anyhow v1.0.104
+   Compiling ryu v1.0.23
+   Compiling option-ext v0.2.0
+   Compiling dirs-sys v0.5.0
+   Compiling serde_urlencoded v0.7.1
+   Compiling clap_builder v4.6.6
+   Compiling clap_derive v4.6.4
+   Compiling hyper-rustls v0.27.9
+   Compiling tower-http v0.6.11
+   Compiling signal-hook-registry v1.4.8
+   Compiling http-body-util v0.1.5
+   Compiling fastrand v2.5.0
+   Compiling log v0.4.34
+   Compiling tempfile v3.27.0
+   Compiling reqwest v0.12.28
+   Compiling clap v4.6.6
+   Compiling directories v6.0.0
+   Compiling uuid v1.26.1
+   Compiling semver v1.0.28
+   Compiling thus-spoke-zakura v0.3.0 (<workspace>/qa/payment-output-retry/before-checkout/crates/ths-cli)
+    Finished `test` profile [unoptimized] target(s) in 20.13s
+     Running unittests src/lib.rs (<workspace>/qa/payment-output-retry/baseline-target/debug/deps/thus_spoke_zakura-c2efdee2c946e4de)
+
+running 44 tests
+test runtime::tests::client::activity_output_handles_empty_history_and_preserves_json_fields ... ok
+test runtime::tests::client::balances_print_each_account_without_viewing_keys ... ok
+test runtime::tests::client::activity_output_distinguishes_routes_and_hides_the_treasury ... ok
+test runtime::tests::client::chain_changes_do_not_retry_rejected_or_lost_responses ... ok
+test runtime::tests::client::balances_require_a_ready_wallet_before_reading_accounts ... ok
+test runtime::tests::client::activity_history_forwards_only_explicit_limits ... ok
+test runtime::tests::client::balances_reject_syncing_and_failed_wallets_before_reading_accounts ... ok
+test runtime::tests::client::chain_changes_forward_the_command_and_report_retention_failures_in_both_outputs ... ok
+test runtime::tests::client::expired_max_deadline_does_not_quote_submit_or_save_an_intent ... ok
+test runtime::tests::client::max_quote_errors_are_reported_without_submitting ... ok
+test runtime::tests::client::mine_status_line_reports_progress_for_every_state ... ok
+test runtime::tests::client::delayed_max_quote_respects_the_payment_deadline_without_saving_an_intent ... ok
+
+thread 'runtime::tests::client::address_faucet_retains_identity_when_reporting_a_terminal_result_fails' (25644489) panicked at crates/ths-cli/src/../tests/unit/runtime/tests/client.rs:1660:13:
+assertion `left == right` failed
+  left: None
+ right: Some("ef3a9485-3e64-4bcc-b02e-dd4872d2fe89")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test runtime::tests::client::mine_keeps_the_journal_key_when_writing_the_json_result_fails ... ok
+test runtime::tests::client::address_faucet_retains_identity_when_reporting_a_terminal_result_fails ... FAILED
+test runtime::tests::client::responses_decode_or_report_their_status_and_body ... ok
+test runtime::tests::client::refused_send_is_not_polled_and_keeps_its_key ... ok
+test runtime::tests::client::send_fingerprints_distinguish_every_field_including_an_empty_memo ... ok
+
+thread 'runtime::tests::client::max_send_retains_its_resolved_amount_after_a_result_write_error' (25644538) panicked at crates/ths-cli/src/../tests/unit/runtime/tests/client.rs:1899:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+test runtime::tests::client::max_send_quotes_then_submits_the_quoted_amount ... ok
+test runtime::tests::client::max_send_retains_its_resolved_amount_after_a_result_write_error ... FAILED
+test runtime::tests::client::send_journal_failure_prevents_submission ... ok
+test runtime::tests::client::pending_max_send_reuses_its_quote_and_idempotency_key ... ok
+test runtime::tests::client::resumed_send_reports_a_stored_failure_and_clears_only_its_key ... ok
+
+thread 'runtime::tests::client::send_retains_identity_when_reporting_a_terminal_result_fails' (25644583) panicked at crates/ths-cli/src/../tests/unit/runtime/tests/client.rs:1583:13:
+assertion `left == right` failed
+  left: None
+ right: Some("c9b27813-248d-45b1-b42c-8d234f17e2cd")
+test runtime::tests::client::send_retains_identity_when_reporting_a_terminal_result_fails ... FAILED
+test runtime::tests::client::unresolved_json_adds_the_key_to_the_operation_fields ... ok
+test runtime::tests::client::send_key_survives_an_interrupted_process_and_resumes_the_same_payment ... ok
+test runtime::tests::client::terminal_payment_failures_still_release_keys_in_text_mode ... ok
+test runtime::tests::client::uri_amount_rejects_max_before_quoting_or_submitting ... ok
+{
+  "id": "uri-max",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+{
+  "id": "uri-send",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+test runtime::tests::client::mine_reports_partial_progress_alongside_the_servers_error ... ok
+test runtime::tests::client::an_unresolved_submission_key_survives_for_the_next_invocation ... ok
+test runtime::tests::client::uri_max_uses_the_parsed_destination_pool_for_the_quote ... ok
+test runtime::tests::client::wallet_faucet_keeps_funding_after_a_failed_account_and_keeps_its_keys ... ok
+{
+  "id": "uri-send",
+  "kind": "send",
+  "from_account": 1,
+  "to_account": null,
+  "to_address": "uregtest1external",
+  "source_pool": "transparent",
+  "destination_pool": "ironwood",
+  "amount_zatoshi": 123,
+  "txid": "uri-txid",
+  "block_hash": "block",
+  "status": "confirmed",
+  "last_error": null
+}
+test runtime::tests::client::zero_max_does_not_submit_a_payment ... ok
+test runtime::tests::client::wallet_faucet_keeps_unfinished_batch_keys_after_an_output_error ... ok
+test runtime::tests::client::uri_sends_resolve_the_amount_before_submission ... ok
+
+thread 'runtime::tests::client::wallet_faucet_retains_every_identity_when_reporting_terminal_results_fails' (25644641) panicked at crates/ths-cli/src/../tests/unit/runtime/tests/client.rs:1744:17:
+assertion `left == right` failed
+  left: 0
+ right: 2
+test runtime::tests::client::wallet_faucet_retains_every_identity_when_reporting_terminal_results_fails ... FAILED
+test runtime::tests::client::a_dropped_poll_connection_is_retried_within_the_deadline ... ok
+test runtime::tests::client::a_stalled_poll_times_out_within_the_deadline_instead_of_hanging ... ok
+test runtime::tests::client::mine_polls_until_completion_and_reports_the_confirmed_count ... ok
+test runtime::tests::client::address_faucet_reads_status_by_key_and_keeps_it_while_absent ... ok
+test runtime::tests::client::submission_retries_pause_between_attempts_instead_of_busy_looping ... ok
+test runtime::tests::client::pending_send_keeps_its_key_after_the_wait ... ok
+test runtime::tests::client::resumed_wallet_faucet_replays_completed_components_and_clears_once_all_settle ... ok
+test runtime::tests::client::unavailable_status_keeps_the_key_and_is_not_a_failure ... ok
+test runtime::tests::client::lost_send_response_follows_the_key_through_a_replaced_transaction ... ok
+
+failures:
+
+failures:
+    runtime::tests::client::address_faucet_retains_identity_when_reporting_a_terminal_result_fails
+    runtime::tests::client::max_send_retains_its_resolved_amount_after_a_result_write_error
+    runtime::tests::client::send_retains_identity_when_reporting_a_terminal_result_fails
+    runtime::tests::client::wallet_faucet_retains_every_identity_when_reporting_terminal_results_fails
+
+test result: FAILED. 40 passed; 4 failed; 0 ignored; 0 measured; 224 filtered out; finished in 2.11s
+
+error: test failed, to rerun pass `-p thus-spoke-zakura --lib`

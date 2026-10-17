@@ -1,0 +1,140 @@
+[
+  {
+    "name": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 20.46
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "--workspace",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 57.4
+  },
+  {
+    "name": "workspace-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--workspace"
+    ],
+    "exit": 101,
+    "seconds": 216.51
+  },
+  {
+    "name": "lifecycle-isolated",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "thus-spoke-zakura",
+      "--lib",
+      "runtime::tests::runner::run_timeout_after_allocation_skips_child_and_cleans_its_instance",
+      "--",
+      "--exact"
+    ],
+    "exit": 0,
+    "seconds": 4.21
+  },
+  {
+    "name": "fmt-final",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.47
+  },
+  {
+    "name": "clippy-final",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "--workspace",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 0,
+    "seconds": 1.98
+  },
+  {
+    "name": "workspace-tests-retry",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "--workspace",
+      "--",
+      "--test-threads=2"
+    ],
+    "exit": 0,
+    "seconds": 211.95
+  },
+  {
+    "name": "release-distribution-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "thus-spoke-zakura",
+      "--features",
+      "release-distribution",
+      "--",
+      "--test-threads=2"
+    ],
+    "exit": 0,
+    "seconds": 51.58
+  },
+  {
+    "name": "book-links",
+    "command": [
+      "python3",
+      "tests/book_links.py"
+    ],
+    "exit": 0,
+    "seconds": 0.03
+  },
+  {
+    "name": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.02
+  }
+]

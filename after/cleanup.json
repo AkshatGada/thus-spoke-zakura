@@ -1,0 +1,11 @@
+{
+  "remaining": {
+    "containers": "",
+    "volumes": "",
+    "networks": ""
+  },
+  "protected_count": 17,
+  "missing_protected": [],
+  "launcher_exit": 0,
+  "free_gib": 69.4
+}
