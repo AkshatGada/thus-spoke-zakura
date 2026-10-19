@@ -29,6 +29,7 @@ pub(crate) struct Cli {
 pub(crate) enum Command {
     /// Start an environment in the foreground; interrupting deletes it.
     Start {
+        /// Don't open the dashboard in the default browser.
         #[arg(long)]
         no_open: bool,
         /// Add this many to the default loopback ports. Must be a multiple of 10.
@@ -97,6 +98,7 @@ pub(crate) enum Command {
     },
     /// Replace recent Regtest blocks with a new branch.
     Reorg {
+        /// Number of most recent blocks to replace (1-1000).
         #[arg(long, value_parser = clap::value_parser!(u32).range(1..=1000))]
         depth: u32,
         /// Attempt to include the dropped transactions in replacement blocks.
@@ -105,6 +107,7 @@ pub(crate) enum Command {
     },
     /// Remove recent Regtest blocks without mining replacements.
     Rollback {
+        /// Number of most recent blocks to remove (1-1000).
         #[arg(long, value_parser = clap::value_parser!(u32).range(1..=1000))]
         depth: u32,
     },
@@ -123,8 +126,10 @@ pub(crate) enum Command {
     },
     /// Stream or print service logs.
     Logs {
+        /// Service to read [default: app].
         #[arg(value_parser = ["app", "zakura", "lightwalletd"])]
         service: Option<String>,
+        /// Keep streaming new log lines.
         #[arg(short, long)]
         follow: bool,
         /// Print the last LINES lines.
@@ -143,6 +148,7 @@ pub(crate) enum Command {
     Stop,
     /// Delete one environment and all of its volumes.
     Reset {
+        /// Confirm permanently deleting the environment's chain, wallet, and seed data.
         #[arg(long)]
         force: bool,
     },

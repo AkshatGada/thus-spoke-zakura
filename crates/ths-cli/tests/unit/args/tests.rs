@@ -380,3 +380,30 @@ fn shield_and_unshield_accept_exactly_one_amount_mode() {
         assert!(parse(&["--amount", "1", "--max"]).is_err());
     }
 }
+
+#[test]
+fn every_option_and_argument_has_help_text() {
+    fn undocumented(command: &clap::Command, path: &str, missing: &mut Vec<String>) {
+        for arg in command.get_arguments() {
+            let id = arg.get_id().as_str();
+            if matches!(id, "help" | "version") {
+                continue;
+            }
+            if arg.get_help().is_none() && arg.get_long_help().is_none() {
+                missing.push(format!("{path} {id}"));
+            }
+        }
+        for subcommand in command.get_subcommands() {
+            let path = format!("{path} {}", subcommand.get_name());
+            undocumented(subcommand, &path, missing);
+        }
+    }
+
+    let mut missing = Vec::new();
+    undocumented(
+        &<Cli as clap::CommandFactory>::command(),
+        "ths",
+        &mut missing,
+    );
+    assert!(missing.is_empty(), "options without help text: {missing:?}");
+}
