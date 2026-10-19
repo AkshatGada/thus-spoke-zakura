@@ -370,9 +370,14 @@ are reported in both output modes; `--json` also lists `retained_txids` and
 even though the chain changed.
 
 Affected payment records become `unconfirmed`, keeping their txids and keys.
-The server observes them but does not automatically rebroadcast, replace, or
-mine them. Later canonical inclusion can restore `confirmed`. This is not a
-wallet snapshot restore: unexpired local transactions can still reserve inputs.
+Both output modes list them (`unconfirmed_txids` in `--json`). The server
+observes them but does not automatically rebroadcast, replace, or mine them.
+Later canonical inclusion can restore `confirmed`. This is not a wallet
+snapshot restore: an unconfirmed payment still reserves its inputs until its
+transaction expires, about 40 blocks after it was created. Until then the
+sending account's balance includes those funds, but its quotes and sends cannot
+use them. Mine past the expiry (for example `ths mine 40`) to release them, or
+use `--keep-txs` to keep the payments in the replacement blocks.
 The server owns admitted work after client disconnection. An error or lost
 response can follow a partial chain change; inspect the current tip before
 retrying. Neither invalidation nor replacement mining is automatically retried.

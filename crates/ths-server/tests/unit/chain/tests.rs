@@ -338,6 +338,7 @@ async fn keep_txs_retries_dependencies_and_reports_invalid_transactions() {
         .await
         .unwrap();
     assert_eq!(result.retained_txids, ["payment", "dependent"]);
+    assert!(result.unconfirmed_txids.is_empty());
     assert_eq!(result.failed_transactions.len(), 1);
     assert_eq!(result.failed_transactions[0].txid, "invalid-anchor");
     assert!(result.failed_transactions[0].error.contains("anchor"));
@@ -469,4 +470,29 @@ async fn admission_rejects_other_chain_work_and_http_disconnect_does_not_cancel(
     .unwrap();
     assert_eq!(runtime.generated.load(Ordering::SeqCst), 3);
     assert_eq!(runtime.chain_info().await.unwrap().blocks, 108);
+}
+
+#[tokio::test]
+async fn chain_changes_report_payments_they_leave_unconfirmed() {
+    for keep_txs in [false, true] {
+        let runtime = FakeChain::new();
+        runtime.add_transaction(107, "payment");
+        let store = store();
+        let original = confirmed_payment(&store, &runtime.block_hash(107).await.unwrap());
+        let result = change_chain_with(&runtime, &store, 2, true, keep_txs)
+            .await
+            .unwrap();
+        let expected: &[&str] = if keep_txs { &[] } else { &["payment"] };
+        assert_eq!(result.unconfirmed_txids, expected);
+        assert_eq!(
+            store.activity(&original.id).unwrap().status,
+            if keep_txs { "confirmed" } else { "unconfirmed" }
+        );
+    }
+
+    let runtime = FakeChain::new();
+    let result = change_chain_with(&runtime, &store(), 2, false, false)
+        .await
+        .unwrap();
+    assert!(result.unconfirmed_txids.is_empty());
 }
