@@ -181,6 +181,21 @@ same `ths endpoints --json` that gave you the address reports `"tls": false`
 alongside it. Some clients expect `host:port` rather than an `http://` URL;
 use the form your client library requires.
 
+The client also needs this chain's consensus parameters. Regtest has no
+standard activation heights, and on THS every network upgrade from Overwinter
+through NU7 activates at **height 1**. A client that models a custom network,
+such as `LocalNetwork` in `zcash_protocol`, should set every activation height
+it knows to 1. To confirm against your instance, look at `upgrades` in the
+`getblockchaininfo` result from [Read chain state directly](#read-chain-state-directly):
+each entry lists its upgrade's `name` and `activationheight`.
+
+Take the network from `ths endpoints --json` (`"network": "regtest"`), not
+from the node. `getblockchaininfo` reports `"chain": "test"`, and
+`GET /api/v1/status` passes that through as `node.chain`, so a client that maps
+chain names to networks would pick Testnet parameters. Addresses use the
+Regtest prefixes: unified addresses start with `uregtest1` and transparent
+addresses with `tm`.
+
 ## The rest of the API surface
 
 These are every route the server serves today, from
