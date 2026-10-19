@@ -430,7 +430,7 @@ and Send dialogs, from a script or terminal:
 | `ths wallet balances` | Print each account's balances and addresses |
 | `ths wallet activity` | Print canonical incoming and outgoing wallet history, plus pending or failed payments |
 | `ths wallet faucet` | Fund one or more accounts from the treasury |
-| `ths wallet send` | Send funds between accounts or pools, with an optional memo, or pay a `zcash:` URI |
+| `ths wallet send` | Send funds between accounts or pools or to a Regtest address, with an optional memo, or pay a `zcash:` URI |
 | `ths wallet shield` | Spend transparent funds into the same or another account's Ironwood balance |
 | `ths wallet unshield` | Spend Ironwood funds into the same or another account's transparent balance |
 
@@ -525,7 +525,7 @@ rerunning the same command requests a new set of payments. JSON returns
 `{funded:[confirmed operations],pending:[operations with retained keys],
 failed:[diagnostic strings]}`; unknown pending members include `error`.
 
-### `ths wallet send --from <N> --to <N> (--amount <ZEC> | --max) [--source-pool <POOL>] [--destination-pool <POOL>] [--memo <TEXT>]`
+### `ths wallet send --from <N> (--to <N> | --to-address <ADDRESS>) (--amount <ZEC> | --max) [--source-pool <POOL>] [--destination-pool <POOL>] [--memo <TEXT>]`
 
 Sends funds between development accounts or pools. It does the same thing as
 the dashboard's **Send ZEC** dialog and uses the same endpoint
@@ -534,6 +534,10 @@ the dashboard's **Send ZEC** dialog and uses the same endpoint
 - `--from <N>` / `--to <N>` (required): two account indices,
   1–5. They may match when the source and destination pools differ. The treasury
   account cannot be used.
+- `--to-address <ADDRESS>`: pay a Regtest unified or transparent address
+  instead of `--to`, like the dashboard's **Other address** destination. The
+  destination pool follows the address, so `--destination-pool` is not
+  accepted; a unified address must include an Ironwood receiver.
 - `--amount <ZEC>` / `--max` (exactly one required): send an explicit amount,
   or ask `POST /api/v1/send/quote` for the maximum spendable amount after the
   network fee. The CLI submits the server's quoted `max_zatoshi`; it does not
@@ -560,6 +564,10 @@ ths wallet send --from 1 --to 1 --amount 0.005 --source-pool transparent
 
 # Attach a memo for the recipient
 ths wallet send --from 2 --to 3 --amount 1 --memo "rent for October"
+
+# Pay an app's own Regtest address from account 2
+ths wallet send --from 2 --to-address uregtest1… --amount 0.1 --memo "order 42"
+ths wallet send --from 2 --to-address tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ --amount 0.1
 
 # Rejected: transparent outputs cannot carry a memo
 ths wallet send --from 2 --to 3 --amount 1 --destination-pool transparent --memo "hi"

@@ -923,6 +923,75 @@ impl Runtime {
         )
     }
 
+    /// Pays an external Regtest address, like the dashboard's "Other address"
+    /// destination. The server validates the address and its pool.
+    #[allow(clippy::too_many_arguments)]
+    pub fn wallet_send_address(
+        &self,
+        name: &InstanceName,
+        from: u8,
+        address: &str,
+        source_pool: &str,
+        destination_pool: &str,
+        amount: TransferAmount,
+        memo: Option<&str>,
+        json: bool,
+    ) -> Result<()> {
+        let (dashboard, client) = self.instance_client(name)?;
+        self.wallet_send_address_with(
+            name,
+            &dashboard,
+            &client,
+            std::io::stdout().lock(),
+            Instant::now() + PAYMENT_WAIT,
+            from,
+            address,
+            source_pool,
+            destination_pool,
+            amount,
+            memo,
+            json,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn wallet_send_address_with(
+        &self,
+        name: &InstanceName,
+        dashboard: &str,
+        client: &reqwest::blocking::Client,
+        out: impl std::io::Write,
+        deadline: Instant,
+        from: u8,
+        address: &str,
+        source_pool: &str,
+        destination_pool: &str,
+        amount: TransferAmount,
+        memo: Option<&str>,
+        json: bool,
+    ) -> Result<()> {
+        self.submit_transfer(
+            name,
+            dashboard,
+            client,
+            out,
+            deadline,
+            from,
+            amount,
+            serde_json::json!({
+                "from_account": from,
+                "to_address": address,
+                "source_pool": source_pool,
+                "destination_pool": destination_pool,
+                "memo": memo,
+            }),
+            source_pool,
+            destination_pool,
+            memo,
+            json,
+        )
+    }
+
     /// Pays a ZIP-321 URI. The server parses it, so the CLI and the dashboard
     /// accept exactly the same URIs.
     pub fn wallet_send_uri(
