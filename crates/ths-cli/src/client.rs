@@ -69,6 +69,8 @@ pub(crate) struct ChainChangeResult {
     replacement_hashes: Vec<String>,
     retained_txids: Vec<String>,
     failed_transactions: Vec<TransactionFailure>,
+    #[serde(default)]
+    unconfirmed_txids: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -121,6 +123,15 @@ pub(crate) fn render_chain_change(
             "\nNot retained: {}: {}",
             failure.txid, failure.error
         ));
+    }
+    for txid in &result.unconfirmed_txids {
+        output.push_str(&format!("\nNow unconfirmed: {txid}"));
+    }
+    if !result.unconfirmed_txids.is_empty() {
+        output.push_str(
+            "\nUnconfirmed payments are not rebroadcast. Their inputs stay reserved until each \
+             transaction expires, about 40 blocks after it was created.",
+        );
     }
     Ok(output)
 }

@@ -35,6 +35,9 @@ pub(crate) struct ChainChangeResult {
     pub(crate) replacement_hashes: Vec<String>,
     pub(crate) retained_txids: Vec<String>,
     pub(crate) failed_transactions: Vec<TransactionFailure>,
+    /// Payments this operation left `unconfirmed`. They are not rebroadcast and
+    /// keep their inputs reserved until they expire.
+    pub(crate) unconfirmed_txids: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -286,6 +289,12 @@ async fn change_chain_with(
             current.blocks == expected_height && &current.bestblockhash == expected_hash,
             "chain changed during the operation"
         );
+        let mut unconfirmed_txids = Vec::new();
+        for (txid, _) in &confirmations {
+            if !included.contains(txid) && !unconfirmed_txids.contains(txid) {
+                unconfirmed_txids.push(txid.clone());
+            }
+        }
         let mut retained_txids = Vec::new();
         let mut failed_transactions = Vec::new();
         for (txid, _) in transactions {
@@ -309,6 +318,7 @@ async fn change_chain_with(
             replacement_hashes,
             retained_txids,
             failed_transactions,
+            unconfirmed_txids,
         })
     }
     .await;

@@ -115,7 +115,8 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
         "depth":3,"old_tip":{"height":108,"hash":"old-tip"},
         "new_tip":{"height":108,"hash":"new-tip"},
         "removed_hashes":["a","b","c"],"replacement_hashes":["d","e","f"],
-        "retained_txids":["kept"],"failed_transactions":[{"txid":"dropped","error":"invalid anchor"}]
+        "retained_txids":["kept"],"failed_transactions":[{"txid":"dropped","error":"invalid anchor"}],
+        "unconfirmed_txids":["dropped"]
     });
     for (operation, keep_txs, body) in [
         (
@@ -154,6 +155,8 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
         assert!(text.contains("3 blocks on alpha"));
         assert!(text.contains("New tip: 108 (new-tip)"));
         assert!(text.contains("Not retained: dropped: invalid anchor"));
+        assert!(text.contains("Now unconfirmed: dropped"));
+        assert!(text.contains("inputs stay reserved until each transaction expires"));
         assert!(text.starts_with(if operation == "reorg" {
             "Reorganized"
         } else {
