@@ -376,6 +376,10 @@ fn parse_errors_use_the_same_language_as_handler_checks() {
             "Failed to deserialize the JSON body into the target type: memo: invalid type: integer `1`, expected a string at line 1 column 10",
             "memo must be text",
         ),
+        (
+            "Failed to deserialize the JSON body into the target type: memo: unknown field `memo`, expected `account` or `ufvk` at line 1 column 20",
+            "memo is not a recognized field",
+        ),
     ];
     for (raw, expected) in cases {
         let path = if expected.starts_with("amount_zatoshi must be between") {

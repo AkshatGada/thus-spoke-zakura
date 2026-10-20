@@ -1,10 +1,11 @@
-use super::error::{ApiError, ApiPath, ApiQuery, ApiResult, not_found};
+use super::error::{ApiError, ApiJson, ApiPath, ApiQuery, ApiResult, not_found};
 use crate::network::regtest_network;
 use crate::state::AppState;
+use anyhow::Context;
 use axum::{Json, extract::State, http::StatusCode};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use zcash_keys::address::Address;
+use zcash_keys::{address::Address, keys::UnifiedFullViewingKey};
 pub(crate) async fn block(
     State(state): State<AppState>,
     ApiPath(id): ApiPath<String>,
@@ -140,6 +141,75 @@ pub(crate) async fn transaction(
     }
     attach_transparent_prevouts(&mut tx, &prev_txs);
     Ok(Json(tx))
+}
+/// Exactly one of `account` (1–5) or `ufvk` names the viewing key. The key
+/// is used for this request only and is never stored.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct DecryptRequest {
+    account: Option<u8>,
+    ufvk: Option<String>,
+}
+pub(crate) async fn decrypt_transaction(
+    State(state): State<AppState>,
+    ApiPath(txid): ApiPath<String>,
+    ApiJson(req): ApiJson<DecryptRequest>,
+) -> ApiResult<Json<Value>> {
+    let ufvk = match (req.account, req.ufvk) {
+        (Some(id), None) => {
+            let encoded = state
+                .accounts()
+                .await
+                .into_iter()
+                .find(|account| account.id == id && id <= crate::db::USER_ACCOUNT_COUNT)
+                .and_then(|account| account.unified_full_viewing_key)
+                .ok_or_else(|| ApiError::bad_request("account must be between 1 and 5"))?;
+            UnifiedFullViewingKey::decode(&regtest_network(), &encoded)
+                .map_err(|error| anyhow::anyhow!("decoding account {id} viewing key: {error}"))?
+        }
+        (None, Some(encoded)) => UnifiedFullViewingKey::decode(&regtest_network(), encoded.trim())
+            .map_err(|_| ApiError::bad_request("ufvk is not a Regtest unified full viewing key"))?,
+        _ => {
+            return Err(ApiError::bad_request(
+                "provide exactly one of account or ufvk",
+            ));
+        }
+    };
+    let tx = state
+        .0
+        .rpc
+        .transaction(&txid)
+        .await
+        .map_err(|e| not_found(e, NO_TRANSACTION))?;
+    let hex = tx
+        .get("hex")
+        .and_then(Value::as_str)
+        .with_context(|| format!("Zakura returned transaction {txid} without its bytes"))?;
+    let raw = hex::decode(hex)
+        .with_context(|| format!("Zakura returned invalid bytes for transaction {txid}"))?;
+    // A mempool transaction has no confirmations; it is parsed for the next height.
+    let mined_height = match tx.get("confirmations").and_then(Value::as_u64) {
+        Some(confirmations) if confirmations > 0 => {
+            let height = tx
+                .get("height")
+                .and_then(Value::as_u64)
+                .with_context(|| format!("mined transaction {txid} omitted its height"))?;
+            Some(u32::try_from(height).context("transaction height is out of range")?)
+        }
+        _ => None,
+    };
+    let tip = u32::try_from(state.0.rpc.checkpoint().await?.height)
+        .context("chain tip height is out of range")?;
+    let outputs = tokio::task::spawn_blocking(move || {
+        crate::view::view_transaction(&raw, mined_height, tip, &ufvk)
+    })
+    .await
+    .map_err(|error| anyhow::anyhow!("decrypting transaction: {error}"))??;
+    Ok(Json(json!({
+        "txid": txid,
+        "mined_height": mined_height,
+        "outputs": outputs,
+    })))
 }
 pub(crate) async fn mempool(State(state): State<AppState>) -> ApiResult<Json<Value>> {
     Ok(Json(json!({"transactions":state.0.rpc.mempool().await?})))

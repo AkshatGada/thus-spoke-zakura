@@ -8,6 +8,8 @@ import {
   type MiningJob,
   type PaymentRequest,
   type PaymentUri,
+  type TransactionView,
+  type TransactionViewer,
 } from '@/lib/api';
 import { isTerminalPayment, queryKeys } from './queries';
 import {
@@ -245,6 +247,17 @@ export function useFaucet(lifecycle?: PaymentLifecycle) {
 /** Resolves a pasted `zcash:` URI; it moves no funds, so nothing is invalidated. */
 export function useParsePaymentUri(): UseMutationResult<PaymentUri, Error, string> {
   return useMutation({ mutationFn: (uri: string) => api.parsePaymentUri(uri) });
+}
+
+/**
+ * Decrypts one transaction with one viewing key. It reads chain data and
+ * stores nothing, so it invalidates nothing; a mutation keeps a pasted key out
+ * of the query cache.
+ */
+export function useDecryptTransaction(
+  txid: string,
+): UseMutationResult<TransactionView, Error, TransactionViewer> {
+  return useMutation({ mutationFn: (viewer) => api.decryptTransaction(txid, viewer) });
 }
 
 export interface PaymentRequestVariables {

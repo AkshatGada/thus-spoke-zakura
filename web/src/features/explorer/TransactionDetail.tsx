@@ -14,6 +14,7 @@ import { actionSummary, summariseShielding, transactionFee } from './shielding';
 import { resolveTransparentInput } from './resolve-input';
 import { Stat } from '@/components/ui/Stat';
 import { BACK_LINK } from './back-link';
+import { ViewAsPanel } from './ViewAsPanel';
 
 const IO_COLUMNS: Column[] = [
   { key: 'n', header: '#', width: '72px' },
@@ -226,6 +227,10 @@ export function TransactionDetail() {
           </PanelNote>
         )}
       </Panel>
+
+      {(shielding.shieldedActions > 0 || shielding.saplingOutputs > 0) && (
+        <ViewAsPanel txid={tx.txid} />
+      )}
 
       {tx.vin.length > 0 && <PublicInputs vin={tx.vin} />}
 

@@ -63,8 +63,32 @@ export const activitySchema = z.object({
   status: z.string(),
   last_error: z.string().nullable().default(null),
   created_at: z.string().nullable(),
+  /** Decoded text memos the wallet can read; non-text memos are omitted. */
+  memos: z.array(z.string()).optional(),
 });
 export type Activity = z.infer<typeof activitySchema>;
+
+/** One shielded output as a single viewing key decrypts it. */
+export const viewedOutputSchema = z.object({
+  pool: z.enum(['sapling', 'orchard', 'ironwood']),
+  index: z.number().int().nonnegative(),
+  transfer: z.enum(['received', 'change', 'sent']),
+  value_zatoshi: zatoshi,
+  recipient_address: z.string().nullable(),
+  memo_text: z.string().nullable(),
+  memo_hex: z.string().nullable(),
+});
+export type ViewedOutput = z.infer<typeof viewedOutputSchema>;
+
+export const transactionViewSchema = z.object({
+  txid: z.string(),
+  mined_height: z.number().int().nonnegative().nullable(),
+  outputs: z.array(viewedOutputSchema),
+});
+export type TransactionView = z.infer<typeof transactionViewSchema>;
+
+/** Exactly one viewing key: a development account, or a pasted UFVK. */
+export type TransactionViewer = { account: number } | { ufvk: string };
 
 export const addressFaucetSchema = z.object({
   address: z.string(),

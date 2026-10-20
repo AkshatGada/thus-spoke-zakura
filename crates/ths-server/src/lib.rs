@@ -10,6 +10,7 @@ mod reconcile;
 mod rpc;
 mod state;
 mod sync;
+mod view;
 mod wallet;
 
 pub async fn run_from<I, T>(argv: I) -> anyhow::Result<()>

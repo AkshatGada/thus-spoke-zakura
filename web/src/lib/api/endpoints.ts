@@ -15,7 +15,9 @@ import {
   sendQuoteSchema,
   statusSchema,
   transactionSchema,
+  transactionViewSchema,
   type Pool,
+  type TransactionViewer,
   type SendQuoteInput,
   type AddressFaucet,
   type Activity,
@@ -65,6 +67,10 @@ export const api = {
   block: (id: string | number) => request(`/blocks/${id}`, blockSchema),
 
   transaction: (txid: string) => request(`/transactions/${txid}`, transactionSchema),
+
+  /** Decrypts a transaction's shielded outputs with one viewing key. Nothing is stored. */
+  decryptTransaction: (txid: string, viewer: TransactionViewer) =>
+    post(`/transactions/${txid}/decrypt`, transactionViewSchema, viewer),
 
   address: (address: string) => request(`/addresses/${address}`, addressSchema),
 

@@ -107,8 +107,8 @@ prints only user Accounts 1–5. `100000000` zatoshi is 1 ZEC.
 `GET /api/v1/accounts` carries more than balances. Each account object also
 has `name`, `unified_address`, `transparent_address`, and
 `unified_full_viewing_key`. The addresses are what you pay from outside the
-dashboard; the viewing key is the only way to read an Ironwood memo this
-environment sent, since nothing in the API or UI shows one back. Because the
+dashboard; the viewing key lets a wallet outside THS read what that account
+can see. Because the
 seed is fixed (see [Chapter 3](accounts-and-balances.md#an-account-is-a-wallet-identity)),
 these values are identical in every instance — convenient for fixtures, and
 a reason never to reuse them anywhere real.
@@ -173,6 +173,51 @@ describes the node. Use the accounts API for the development wallet's
 balances and the activity API for recorded requests. Do not try to infer
 private Ironwood recipients or memo plaintext from raw chain data.
 
+## Read a transaction with a viewing key
+
+Raw chain data hides shielded values, recipients, and memos. To check what a
+payment actually carried, ask the server to decrypt it with one viewing key:
+
+```console
+DASHBOARD_URL="$(ths endpoints --json | python3 -c 'import json,sys; print(json.load(sys.stdin)["dashboard"])')"
+curl -fsS "$DASHBOARD_URL/api/v1/transactions/<txid>/decrypt" \
+  -H 'content-type: application/json' \
+  --data '{"account": 2}'
+```
+
+Send `{"account": N}` for a development account (1–5), or
+`{"ufvk": "uviewregtest1…"}` for any Regtest unified full viewing key, such as
+your own app's. Exactly one is required, and unknown fields are rejected. The
+key goes in the request body, is used for that request only, and is not stored.
+The response lists every shielded output that key can decrypt:
+
+```json
+{
+  "txid": "0dab5355…",
+  "mined_height": 284,
+  "outputs": [
+    {
+      "pool": "ironwood",
+      "index": 0,
+      "transfer": "received",
+      "value_zatoshi": 10000000,
+      "recipient_address": "uregtest1…",
+      "memo_text": "order 42",
+      "memo_hex": null
+    }
+  ]
+}
+```
+
+`transfer` is `received` for an output paid to the key's addresses, `change`
+for value returned to the same account, and `sent` for an output the key's
+outgoing viewing key recovers: what that account paid someone else. A memo
+that is not text appears in `memo_hex` with its trailing zero padding removed.
+An empty `outputs` list means the key can decrypt nothing in the transaction.
+Transparent inputs and outputs are already public in
+`GET /api/v1/transactions/{txid}`. The Explorer's **View as** panel calls this
+route.
+
 ## Connect a light client
 
 Pass the `lightwalletd` endpoint to a lightwalletd-compatible gRPC client
@@ -207,6 +252,7 @@ These are every route the server serves today, from
 | `POST /api/v1/zip321/request` | Generate a payment URI from `{account_id}` and an optional amount and memo; moves no funds. |
 | `POST /api/v1/dev/seed` | Returns the raw seed hex. Refuses unless the body carries `"confirmation": "I understand this seed is for regtest only"`. |
 | `GET /api/v1/blocks`, `/blocks/{id}`, `/transactions/{txid}`, `/mempool`, `/addresses/{address}`, `/search` | Read-only explorer views of public chain data. |
+| `POST /api/v1/transactions/{txid}/decrypt` | `{account}` (1–5) or `{ufvk}`: the transaction's shielded outputs that one viewing key can decrypt. Stores nothing. See below. |
 | `GET /api/v1/events` | The server-sent stream described above. |
 
 Accepted payment intents now progress in the background, including payments

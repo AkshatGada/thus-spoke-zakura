@@ -127,14 +127,15 @@ the server rejects a present memo there too.
 
 The server stores the supplied memo in its idempotency record to compare
 replayed requests. An absent memo and an explicit empty text memo are different
-payment identities. Activity has no memo field, and the dashboard's transaction views do not
-decrypt received memos. ZIP-321 parsing can return a memo supplied in its input;
+payment identities. Recent activity shows the text memos the wallet can decrypt
+under each transfer. ZIP-321 parsing can return a memo supplied in its input;
 that does not read a memo from the chain.
 
 `GET /api/v1/accounts` provides a `unified_full_viewing_key` for each user
 account. An external wallet imported with that key can decrypt memos sent to
 that account. Public Explorer data reveals neither memo plaintext nor private
-Ironwood recipient addresses.
+Ironwood recipient addresses; the Explorer's **View as** panel, described
+below, shows what one viewing key can decrypt.
 
 ## Create a request for another sender
 
@@ -192,6 +193,15 @@ Transparent inputs and outputs are public chain data; Ironwood details are
 not exposed as the user-account transfer shown by Recent activity. The
 server's activity record knows the development account IDs, while the
 Explorer follows the public chain.
+
+A transaction with shielded outputs also has a **View as** panel. Choose an
+account, or **Paste a viewing key** and enter a unified full viewing key, then
+select **Decrypt**. Each output that key can decrypt is listed as **Received**,
+**Change**, or **Sent**, with its value, receiving address, and memo. Sent
+outputs are recovered with the key's outgoing viewing key, so the sender sees
+what it paid as well as its change. A key that has nothing to do with the
+transaction sees nothing. A pasted key is used for that request only and is
+not stored.
 
 ![The Explorer page: a single search field accepting a block height, block hash, transaction ID, or t-address, above a Blocks table listing recent heights with their block hash, transaction count, size, and time.](images/explorer.png)
 

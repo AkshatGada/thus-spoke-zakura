@@ -680,8 +680,9 @@ account's keys can read it.
   bytes, so a trailing NUL would be lost when the memo is read.
 - The memo is attached to the recipient's output only. Change returned to the
   sender has no memo.
-- The block explorer shows public transaction data only. It never shows memo
-  plaintext.
+- The block explorer shows public transaction data. Its **View as** panel
+  decrypts one transaction with an account's viewing key or a pasted one; see
+  [Read a transaction with a viewing key](connect-an-app.md#read-a-transaction-with-a-viewing-key).
 - All five accounts and the treasury come from one seed as separate ZIP-32
   accounts. A viewing-only wallet imported with one account's viewing key can
   decrypt only the memos sent to that account.
@@ -689,8 +690,8 @@ account's keys can read it.
 The server stores the supplied memo separately in its idempotency record.
 An omitted memo and a `null` memo are equivalent; explicitly empty text is a
 different payment intent. Changing the memo under an existing direct API key
-returns HTTP 409. Activity has no memo field, and
-dashboard transaction views do not decrypt received memos. ZIP-321 parsing can
+returns HTTP 409. Activity's `memos` lists the text memos the wallet can
+decrypt, and the dashboard shows them on activity rows. ZIP-321 parsing can
 return a supplied URI memo without reading one from a transaction.
 
 `GET /api/v1/accounts` returns a `unified_full_viewing_key` for each user

@@ -216,6 +216,11 @@ fn friendly_parse_message(raw: &str, path: &str) -> String {
     if let Some(field) = missing_field(detail) {
         return format!("{field} is required");
     }
+    // Checked before `field_problem`: serde prefixes the unknown name as if it
+    // were a field path, which would otherwise borrow that field's own rule.
+    if let Some(field) = unknown_field(detail) {
+        return format!("{field} is not a recognized field");
+    }
     if let Some((field, problem)) = field_problem(detail) {
         return field_message(field, problem, path);
     }
@@ -262,6 +267,16 @@ fn without_source_location(detail: &str) -> &str {
 fn missing_field(detail: &str) -> Option<&str> {
     detail
         .strip_prefix("missing field `")
+        .and_then(|rest| rest.split('`').next())
+        .filter(|field| !field.is_empty())
+}
+
+fn unknown_field(detail: &str) -> Option<&str> {
+    let problem = detail
+        .split_once(": ")
+        .map_or(detail, |(_, problem)| problem);
+    problem
+        .strip_prefix("unknown field `")
         .and_then(|rest| rest.split('`').next())
         .filter(|field| !field.is_empty())
 }

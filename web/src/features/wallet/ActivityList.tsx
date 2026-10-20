@@ -61,6 +61,7 @@ function ActivityRow({ activity, index }: { activity: Activity; index: number })
   const isFaucet = activity.kind === 'faucet';
   const isIncoming = activity.direction === 'incoming';
   const transactionPath = activity.txid ? `/explorer/tx/${activity.txid}` : null;
+  const memos = activity.memos ?? [];
   const source = accountLabel(activity.from_accounts, activity.from_account) ?? 'External';
   const transfer = isFaucet
     ? `Faucet → ${recipientLabel(activity)}`
@@ -108,6 +109,14 @@ function ActivityRow({ activity, index }: { activity: Activity; index: number })
               <span className="min-w-0 truncate font-semibold">{transfer}</span>
             )}
           </div>
+          {memos.length > 0 && (
+            <p
+              className="text-ink-muted mt-1 truncate pl-[34px] text-[11px]"
+              title={memos.join('\n')}
+            >
+              Memo: {memos.join(' · ')}
+            </p>
+          )}
         </td>
 
         <td className="max-sm:hidden">
