@@ -16,6 +16,11 @@ const zatoshi = z
   .nonnegative()
   .transform((value) => BigInt(value));
 
+const signedZatoshi = z
+  .number()
+  .int()
+  .transform((value) => BigInt(value));
+
 export const poolSchema = z.enum(['transparent', 'ironwood']);
 export type Pool = z.infer<typeof poolSchema>;
 
@@ -35,19 +40,29 @@ export type PaymentRequest = z.infer<typeof paymentRequestSchema>;
 
 export const activitySchema = z.object({
   id: z.string(),
-  kind: z.enum(['send', 'faucet']).catch('send'),
+  kind: z.enum(['send', 'faucet', 'transaction']),
+  direction: z.enum(['incoming', 'outgoing', 'internal', 'self', 'unknown']).optional(),
   from_account: z.number().int().nullable().default(null),
   /** Null when the recipient is an address outside the development accounts. */
   to_account: z.number().int().nullable().default(null),
+  from_accounts: z.array(z.number().int().min(1).max(5)).optional(),
+  to_accounts: z.array(z.number().int().min(1).max(5)).optional(),
   to_address: z.string().nullable().default(null),
-  source_pool: poolSchema,
-  destination_pool: poolSchema,
+  recipient_addresses: z.array(z.string()).optional(),
+  source_pool: poolSchema.nullable(),
+  destination_pool: poolSchema.nullable(),
+  source_pools: z.array(poolSchema).optional(),
+  destination_pools: z.array(poolSchema).optional(),
   amount_zatoshi: zatoshi,
+  received_zatoshi: zatoshi.nullable().optional(),
+  spent_zatoshi: zatoshi.nullable().optional(),
+  net_zatoshi: signedZatoshi.nullable().optional(),
   txid: z.string(),
   block_hash: z.string().nullable().default(null),
+  mined_height: z.number().int().nonnegative().nullable().optional(),
   status: z.string(),
   last_error: z.string().nullable().default(null),
-  created_at: z.string(),
+  created_at: z.string().nullable(),
 });
 export type Activity = z.infer<typeof activitySchema>;
 
@@ -230,8 +245,8 @@ export type Transaction = z.infer<typeof transactionSchema>;
 export const addressSchema = z.object({
   address: z.string(),
   balance: z.looseObject({
-    balance: z.number().default(0),
-    received: z.number().default(0),
+    balance: z.number().int().nonnegative().default(0),
+    received: z.number().int().nonnegative().default(0),
   }),
 });
 export type AddressInfo = z.infer<typeof addressSchema>;
