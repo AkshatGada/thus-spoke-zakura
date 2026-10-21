@@ -219,7 +219,15 @@ impl Runtime {
         eprintln!("Preparing a fresh {name} environment…");
         let primary = (|| {
             let mut journal = recovery::RecoveryJournal::create(self.recovery_path(name), name)?;
-            let allocated = host.allocate(self, name, shutdown, None, context, &mut journal)?;
+            let allocated = host.allocate(
+                self,
+                name,
+                shutdown,
+                None,
+                MiningConfig::default(),
+                context,
+                &mut journal,
+            )?;
             if allocated.zakura_container_id.is_empty()
                 || allocated
                     .resources
