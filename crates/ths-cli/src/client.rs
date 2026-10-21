@@ -451,6 +451,7 @@ impl Runtime {
         }
         let dashboard = self.read_instance(name)?.endpoints.dashboard;
         let client = reqwest::blocking::Client::builder()
+            .no_proxy()
             .timeout(Duration::from_secs(300))
             .build()?;
         Ok((dashboard, client))
@@ -1774,6 +1775,7 @@ pub(crate) struct RuntimeStatus {
 }
 pub(crate) fn runtime_status(endpoints: &Endpoints, timeout: Duration) -> Result<RuntimeStatus> {
     let response = reqwest::blocking::Client::builder()
+        .no_proxy()
         .timeout(timeout)
         .build()?
         .get(format!("{}/api/v1/status", endpoints.dashboard))

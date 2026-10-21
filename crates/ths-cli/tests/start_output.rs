@@ -212,7 +212,11 @@ impl Drop for Fixture {
 fn respond_ready(mut stream: TcpStream) {
     let mut request = [0; 2048];
     let _ = stream.read(&mut request);
-    let body = r#"{"result":"test-tip","node_height":1,"lightwalletd_height":1,"wallet_scanned_height":1,"wallet_sync_state":"ready","settled":true,"settlement_blocker":null}"#;
+    let body = if request.starts_with(b"GET /api/v1/accounts ") {
+        r#"[{"id":1,"transparent_address":"transparent","unified_address":"unified","transparent_zatoshi":0,"ironwood_zatoshi":123}]"#
+    } else {
+        r#"{"result":"test-tip","node_height":1,"lightwalletd_height":1,"wallet_scanned_height":1,"wallet_sync_state":"ready","wallet_sync":{"state":"ready","error":null},"settled":true,"settlement_blocker":null}"#
+    };
     write!(
         stream,
         "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
@@ -476,6 +480,52 @@ fn stop_recovers_a_launcher_killed_during_a_network_or_volume_create() {
         assert_nothing_left(&fixture, &format!("after stop recovered a {kind} create"));
         let (started, _, stderr, _, _) = output_after_shutdown_with(&fixture, false, false, false);
         assert!(started, "a new start failed after recovery: {stderr}");
+    }
+}
+
+#[test]
+fn run_and_wallet_balances_bypass_proxy_settings() {
+    for proxied in [false, true] {
+        let fixture = Fixture::new();
+        let mut command = fixture.command();
+        for variable in [
+            "HTTP_PROXY",
+            "http_proxy",
+            "HTTPS_PROXY",
+            "https_proxy",
+            "ALL_PROXY",
+            "all_proxy",
+        ] {
+            command.env_remove(variable);
+            if proxied {
+                command.env(variable, "http://127.0.0.1:1");
+            }
+        }
+        let output = command
+            .env_remove("NO_PROXY")
+            .env_remove("no_proxy")
+            .args([
+                "--name",
+                &fixture.name,
+                "run",
+                "--timeout",
+                "10",
+                "--",
+                env!("CARGO_BIN_EXE_ths"),
+                "--name",
+                &fixture.name,
+                "--json",
+                "wallet",
+                "balances",
+            ])
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "proxied={proxied}: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(String::from_utf8_lossy(&output.stdout).contains("\"ironwood_zatoshi\": 123"));
     }
 }
 
