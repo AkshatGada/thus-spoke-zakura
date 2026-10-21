@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { api, type Block } from '@/lib/api';
 import { renderWithProviders } from '@/test/utils';
+import { WalletActionsContext } from '@/features/wallet/wallet-actions-context';
 import { ExplorerPage } from './ExplorerPage';
 
 afterEach(() => {
@@ -27,13 +28,22 @@ function renderExplorer(path = '/explorer') {
   const router = createMemoryRouter([{ path: '/explorer/*', element: <ExplorerPage /> }], {
     initialEntries: [path],
   });
-  const view = renderWithProviders(<RouterProvider router={router} />);
+  // The explorer index also renders the pending-transactions panel, which needs
+  // the wallet actions the app provides above every page.
+  const view = renderWithProviders(
+    <WalletActionsContext
+      value={{ openMine: vi.fn(), openSend: vi.fn(), openFaucet: vi.fn(), openRequest: vi.fn() }}
+    >
+      <RouterProvider router={router} />
+    </WalletActionsContext>,
+  );
   return { router, ...view };
 }
 
 function mockBlocks() {
   vi.spyOn(api, 'block').mockImplementation((id) => Promise.resolve(block(Number(id))));
   vi.spyOn(api, 'status').mockRejectedValue(new Error('status not needed for pagination'));
+  vi.spyOn(api, 'mempool').mockResolvedValue({ transactions: [] });
   return vi.spyOn(api, 'blocks').mockImplementation((options) => {
     const end = Math.min(options?.before ?? 104, 104);
     const start = Math.max(0, end - 19);
