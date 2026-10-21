@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -36,23 +36,22 @@ afterEach(() => {
 });
 
 describe('MempoolPanel', () => {
-  it('keeps loading separate from an empty mempool', async () => {
+  it('renders nothing while loading or when nothing is pending', async () => {
     let resolve!: (body: { transactions: string[] }) => void;
-    vi.spyOn(api, 'mempool').mockImplementation(
+    const read = vi.spyOn(api, 'mempool').mockImplementation(
       () =>
         new Promise((done) => {
           resolve = done;
         }),
     );
-    renderPanel();
-    expect(screen.getByRole('status')).toHaveTextContent('Loading pending transactions');
-    expect(screen.getByRole('button', { name: 'Mine 1 block' })).toBeDisabled();
-    expect(screen.queryByText('No transactions are waiting to be mined.')).not.toBeInTheDocument();
+    const { container } = renderPanel();
+    expect(container).toBeEmptyDOMElement();
     await act(async () => {
       resolve({ transactions: [] });
       await Promise.resolve();
     });
-    expect(await screen.findByText('No transactions are waiting to be mined.')).toBeInTheDocument();
+    expect(read).toHaveBeenCalled();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('polls an empty mempool for external broadcasts and stops after unmount', async () => {
@@ -62,7 +61,8 @@ describe('MempoolPanel', () => {
       .spyOn(api, 'mempool')
       .mockImplementation(() => Promise.resolve({ transactions }));
     const view = renderPanel();
-    await screen.findByText('No transactions are waiting to be mined.');
+    await waitFor(() => expect(read).toHaveBeenCalled());
+    expect(view.container).toBeEmptyDOMElement();
 
     transactions = [TXID];
     await act(async () => {
@@ -78,8 +78,7 @@ describe('MempoolPanel', () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2_000);
     });
-    expect(await screen.findByText('No transactions are waiting to be mined.')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: TXID })).not.toBeInTheDocument();
+    await waitFor(() => expect(view.container).toBeEmptyDOMElement());
 
     view.unmount();
     const reads = read.mock.calls.length;
@@ -89,7 +88,7 @@ describe('MempoolPanel', () => {
 
   it('hides stale results after a failed refresh and can retry', async () => {
     const read = vi.spyOn(api, 'mempool').mockResolvedValue({ transactions: [TXID] });
-    const { client } = renderPanel();
+    const { client, container } = renderPanel();
     await screen.findByRole('link', { name: TXID });
 
     read.mockRejectedValue(new TypeError('Network unavailable'));
@@ -100,13 +99,11 @@ describe('MempoolPanel', () => {
       'Unable to refresh pending transactions',
     );
     expect(screen.queryByRole('link', { name: TXID })).not.toBeInTheDocument();
-    expect(screen.queryByText('No transactions are waiting to be mined.')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Mine 1 block' })).toBeDisabled();
 
     read.mockResolvedValue({ transactions: [] });
     await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByText('No transactions are waiting to be mined.')).toBeInTheDocument();
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await waitFor(() => expect(container).toBeEmptyDOMElement());
   });
 
   it('uses the existing mining dialog with one block selected and submits only after confirmation', async () => {

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AddressDetail } from '@/features/explorer/AddressDetail';
@@ -198,8 +198,8 @@ describe('useServerEvents', () => {
     await screen.findByRole('link', { name: TXID });
     transactions = [];
     FakeEventSource.current?.emit('chain');
-    expect(await screen.findByText('No transactions are waiting to be mined.')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: TXID })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('link', { name: TXID })).not.toBeInTheDocument());
+    expect(screen.queryByRole('heading', { name: 'Pending transactions' })).not.toBeInTheDocument();
     expect(requestsTo('/mempool')).toBe(2);
   });
 

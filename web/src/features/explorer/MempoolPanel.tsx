@@ -3,7 +3,7 @@ import { Pickaxe } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Panel, PanelNote } from '@/components/ui/Panel';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/StateBlock';
+import { ErrorState } from '@/components/ui/StateBlock';
 import { useWalletActions } from '@/features/wallet/wallet-actions-context';
 import { useMempool } from '@/hooks/queries';
 import { errorMessage } from '@/lib/api';
@@ -11,13 +11,17 @@ import { errorMessage } from '@/lib/api';
 export function MempoolPanel() {
   const mempool = useMempool();
   const { openMine } = useWalletActions();
-  const transactions = mempool.data?.transactions;
+  const transactions = mempool.data?.transactions ?? [];
+
+  // The panel only takes space while something is waiting. A failed read stays
+  // visible so it is never mistaken for an empty mempool.
+  if (mempool.isPending || (!mempool.isError && transactions.length === 0)) return null;
 
   return (
     <Panel
       title="Pending transactions"
       meta={
-        transactions && !mempool.isError ? (
+        !mempool.isError ? (
           <Badge className="max-sm:hidden">{transactions.length} pending</Badge>
         ) : undefined
       }
@@ -25,16 +29,14 @@ export function MempoolPanel() {
         <Button
           size="sm"
           onClick={openMine}
-          disabled={mempool.isPending || mempool.isError || !transactions?.length}
+          disabled={mempool.isError || transactions.length === 0}
         >
           <Pickaxe aria-hidden />
           Mine 1 block
         </Button>
       }
     >
-      {mempool.isPending ? (
-        <LoadingState label="Loading pending transactions…" />
-      ) : mempool.isError ? (
+      {mempool.isError ? (
         <ErrorState
           message={`Unable to refresh pending transactions. ${errorMessage(mempool.error)}`}
           action={
@@ -43,7 +45,7 @@ export function MempoolPanel() {
             </Button>
           }
         />
-      ) : transactions?.length ? (
+      ) : (
         <ul aria-label="Pending transactions" className="max-h-72 overflow-y-auto">
           {transactions.map((txid) => (
             <li key={txid} className="border-line border-b px-5 py-3 last:border-b-0">
@@ -57,8 +59,6 @@ export function MempoolPanel() {
             </li>
           ))}
         </ul>
-      ) : (
-        <EmptyState message="No transactions are waiting to be mined." />
       )}
       <PanelNote>
         Transactions received by the node and waiting for a block. Updates automatically.

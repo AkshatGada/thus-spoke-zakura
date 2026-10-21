@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { renderWithProviders, requestUrl } from '@/test/utils';
@@ -55,15 +55,21 @@ describe('ExplorerPage', () => {
     );
   });
 
-  it('explains an empty mempool', async () => {
+  it('leaves out the pending panel when nothing is pending', async () => {
     renderAt('/explorer');
-    expect(await screen.findByText('No transactions are waiting to be mined.')).toBeInTheDocument();
+    const fetchSpy = vi.mocked(globalThis.fetch);
+    expect(await screen.findByLabelText('Search the chain')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(fetchSpy.mock.calls.some(([input]) => requestUrl(input).includes('/mempool'))).toBe(
+        true,
+      ),
+    );
+    expect(screen.queryByRole('heading', { name: 'Pending transactions' })).not.toBeInTheDocument();
   });
 
   it('reports a failed mempool read instead of claiming it is empty', async () => {
     renderAt('/explorer', new Error('Zakura unavailable'));
     expect(await screen.findByRole('alert')).toHaveTextContent(/unexpected error/i);
-    expect(screen.queryByText('No transactions are waiting to be mined.')).not.toBeInTheDocument();
   });
 
   it('explains an unknown explorer path instead of rendering nothing', async () => {
