@@ -59,6 +59,8 @@ under NU6.3. Ironwood is this chain's shielded pool;
    A send between users spends the selected **source** account and pool and
    pays to the selected **destination** account and pool. The accounts may
    match when the pools differ; same-account/same-pool sends are rejected.
+   An Ironwood send uses only Ironwood inputs; Sapling or legacy Orchard
+   funds cannot cover a shortfall in the selected source pool.
 
 ## ZEC, zatoshi, and spendability
 
@@ -103,6 +105,11 @@ A transparent send can use at most 1,333 eligible inputs. If an account holds
 more, the quote's `available_zatoshi` can be lower than its full transparent
 balance in `GET /api/v1/accounts`. **Max** uses the amount that fits in one
 send after fees; the account balance is unchanged.
+
+From a terminal, `ths wallet quote --from 1 --source-pool ironwood
+--destination-pool ironwood` asks for the same quote and prints it in ZEC, or
+in zatoshi with `--json`; see the
+[CLI reference](cli.md#ths-wallet-quote---from-n---source-pool-pool---destination-pool-pool).
 
 These values depend on the selected inputs and current wallet state; a quote
 does not reserve funds or guarantee a later send succeeds. Compare an intended
