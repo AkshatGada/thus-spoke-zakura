@@ -97,9 +97,14 @@ $ curl -fsS "$DASHBOARD_URL/api/v1/send/quote" -H 'content-type: application/jso
     --data '{"from_account":1,"source_pool":"ironwood","destination_pool":"ironwood"}'
 ```
 
-- `available_zatoshi` reports the proposal's available funds,
+- `available_zatoshi` reports the funds available for one send before fees,
 - `fee_zatoshi` reports its fee,
 - and `max_zatoshi` reports the quoted maximum send amount.
+
+A transparent send can use at most 1,333 eligible inputs. If an account holds
+more, the quote's `available_zatoshi` can be lower than its full transparent
+balance in `GET /api/v1/accounts`. **Max** uses the amount that fits in one
+send after fees; the account balance is unchanged.
 
 From a terminal, `ths wallet quote --from 1 --source-pool ironwood
 --destination-pool ironwood` asks for the same quote and prints it in ZEC, or

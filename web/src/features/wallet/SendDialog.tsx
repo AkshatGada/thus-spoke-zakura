@@ -357,7 +357,7 @@ export function SendDialog({
       }
       if (quoted !== undefined && values.amount > quoted.max_zatoshi) {
         form.setError('amount', {
-          message: `The ${formatZecAmount(quoted.fee_zatoshi)} network fee leaves at most ${formatZecAmount(quoted.max_zatoshi)} spendable — Account ${values.from_account} holds ${formatZecAmount(quoted.available_zatoshi)} in the ${values.source_pool} pool.`,
+          message: `For this send, Account ${values.from_account}'s ${values.source_pool} pool has ${formatZecAmount(quoted.available_zatoshi)} available. The ${formatZecAmount(quoted.fee_zatoshi)} network fee leaves at most ${formatZecAmount(quoted.max_zatoshi)} spendable.`,
         });
         releaseSendSubmission();
         return;

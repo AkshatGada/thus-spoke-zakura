@@ -859,6 +859,34 @@ describe('SendDialog', () => {
     expect(sendCalls(fetchMock)).toHaveLength(0);
   });
 
+  it('describes capped quote funds as available for one send, not the account balance', async () => {
+    fetchMock.mockImplementation(
+      sendImpl({
+        available_zatoshi: 133_300_000,
+        fee_zatoshi: 6_675_000,
+        max_zatoshi: 126_625_000,
+      }),
+    );
+    const accounts = testAccounts.map((account) => ({
+      ...account,
+      transparent_zatoshi: account.id === 1 ? 133_400_000n : 0n,
+    }));
+    renderWithProviders(<SendDialog open onOpenChange={vi.fn()} accounts={accounts} />);
+    await selectTransferField('Source pool', 'Transparent (public)');
+    await screen.findByText('1.26625 ZEC spendable after a 0.06675 ZEC network fee.');
+    await userEvent.clear(screen.getByLabelText('Amount (ZEC)'));
+    await userEvent.type(screen.getByLabelText('Amount (ZEC)'), '1.3');
+    await userEvent.click(screen.getByRole('button', { name: /Send ZEC/i }));
+
+    expect(
+      await screen.findByText(
+        "For this send, Account 1's transparent pool has 1.333 ZEC available. The 0.06675 ZEC network fee leaves at most 1.26625 ZEC spendable.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Account 1 holds 1\.333 ZEC/)).not.toBeInTheDocument();
+    expect(sendCalls(fetchMock)).toHaveLength(0);
+  });
+
   it('accepts a send that fits the quoted maximum', async () => {
     await submitAmount('4.9999');
 
