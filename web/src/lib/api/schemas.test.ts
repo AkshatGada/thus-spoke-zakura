@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   accountSchema,
   activitySchema,
+  addressSchema,
   miningJobSchema,
   miningJobResponseSchema,
   statusSchema,
-  addressSchema,
+  transactionSchema,
 } from './schemas';
 
 const baseStatus = {
@@ -234,6 +235,38 @@ describe('activitySchema', () => {
         created_at: null,
       }),
     ).toThrow();
+  });
+});
+
+describe('transactionSchema', () => {
+  const transaction = {
+    txid: 'ab'.repeat(32),
+    vin: [],
+    vShieldedSpend: [],
+    vShieldedOutput: [],
+  };
+
+  it('accepts outputs with distinct node-provided indices', () => {
+    const parsed = transactionSchema.parse({
+      ...transaction,
+      vout: [
+        { n: 0, valueZat: 1 },
+        { n: 1, valueZat: 2 },
+      ],
+    });
+    expect(parsed.vout.map((output) => output.n)).toEqual([0, 1]);
+  });
+
+  it.each([
+    { vout: [{ valueZat: 1 }, { n: 1, valueZat: 2 }] },
+    {
+      vout: [
+        { n: 0, valueZat: 1 },
+        { n: 0, valueZat: 2 },
+      ],
+    },
+  ])('rejects outputs with missing or duplicate indices: $vout', ({ vout }) => {
+    expect(transactionSchema.safeParse({ ...transaction, vout }).success).toBe(false);
   });
 });
 
