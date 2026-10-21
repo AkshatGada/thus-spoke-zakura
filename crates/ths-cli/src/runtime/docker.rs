@@ -287,9 +287,29 @@ pub(super) fn docker_output_args(args: &[&str]) -> Result<String> {
     }
     let output = docker_cli().args(args).output().context("running Docker")?;
     if !output.status.success() {
-        bail!("{}", String::from_utf8_lossy(&output.stderr).trim());
+        bail!(
+            "{}",
+            docker_failure_message(args, &output.status, &output.stderr)
+        );
     }
     Ok(String::from_utf8(output.stdout)?.trim().to_owned())
+}
+
+/// Docker usually explains itself on stderr, but it does not always: a daemon
+/// killed mid-call, a signal, or a wrapper that prints nothing can exit
+/// nonzero with no diagnostic at all. A message built only from stderr is then
+/// empty, so every caller that reads Docker output reports a blank reason and
+/// nothing identifies which probe went wrong. Name the command and its status
+/// unconditionally, and append stderr only when Docker actually produced one.
+pub(super) fn docker_failure_message(args: &[&str], status: &ExitStatus, stderr: &[u8]) -> String {
+    let stderr = String::from_utf8_lossy(stderr);
+    let stderr = stderr.trim();
+    let mut message = format!("docker {} failed ({status})", args.join(" "));
+    if !stderr.is_empty() {
+        message.push_str(": ");
+        message.push_str(stderr);
+    }
+    message
 }
 
 // Tests install a Docker stand-in so a same-named container on the machine
@@ -329,6 +349,12 @@ pub(super) fn docker_cli() -> Command {
     #[cfg(test)]
     if tests::DOCKER_UNREACHABLE.get() {
         command.env("DOCKER_HOST", "unix:///nonexistent/ths-tests/docker.sock");
+    }
+    // A stub program lets a test reproduce an exact Docker failure, including
+    // one that prints nothing, without a daemon or a process-wide PATH change.
+    #[cfg(test)]
+    if let Some(program) = tests::DOCKER_PROGRAM.with(|slot| slot.borrow().clone()) {
+        command = Command::new(program);
     }
     command
 }
