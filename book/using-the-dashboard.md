@@ -25,6 +25,9 @@ in the page header is the general one, and it only appears on Wallet — the
 Explorer and Network pages show just **Mine**. On each account card,
 **Fund** opens the same dialog with that account preselected.
 
+Recent activity ages update while the page is idle. This only refreshes the
+displayed time; payment status still comes from the server.
+
 ## Fund Account 2's transparent pool
 
 1. Select **Fund** on Account 2's card, or **Faucet** in the header.
@@ -82,6 +85,11 @@ The dialog does the fee arithmetic for you. As soon as it has an account and
 a pool it asks `POST /api/v1/send/quote`, and the hint under the amount field
 shows the quoted spendable amount and network fee for that account and pool.
 The **Max** button fills in that spendable figure. An amount above it is rejected.
+An amount above 21,000,000 ZEC, the maximum supply, is rejected before the
+request is sent.
+
+Closing Send while the fee check is pending cancels that submission. A payment
+already submitted keeps running and remains available through **Payments**.
 
 ![The Send ZEC dialog over the Wallet page: Payment request input and Apply button above From account 1 and Ironwood Source pool, Destination Account 2 and Ironwood Destination pool, Amount (ZEC) 1 with Max and a live fee quote, and the memo hello from Regtest with its UTF-8 byte count.](images/send.png)
 
@@ -157,7 +165,9 @@ Paste a single-payment `zcash:` URI into **Payment request
 (optional)** and select **Apply**. The server resolves its address, pool,
 optional amount, and text memo. Supply the amount when the request omits it.
 Editing the URI disables Send until that revision is applied or the field is
-cleared; a stale parse result cannot authorize the edited request.
+cleared; a stale parse result cannot authorize the edited request. Editing the
+transfer fields while Apply is pending also discards that result. Apply again
+to replace the draft, or clear the request to continue with manual edits.
 
 ![The Send ZEC dialog with a Regtest payment URI filled into Payment request (optional), Apply enabled, and Send ZEC disabled until the request is applied or cleared.](images/payment-request.png)
 
