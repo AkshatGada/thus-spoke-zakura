@@ -275,10 +275,18 @@ pub(crate) struct SendArgs {
     #[arg(
         long,
         value_parser = clap::value_parser!(u8).range(1..=5),
-        required_unless_present = "uri",
-        conflicts_with = "uri"
+        required_unless_present_any = ["uri", "to_address"],
+        conflicts_with_all = ["uri", "to_address"]
     )]
     pub(crate) to: Option<u8>,
+    /// Regtest unified or transparent address to pay instead of --to. The
+    /// destination pool follows the address.
+    #[arg(
+        long = "to-address",
+        value_name = "ADDRESS",
+        conflicts_with_all = ["uri", "destination_pool"]
+    )]
+    pub(crate) to_address: Option<String>,
     /// ZIP-321 payment URI to pay instead of --to. It sets the destination,
     /// pool, and memo, and the amount unless it omits one.
     #[arg(long, conflicts_with_all = ["destination_pool", "memo"])]

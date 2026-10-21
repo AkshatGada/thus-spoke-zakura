@@ -2289,3 +2289,42 @@ fn max_send_retains_its_resolved_amount_after_a_result_write_error() {
             .is_empty()
     );
 }
+
+#[test]
+fn address_send_submits_the_address_and_its_pool() {
+    let (_dir, runtime, alpha) = payment_runtime();
+    let confirmed = r#"{"id":"address-send","kind":"send","from_account":2,"to_account":null,"to_address":"tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ","source_pool":"ironwood","destination_pool":"transparent","amount_zatoshi":10000000,"txid":"address-txid","block_hash":"block","status":"confirmed","last_error":null}"#;
+    let (url, requests) = serve(vec![("200 OK", confirmed)]);
+    let mut out = Vec::new();
+
+    runtime
+        .wallet_send_address_with(
+            &alpha,
+            &url,
+            &reqwest::blocking::Client::new(),
+            &mut out,
+            Instant::now() + Duration::from_secs(5),
+            2,
+            "tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ",
+            "ironwood",
+            "transparent",
+            TransferAmount::Exact(10_000_000),
+            None,
+            true,
+        )
+        .unwrap();
+
+    let requests: Vec<_> = requests.try_iter().collect();
+    assert_eq!(requests.len(), 1);
+    assert!(requests[0].0.starts_with("POST /api/v1/send "));
+    let body: serde_json::Value = serde_json::from_str(&requests[0].1).unwrap();
+    assert_eq!(body["to_address"], "tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ");
+    assert_eq!(body["source_pool"], "ironwood");
+    assert_eq!(body["destination_pool"], "transparent");
+    assert_eq!(body["amount_zatoshi"], 10_000_000);
+    assert!(body.get("to_account").is_none());
+    assert_eq!(
+        json_stdout(&out)["to_address"],
+        "tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ"
+    );
+}

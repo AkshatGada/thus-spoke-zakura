@@ -121,6 +121,7 @@ pub(crate) fn run(cli: Cli) -> anyhow::Result<ExitCode> {
                 SendArgs {
                     from,
                     to: Some(to),
+                    to_address: None,
                     amount,
                     max,
                     uri: None,
@@ -141,6 +142,7 @@ pub(crate) fn run(cli: Cli) -> anyhow::Result<ExitCode> {
                 SendArgs {
                     from,
                     to: Some(to),
+                    to_address: None,
                     amount,
                     max,
                     uri: None,

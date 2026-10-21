@@ -558,3 +558,39 @@ fn parses_rpc_method_params_and_flags() {
 
     assert!(Cli::try_parse_from(["ths", "rpc"]).is_err());
 }
+
+#[test]
+fn send_to_address_excludes_other_destinations() {
+    let address = "tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ";
+    let send = |extra: &[&str]| {
+        let mut args = vec![
+            "ths",
+            "wallet",
+            "send",
+            "--from",
+            "2",
+            "--to-address",
+            address,
+        ];
+        args.extend_from_slice(extra);
+        Cli::try_parse_from(args)
+    };
+    let cli = send(&["--amount", "0.1"]).unwrap();
+    let Some(Command::Wallet {
+        action: WalletCommand::Send(args),
+    }) = cli.command
+    else {
+        panic!("expected wallet send");
+    };
+    assert_eq!(args.to_address.as_deref(), Some(address));
+    assert_eq!(args.to, None);
+    assert!(send(&["--max"]).is_ok());
+    for conflicting in [
+        &["--amount", "0.1", "--to", "3"][..],
+        &["--amount", "0.1", "--uri", "zcash:tm"][..],
+        &["--amount", "0.1", "--destination-pool", "ironwood"][..],
+        &[][..],
+    ] {
+        assert!(send(conflicting).is_err(), "{conflicting:?}");
+    }
+}
