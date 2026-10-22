@@ -843,7 +843,8 @@ account's keys can read it.
 - The memo is attached to the recipient's output only. Change returned to the
   sender has no memo.
 - The block explorer's public transaction data never shows memo plaintext.
-  `ths wallet tx` shows the memos the local wallet recorded for accounts 1–5.
+  `ths wallet tx` and the Explorer's **Local accounts** panel show the memos
+  the local wallet recorded for accounts 1–5.
 - All five accounts and the treasury come from one seed as separate ZIP-32
   accounts. A viewing-only wallet imported with one account's viewing key can
   decrypt only the memos sent to that account.
