@@ -424,6 +424,48 @@ Job history and keys last only for the server process lifetime, with a limit of
 existing-key replays and reads continue. Stopping the server cancels running work
 and discards this history. Jobs and deduplication do not survive a restart.
 
+### `ths hold <TXID>` / `ths release <TXID>`
+
+`hold` keeps a transaction out of every block ths mines, until `release`. Use it
+to keep a payment pending while blocks are mined around it, for example to test
+a wallet's unconfirmed state, a confirmation counter, or expiry. Both print the
+hold (the height it began, whether the transaction is in the mempool, and its
+expiry height) and support `--name` and `--json`. `GET /api/v1/mempool/held`
+lists every hold.
+
+```console
+ths hold "$TXID"
+ths mine 3          # three blocks, none containing $TXID
+ths release "$TXID"
+ths mine 1          # $TXID can be mined again
+```
+
+Hold transactions built outside ths, such as your app's payments. A payment ths
+is still executing, or the treasury's pending coinbase shielding, cannot be held
+(HTTP 409): its own progression mines it in `auto` mode, and replaces it under a
+new txid once it expires.
+
+While anything is held, ths assembles every block itself (see
+[`ths mine`](#ths-mine-blocks)): manual jobs, payments in `auto` mode, `interval`
+and `mempool` mode blocks, and reorg replacement blocks all leave held
+transactions out, together with any mempool transaction that spends one of
+their transparent outputs. In `mempool` mode a held transaction does not count
+as new work. A hold applies to every block mined after it returns. Blocks mined
+outside ths, for example with `ths rpc generate`, ignore holds.
+
+A transaction can be held before it is broadcast: hold its txid first, then
+broadcast it. That is the only reliable order in `mempool` mode, where a block
+follows a broadcast within seconds. Holding an already mined transaction returns
+HTTP 409. A hold does not remove the transaction from the node, and Zakura has no
+RPC to do so: a held transaction still expires, and the node then drops it.
+
+A hold ends by itself once its transaction has left the mempool (it expired, or
+was mined outside ths), or, for a hold placed before broadcast, if the
+transaction has not reached the mempool within 20 blocks, so a mistyped txid
+does not keep every block on the assembly path. `release` of a transaction that
+is no longer held returns HTTP 404. Holds last for the server lifetime;
+restarting the app container clears them.
+
 ### `ths reorg --depth <N> [--keep-txs]` / `ths rollback --depth <N>`
 
 `reorg` removes the last N blocks and mines N replacements, keeping the tip
@@ -474,7 +516,8 @@ is rejected with HTTP 400 before the chain changes:
   is reported as not retained. A shielded transaction may be refused, for example
   with "unknown Ironwood anchor", when its anchor is a note-commitment tree state
   that the replacement blocks do not recreate. Keeping the transactions mined
-  before it, in order, recreates that state.
+  before it, in order, recreates that state. A held transaction cannot be
+  placed.
 
 A rebroadcast transaction that depends on another removed transaction is
 retried before each later replacement block, so place a dependent transaction at
@@ -965,6 +1008,7 @@ compinit
 | `ths mine <N> [--to ACCOUNT\|ADDRESS] [--empty]` | Mine blocks, optionally paying the coinbase elsewhere or leaving the mempool out, and synchronize the wallet |
 | `ths reorg --depth N [--keep-txs] [--drop TXID] [--place TXID=K]` | Replace recent blocks, optionally retaining, dropping, or placing individual transactions |
 | `ths rollback --depth N` | Remove recent blocks without replacements |
+| `ths hold <TXID>` / `ths release <TXID>` | Keep a transaction out of mined blocks (even before broadcast), or let it be mined again |
 | `ths faucet <ADDRESS> [--amount]` | Send disposable ZEC to any Regtest address |
 | `ths wallet balances [--json]` | Print the five accounts' balances and addresses |
 | `ths wallet activity [--limit N] [--json]` | Print recent development-wallet activity |

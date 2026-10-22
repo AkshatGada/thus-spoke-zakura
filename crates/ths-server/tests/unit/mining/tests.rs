@@ -1555,8 +1555,16 @@ pub(crate) async fn assembling_rpc(
     (url, calls, submitted)
 }
 
+fn first_template_txid() -> String {
+    let template: Value = serde_json::from_str(crate::blocks::tests::TWO_TX_TEMPLATE).unwrap();
+    template["transactions"][0]["hash"]
+        .as_str()
+        .unwrap()
+        .to_owned()
+}
+
 #[tokio::test]
-async fn default_mining_uses_zakuras_generate() {
+async fn default_mining_uses_zakuras_generate_until_something_is_held() {
     let url = rpc_server(|req| match req["method"].as_str() {
         Some("generate") => json!({"result":[FAKE_HASH],"error":null,"id":req["id"]}),
         _ => json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]}),
@@ -1571,6 +1579,33 @@ async fn default_mining_uses_zakuras_generate() {
             .unwrap(),
         [FAKE_HASH]
     );
+}
+
+#[tokio::test]
+async fn generate_blocks_assembles_its_own_block_while_a_transaction_is_held() {
+    let (url, calls, submitted) = assembling_rpc(Submission::Accepted, false).await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
+    let held = first_template_txid();
+    state.0.blocks.hold(&held, 108).await;
+
+    let hashes = state
+        .generate_blocks(1, &BlockRequest::default())
+        .await
+        .unwrap();
+    assert_eq!(hashes.len(), 1);
+    assert!(!calls.lock().unwrap().contains(&"generate".to_owned()));
+    let raw = hex::decode(submitted.lock().unwrap().as_ref().unwrap()).unwrap();
+    let block =
+        zcash_primitives::block::Block::read(&raw[..], &crate::network::regtest_network()).unwrap();
+    let txids: Vec<_> = block
+        .vtx()
+        .iter()
+        .skip(1)
+        .map(|tx| tx.txid().to_string())
+        .collect();
+    assert_eq!(txids.len(), 1);
+    assert!(!txids.contains(&held));
 }
 
 #[tokio::test]
@@ -1609,4 +1644,31 @@ async fn submission_outcomes_that_may_have_produced_a_block_are_uncertain() {
             .downcast_ref::<crate::blocks::UncertainSubmission>()
             .is_some()
     );
+}
+
+#[tokio::test(start_paused = true)]
+async fn mempool_loop_does_not_mine_when_only_held_transactions_wait() {
+    let calls = Arc::new(AtomicUsize::new(0));
+    let mining_calls = calls.clone();
+    let url = rpc_server(move |req| match req["method"].as_str() {
+        Some("getrawmempool") => json!({"result":["held-tx"],"error":null,"id":req["id"]}),
+        Some("generate" | "getblocktemplate") => {
+            mining_calls.fetch_add(1, Ordering::SeqCst);
+            json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]})
+        }
+        _ => genesis_checkpoint_response(&req["id"]),
+    })
+    .await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
+    state.mark_started();
+    state.0.blocks.hold("held-tx", 0).await;
+    tokio::spawn(mempool_mining_loop(state));
+    for _ in 0..3 {
+        tokio::time::advance(Duration::from_secs(2)).await;
+        for _ in 0..20 {
+            tokio::task::yield_now().await;
+        }
+    }
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
 }

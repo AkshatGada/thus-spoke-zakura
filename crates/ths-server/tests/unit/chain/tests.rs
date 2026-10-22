@@ -720,6 +720,7 @@ async fn invalid_plans_are_rejected_before_any_mutation() {
                 keep_txs: true,
                 drop: vec!["tx".into()],
                 place: [("tx".to_owned(), 1)].into(),
+                ..ReorgPlan::default()
             },
             true,
             "both dropped and placed",
@@ -731,6 +732,15 @@ async fn invalid_plans_are_rejected_before_any_mutation() {
             },
             false,
             "a rollback mines no replacement blocks",
+        ),
+        (
+            ReorgPlan {
+                place: [("tx".to_owned(), 1)].into(),
+                held: ["tx".to_owned()].into(),
+                ..ReorgPlan::default()
+            },
+            true,
+            "is held; release it before placing it",
         ),
     ];
     for (plan, replace, message) in cases {

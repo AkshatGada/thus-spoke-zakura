@@ -9,7 +9,7 @@ use anyhow::{Context, Result};
 use serde::Serialize;
 use serde_json::Value;
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, HashSet},
     sync::Arc,
     time::Duration,
 };
@@ -39,6 +39,9 @@ pub(crate) struct ReorgPlan {
     /// Transactions to rebroadcast just before replacement block `k` (1-based),
     /// so they are mined in that block or later instead of the first one.
     pub(crate) place: BTreeMap<String, u32>,
+    /// Transactions held when the reorg starts. ths never mines them, so they
+    /// cannot be placed.
+    pub(crate) held: HashSet<String>,
 }
 
 impl ReorgPlan {
@@ -81,6 +84,11 @@ impl ReorgPlan {
             if self.drop.contains(txid) {
                 return invalid(format!(
                     "transaction {txid} cannot be both dropped and placed"
+                ));
+            }
+            if self.held.contains(txid) {
+                return invalid(format!(
+                    "transaction {txid} is held; release it before placing it"
                 ));
             }
         }
@@ -171,7 +179,7 @@ impl ChainRuntime for ChainAdapter {
         self.0.0.rpc.mempool().await
     }
     async fn generate_one(&self) -> Result<String> {
-        // Replacement blocks are serialized with every other mining path.
+        // Replacement blocks still keep held transactions out.
         let mut hashes = self.0.generate_blocks(1, &BlockRequest::default()).await?;
         anyhow::ensure!(
             hashes.len() == 1 && !hashes[0].is_empty(),
@@ -465,8 +473,9 @@ impl AppState {
         &self,
         depth: u32,
         replace: bool,
-        plan: ReorgPlan,
+        mut plan: ReorgPlan,
     ) -> Result<ChainChangeResult> {
+        plan.held = self.0.blocks.held_txids().await;
         let _payment = self
             .0
             .payments

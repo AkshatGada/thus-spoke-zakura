@@ -3,13 +3,13 @@ use super::{
     error::{ApiError, ApiJson, ApiPath, ApiResult},
     payments::require_key,
 };
-use crate::blocks::BlockRequest;
+use crate::blocks::{BlockRequest, HeldTransaction};
 use crate::mining::{MiningJob, MiningOptions, MiningState};
 use crate::network::regtest_network;
 use crate::state::AppState;
 use anyhow::Context;
 use axum::{Json, extract::State, http::StatusCode};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use transparent::address::Script;
 use zcash_keys::address::Address;
@@ -149,6 +149,119 @@ pub(crate) async fn mine(
             .await
             .context("Mining job update channel closed before completion")?;
     }
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct HoldRequest {
+    txid: String,
+}
+
+/// A held transaction as the API reports it: whether Zakura still has it, and
+/// the height after which it expires and Zakura drops it regardless.
+#[derive(Serialize)]
+pub(crate) struct HeldTransactionView {
+    #[serde(flatten)]
+    hold: HeldTransaction,
+    in_mempool: bool,
+    expiry_height: Option<u64>,
+}
+
+async fn held_view(
+    state: &AppState,
+    hold: HeldTransaction,
+    mempool: &[String],
+) -> ApiResult<HeldTransactionView> {
+    let in_mempool = mempool.contains(&hold.txid);
+    // A transaction the node does not know yet (held before broadcast) has no
+    // expiry to report.
+    let expiry_height = state
+        .0
+        .rpc
+        .lookup_transaction(&hold.txid)
+        .await?
+        .and_then(|tx| tx.get("expiryheight").and_then(Value::as_u64));
+    Ok(HeldTransactionView {
+        hold,
+        in_mempool,
+        expiry_height,
+    })
+}
+
+pub(crate) async fn held_transactions(State(state): State<AppState>) -> ApiResult<Json<Value>> {
+    require_started(&state)?;
+    let held = state.held_transactions().await?;
+    let mempool = state.0.rpc.mempool().await?;
+    let mut views = Vec::with_capacity(held.len());
+    for hold in held {
+        views.push(held_view(&state, hold, &mempool).await?);
+    }
+    Ok(Json(json!({ "held": views })))
+}
+
+/// Keeps a transaction out of every block ths mines until released. It may be
+/// held before it reaches the mempool: in `mempool` mining mode a block follows
+/// within seconds of a broadcast, so holding first is the only reliable order.
+pub(crate) async fn hold_transaction(
+    State(state): State<AppState>,
+    ApiJson(req): ApiJson<HoldRequest>,
+) -> ApiResult<Json<HeldTransactionView>> {
+    require_started(&state)?;
+    if req.txid.len() != 64
+        || !req
+            .txid
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+    {
+        return Err(ApiError::bad_request(
+            "txid must be 64 lowercase hexadecimal characters",
+        ));
+    }
+    // A payment ths is still executing would be mined by its own progression,
+    // or replaced under a new txid once it expired, so holding it cannot work.
+    // The treasury's coinbase shielding is journaled by the wallet, not as a
+    // payment, but its progression mines and replaces it the same way.
+    let shielding = state.0.wallet.prepared_shielding().await?;
+    if state.0.store.is_executing_payment(&req.txid)?
+        || shielding.is_some_and(|prepared| prepared.txid == req.txid)
+    {
+        return Err(ApiError {
+            status: StatusCode::CONFLICT,
+            message: "transaction belongs to a ths payment that is still executing; hold transactions built outside ths".into(),
+        });
+    }
+    let mempool = state.0.rpc.mempool().await?;
+    if !mempool.contains(&req.txid)
+        && let Some(tx) = state.0.rpc.lookup_transaction(&req.txid).await?
+        && tx.get("height").and_then(Value::as_u64).is_some()
+    {
+        return Err(ApiError {
+            status: StatusCode::CONFLICT,
+            message: "transaction is already mined; a hold only applies to unmined transactions"
+                .into(),
+        });
+    }
+    let height = state.0.rpc.checkpoint().await?.height;
+    let hold = state.0.blocks.hold(&req.txid, height).await;
+    Ok(Json(held_view(&state, hold, &mempool).await?))
+}
+
+pub(crate) async fn release_transaction(
+    State(state): State<AppState>,
+    ApiJson(req): ApiJson<HoldRequest>,
+) -> ApiResult<Json<HeldTransactionView>> {
+    require_started(&state)?;
+    let hold = state
+        .0
+        .blocks
+        .release(&req.txid)
+        .await
+        .ok_or_else(|| ApiError {
+            status: StatusCode::NOT_FOUND,
+            message: "transaction is not held".into(),
+        })?;
+    let mempool = state.0.rpc.mempool().await?;
+    Ok(Json(held_view(&state, hold, &mempool).await?))
 }
 
 #[cfg(test)]

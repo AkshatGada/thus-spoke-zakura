@@ -677,6 +677,10 @@ pub(crate) async fn mempool_mining_loop(state: AppState) {
                 continue;
             }
         };
+        // Held transactions are not new work: ths will not mine them, so they
+        // must not trigger a stream of blocks that leave them out.
+        let held = state.0.blocks.held_txids().await;
+        mempool.retain(|txid| !held.contains(txid));
         if mempool.is_empty() {
             attempted = None;
             continue;

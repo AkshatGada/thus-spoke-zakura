@@ -659,6 +659,16 @@ fn parses_mine_coinbase_and_empty_options() {
 }
 
 #[test]
+fn parses_hold_and_release() {
+    let cli = Cli::try_parse_from(["ths", "hold", "abc"]).unwrap();
+    assert!(matches!(cli.command, Some(Command::Hold { txid }) if txid == "abc"));
+    let cli = Cli::try_parse_from(["ths", "release", "abc", "--json"]).unwrap();
+    assert!(matches!(cli.command, Some(Command::Release { txid }) if txid == "abc"));
+    assert!(Cli::try_parse_from(["ths", "held"]).is_err());
+    assert!(Cli::try_parse_from(["ths", "hold"]).is_err());
+}
+
+#[test]
 fn a_reorg_may_name_each_placed_transaction_once() {
     let cli = Cli::try_parse_from([
         "ths", "reorg", "--depth", "2", "--place", "aa=1", "--place", "aa=2",

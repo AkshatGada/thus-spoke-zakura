@@ -2434,6 +2434,35 @@ fn mine_options_are_sent_and_keep_their_own_saved_key() {
 }
 
 #[test]
+fn hold_and_release_post_the_txid_and_render_the_hold() {
+    let held = r#"{"txid":"abc","held_at":108,"in_mempool":true,"expiry_height":148}"#;
+    for operation in ["hold", "release"] {
+        let (url, requests) = serve(vec![("200 OK", held)]);
+        let result =
+            change_hold(&url, &reqwest::blocking::Client::new(), operation, "abc").unwrap();
+        let (line, body) = requests.recv().unwrap();
+        assert_eq!(line, format!("POST /api/v1/mempool/{operation} HTTP/1.1"));
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&body).unwrap(),
+            serde_json::json!({"txid":"abc"})
+        );
+        assert_eq!(
+            render_held(&result),
+            "abc: held since height 108, in the mempool, expires after height 148"
+        );
+    }
+    let (url, _requests) = serve(vec![(
+        "404 Not Found",
+        r#"{"error":{"message":"transaction is not held","status":404}}"#,
+    )]);
+    let error = change_hold(&url, &reqwest::blocking::Client::new(), "release", "abc").unwrap_err();
+    assert!(
+        format!("{error:#}").contains("transaction is not held"),
+        "{error:#}"
+    );
+}
+
+#[test]
 fn mine_refuses_a_server_that_ignored_its_options() {
     // An older server accepts --to and --empty but neither applies nor echoes them.
     let (url, _requests) = serve(vec![(

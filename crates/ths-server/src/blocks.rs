@@ -1,15 +1,17 @@
 //! Blocks that ths assembles itself from Zakura's block template.
 //!
 //! Zakura's `generate` mines every mempool transaction and pays the coinbase to
-//! the configured miner address. To pay the coinbase elsewhere or mine an empty
-//! block, ths takes `getblocktemplate`, removes
+//! the configured miner address. To pay the coinbase elsewhere, mine an empty
+//! block, or keep held transactions out, ths takes `getblocktemplate`, removes
 //! transactions, rewrites the coinbase, recomputes the header commitments and
 //! submits the block. Regtest does not verify Equihash, so the solution is the
 //! all-zero placeholder that Zakura's own Regtest miner uses.
 
+use std::collections::{BTreeMap, HashSet};
+
 use anyhow::{Context, Result, bail};
 use blake2b_simd::Params;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
 use transparent::{address::Script, bundle::TxOut};
@@ -45,12 +47,71 @@ impl BlockRequest {
     }
 }
 
-/// Serializes block production: every mining path takes the lock from reading
-/// the template to confirming its block, so two paths never build on one
-/// template.
+/// A transaction ths keeps out of every block it mines until it is released.
+#[derive(Clone, Debug, Serialize)]
+pub(crate) struct HeldTransaction {
+    pub(crate) txid: String,
+    /// Chain height when the hold began.
+    pub(crate) held_at: u64,
+    /// Whether ths has seen the transaction in the mempool since the hold began.
+    #[serde(skip)]
+    seen: bool,
+}
+
+/// A hold placed before its transaction reaches the mempool ends if the
+/// transaction has still not arrived this many blocks later.
+pub(crate) const UNSEEN_HOLD_BLOCKS: u64 = 20;
+
+/// Holds last for the server lifetime. Zakura has no RPC to evict a mempool
+/// transaction, so a hold only stops ths from mining it.
+///
+/// The hold set's lock also serializes block production: every mining path
+/// takes it from reading the holds to confirming its block, so two paths never
+/// build on one template and a hold always applies to the next block mined.
 #[derive(Default)]
 pub(crate) struct BlockProducer {
-    lock: Mutex<()>,
+    held: Mutex<BTreeMap<String, HeldTransaction>>,
+}
+
+impl BlockProducer {
+    pub(crate) async fn hold(&self, txid: &str, held_at: u64) -> HeldTransaction {
+        self.held
+            .lock()
+            .await
+            .entry(txid.to_owned())
+            .or_insert_with(|| HeldTransaction {
+                txid: txid.to_owned(),
+                held_at,
+                seen: false,
+            })
+            .clone()
+    }
+
+    pub(crate) async fn release(&self, txid: &str) -> Option<HeldTransaction> {
+        self.held.lock().await.remove(txid)
+    }
+
+    pub(crate) async fn held_txids(&self) -> HashSet<String> {
+        self.held.lock().await.keys().cloned().collect()
+    }
+}
+
+/// Ends holds that can no longer matter, so a mistyped, expired or externally
+/// mined transaction does not keep every block on the assembly path: a held
+/// transaction that has left the mempool, and one held before broadcast that
+/// has not arrived within [`UNSEEN_HOLD_BLOCKS`].
+fn prune_holds(held: &mut BTreeMap<String, HeldTransaction>, mempool: &[String], tip: u64) {
+    held.retain(|txid, hold| {
+        if mempool.contains(txid) {
+            hold.seen = true;
+            return true;
+        }
+        let keep = !hold.seen && tip < hold.held_at + UNSEEN_HOLD_BLOCKS;
+        if !keep {
+            tracing::info!(%txid, "ending a hold whose transaction is no longer pending");
+        }
+        keep
+    });
 }
 
 #[derive(Deserialize)]
@@ -71,6 +132,8 @@ struct DefaultRoots {
     chainhistoryroot: String,
 }
 
+// Zakura always leaves the template's `depends` empty, so dependencies are
+// found from each transaction's inputs instead.
 #[derive(Deserialize)]
 struct TemplateTransaction {
     data: String,
@@ -87,23 +150,45 @@ struct TemplateTransaction {
 pub(crate) struct UncertainSubmission(String);
 
 impl AppState {
-    /// Mines `blocks` blocks. Without a request this is Zakura's own `generate`,
-    /// so default mining is unchanged; otherwise ths assembles each block itself.
+    /// Mines `blocks` blocks. Without a request or held transactions this is
+    /// Zakura's own `generate`, so default mining is unchanged; otherwise ths
+    /// assembles each block itself so held transactions stay out.
     pub(crate) async fn generate_blocks(
         &self,
         blocks: u32,
         request: &BlockRequest,
     ) -> Result<Vec<String>> {
-        let _producing = self.0.blocks.lock.lock().await;
-        if request.is_default() {
-            return self.0.rpc.generate(blocks).await;
-        }
-        let miner = self.treasury_script()?;
         let mut hashes = Vec::with_capacity(blocks as usize);
         for _ in 0..blocks {
-            hashes.push(mine_assembled_block(&self.0.rpc, request, &miner).await?);
+            let mut held = self.0.blocks.held.lock().await;
+            self.prune_held(&mut held).await?;
+            if request.is_default() && held.is_empty() && hashes.is_empty() {
+                // Keep Zakura's multi-block `generate`, under the lock so a hold
+                // cannot be acknowledged while these blocks are being mined.
+                return self.0.rpc.generate(blocks).await;
+            }
+            let excluded = held.keys().cloned().collect();
+            let miner = self.treasury_script()?;
+            hashes.push(mine_assembled_block(&self.0.rpc, request, &excluded, &miner).await?);
         }
         Ok(hashes)
+    }
+
+    /// The current holds, after ending those that no longer matter.
+    pub(crate) async fn held_transactions(&self) -> Result<Vec<HeldTransaction>> {
+        let mut held = self.0.blocks.held.lock().await;
+        self.prune_held(&mut held).await?;
+        Ok(held.values().cloned().collect())
+    }
+
+    async fn prune_held(&self, held: &mut BTreeMap<String, HeldTransaction>) -> Result<()> {
+        if held.is_empty() {
+            return Ok(());
+        }
+        let mempool = self.0.rpc.mempool().await?;
+        let tip = self.0.rpc.checkpoint().await?.height;
+        prune_holds(held, &mempool, tip);
+        Ok(())
     }
 
     /// The configured miner output script: the treasury's transparent address.
@@ -123,11 +208,12 @@ impl AppState {
 async fn mine_assembled_block(
     rpc: &NodeRpc,
     request: &BlockRequest,
+    excluded: &HashSet<String>,
     miner: &Script,
 ) -> Result<String> {
     let template: BlockTemplate = serde_json::from_value(rpc.block_template().await?)
         .context("decoding Zakura's block template")?;
-    let (block, hash) = assemble(&template, request, miner)?;
+    let (block, hash) = assemble(&template, request, excluded, miner)?;
     // From here on an error does not prove that no block was produced.
     let uncertain =
         |error: anyhow::Error| anyhow::Error::new(UncertainSubmission(format!("{error:#}")));
@@ -160,10 +246,11 @@ async fn mine_assembled_block(
 fn assemble(
     template: &BlockTemplate,
     request: &BlockRequest,
+    held: &HashSet<String>,
     miner: &Script,
 ) -> Result<(Vec<u8>, String)> {
     let height = BlockHeight::from_u32(template.height);
-    let included = included_transactions(template, request);
+    let included = included_transactions(template, request, held, height)?;
     let all_fees = template_fees(template.transactions.iter())?;
     let included_fees = template_fees(included.iter().copied())?;
     let template_share = miner_fee_share(height, all_fees);
@@ -230,16 +317,64 @@ fn assemble(
     bail!("no nonce met the Regtest target in {MAX_NONCE_ATTEMPTS} attempts")
 }
 
-/// Template transactions to include: none for an empty block, otherwise all.
+/// Template transactions to include: none for an empty block, otherwise all
+/// except held ones and any that spend, directly or not, an output of an
+/// excluded one. Zakura's mempool chains transparent transactions, and an
+/// unmined shielded note cannot be spent, so transparent inputs are the only
+/// dependencies.
 fn included_transactions<'a>(
     template: &'a BlockTemplate,
     request: &BlockRequest,
-) -> Vec<&'a TemplateTransaction> {
+    held: &HashSet<String>,
+    height: BlockHeight,
+) -> Result<Vec<&'a TemplateTransaction>> {
     if request.empty {
-        Vec::new()
-    } else {
-        template.transactions.iter().collect()
+        return Ok(Vec::new());
     }
+    let branch = BranchId::for_height(&regtest_network(), height);
+    let mut parents = Vec::with_capacity(template.transactions.len());
+    for tx in &template.transactions {
+        let raw = hex::decode(&tx.data).context("invalid template transaction")?;
+        let parsed = Transaction::read(&raw[..], branch)
+            .with_context(|| format!("parsing template transaction {}", tx.hash))?;
+        let spent: HashSet<String> = parsed
+            .transparent_bundle()
+            .map(|bundle| {
+                bundle
+                    .vin
+                    .iter()
+                    .map(|input| input.prevout().txid().to_string())
+                    .collect()
+            })
+            .unwrap_or_default();
+        parents.push(spent);
+    }
+    let mut excluded: HashSet<&str> = template
+        .transactions
+        .iter()
+        .map(|tx| tx.hash.as_str())
+        .filter(|txid| held.contains(*txid))
+        .collect();
+    // The template order is not relied on: repeat until no descendant is added.
+    loop {
+        let before = excluded.len();
+        for (tx, spent) in template.transactions.iter().zip(&parents) {
+            if spent
+                .iter()
+                .any(|parent| excluded.contains(parent.as_str()))
+            {
+                excluded.insert(tx.hash.as_str());
+            }
+        }
+        if excluded.len() == before {
+            break;
+        }
+    }
+    Ok(template
+        .transactions
+        .iter()
+        .filter(|tx| !excluded.contains(tx.hash.as_str()))
+        .collect())
 }
 
 fn template_fees<'a>(transactions: impl Iterator<Item = &'a TemplateTransaction>) -> Result<u64> {

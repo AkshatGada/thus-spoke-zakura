@@ -628,4 +628,4 @@ mod tests;
 #[path = "../tests/support/transparent_history.rs"]
 pub(crate) mod transparent_history_test_support;
 
-const TREASURY_SHIELDING_JOURNAL_ID: &str = "private-treasury-shielding-v1";
+pub(crate) const TREASURY_SHIELDING_JOURNAL_ID: &str = "private-treasury-shielding-v1";

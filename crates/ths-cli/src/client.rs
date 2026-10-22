@@ -92,6 +92,47 @@ struct RetainedTransaction {
     height: u64,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub(crate) struct HeldTransaction {
+    txid: String,
+    held_at: u64,
+    in_mempool: bool,
+    expiry_height: Option<u64>,
+}
+
+/// `operation` is `hold` or `release`.
+pub(crate) fn change_hold(
+    dashboard: &str,
+    client: &reqwest::blocking::Client,
+    operation: &str,
+    txid: &str,
+) -> Result<HeldTransaction> {
+    client
+        .post(format!("{dashboard}/api/v1/mempool/{operation}"))
+        .json(&serde_json::json!({ "txid": txid }))
+        .send()
+        .map_err(anyhow::Error::from)
+        .and_then(decode_response)
+        .with_context(|| format!("asking the environment to {operation} {txid}"))
+}
+
+pub(crate) fn render_held(held: &HeldTransaction) -> String {
+    let expiry = match held.expiry_height {
+        Some(height) => format!("expires after height {height}"),
+        None => "expiry unknown".to_owned(),
+    };
+    let state = if held.in_mempool {
+        "in the mempool"
+    } else {
+        // Either not broadcast yet or already dropped by the node.
+        "not in the mempool"
+    };
+    format!(
+        "{}: held since height {}, {state}, {expiry}",
+        held.txid, held.held_at
+    )
+}
+
 /// How `ths mine` blocks differ from the default: who gets the coinbase, and
 /// whether mempool transactions are left out.
 #[derive(Debug, Default)]
@@ -726,6 +767,26 @@ impl Runtime {
                 "chain changed, but {} transaction(s) could not be retained",
                 result.failed_transactions.len()
             );
+        }
+        Ok(())
+    }
+
+    pub(crate) fn hold(
+        &self,
+        name: &InstanceName,
+        operation: &str,
+        txid: &str,
+        json: bool,
+    ) -> Result<()> {
+        let (dashboard, client) = self.instance_client(name)?;
+        let held = change_hold(&dashboard, &client, operation, txid)?;
+        if json {
+            println!("{}", serde_json::to_string_pretty(&held)?);
+        } else if operation == "hold" {
+            println!("Holding on {name}: {}", render_held(&held));
+            println!("ths will not mine it until `ths release {}`.", held.txid);
+        } else {
+            println!("Released on {name}: {}", held.txid);
         }
         Ok(())
     }

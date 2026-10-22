@@ -36,6 +36,7 @@ pub(crate) async fn reorg(
         keep_txs: req.keep_txs,
         drop: req.drop,
         place: req.place,
+        ..ReorgPlan::default()
     };
     change_chain(state, req.depth, true, plan).await
 }

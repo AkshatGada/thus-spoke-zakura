@@ -445,3 +445,116 @@ async fn default_jobs_do_not_report_options() {
     );
     runtime.release(1);
 }
+
+#[tokio::test]
+async fn hold_and_release_validate_the_transaction() {
+    use crate::mining::tests::{Submission, assembling_rpc};
+    let (url, _calls, _submitted) = assembling_rpc(Submission::Accepted, false).await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = crate::rpc::NodeRpc::new(url);
+    let template: Value = serde_json::from_str(crate::blocks::tests::TWO_TX_TEMPLATE).unwrap();
+    let txid = template["transactions"][0]["hash"].as_str().unwrap();
+    let app = router(state.clone());
+    let hold = |body: Value| mining_request(&app, "POST", "/api/v1/mempool/hold", body);
+
+    assert_eq!(hold(json!({"txid":"00"})).await.0, StatusCode::BAD_REQUEST);
+    assert_eq!(
+        hold(json!({"txid":txid,"note":"x"})).await.0,
+        StatusCode::BAD_REQUEST
+    );
+    // An already mined transaction cannot be held.
+    assert_eq!(
+        hold(json!({"txid":"cd".repeat(32)})).await.0,
+        StatusCode::CONFLICT
+    );
+    // A transaction can be held before it is broadcast.
+    let (status, early) = hold(json!({"txid":"ab".repeat(32)})).await;
+    assert_eq!(status, StatusCode::OK, "{early}");
+    assert_eq!(early["in_mempool"], false);
+    assert_eq!(early["expiry_height"], Value::Null);
+
+    let (status, held) = hold(json!({"txid":txid})).await;
+    assert_eq!(status, StatusCode::OK, "{held}");
+    assert_eq!(held["in_mempool"], true);
+    assert_eq!(held["expiry_height"], 148);
+    let (status, list) = mining_request(&app, "GET", "/api/v1/mempool/held", Value::Null).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(list["held"].as_array().unwrap().len(), 2);
+
+    let release = |body: Value| mining_request(&app, "POST", "/api/v1/mempool/release", body);
+    assert_eq!(release(json!({"txid":txid})).await.0, StatusCode::OK);
+    // A repeated release reports that the transaction is no longer held.
+    assert_eq!(release(json!({"txid":txid})).await.0, StatusCode::NOT_FOUND);
+    assert!(!state.0.blocks.held_txids().await.contains(txid));
+}
+
+#[tokio::test]
+async fn a_payment_ths_is_still_executing_cannot_be_held() {
+    use crate::mining::tests::{Submission, assembling_rpc};
+    let (url, _calls, _submitted) = assembling_rpc(Submission::Accepted, false).await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = crate::rpc::NodeRpc::new(url);
+    let payment = state
+        .0
+        .store
+        .claim_transfer(
+            1,
+            crate::db::Recipient::Account(2),
+            "ironwood",
+            "ironwood",
+            12_000,
+            "held-payment-key",
+            None,
+        )
+        .unwrap();
+    let txid = "ef".repeat(32);
+    state
+        .0
+        .store
+        .record_prepared(&payment.id, &txid, b"signed bytes", 140)
+        .unwrap();
+    let (status, body) = mining_request(
+        &router(state),
+        "POST",
+        "/api/v1/mempool/hold",
+        json!({"txid":txid}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{body}");
+    assert!(
+        body["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("still executing")
+    );
+}
+
+#[tokio::test]
+async fn the_treasurys_pending_shielding_cannot_be_held() {
+    use crate::mining::tests::{Submission, assembling_rpc};
+    let (url, _calls, _submitted) = assembling_rpc(Submission::Accepted, false).await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = crate::rpc::NodeRpc::new(url);
+    let txid = "fe".repeat(32);
+    state
+        .0
+        .wallet
+        .record_prepared_association_for_test(
+            crate::wallet::TREASURY_SHIELDING_JOURNAL_ID,
+            crate::wallet::PreparedPayment {
+                txid: txid.clone(),
+                raw_transaction: b"signed bytes".to_vec(),
+                expiry_height: 140,
+            },
+        )
+        .await
+        .unwrap();
+    let (status, body) = mining_request(
+        &router(state),
+        "POST",
+        "/api/v1/mempool/hold",
+        json!({"txid":txid}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{body}");
+}

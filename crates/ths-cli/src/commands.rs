@@ -109,6 +109,8 @@ pub(crate) fn run(cli: Cli) -> anyhow::Result<ExitCode> {
         Command::Rollback { depth } => {
             runtime.change_chain(&name, "rollback", depth, &ChainPlan::default(), cli.json)
         }
+        Command::Hold { txid } => runtime.hold(&name, "hold", &txid, cli.json),
+        Command::Release { txid } => runtime.hold(&name, "release", &txid, cli.json),
         Command::Faucet { address, amount } => {
             runtime.faucet(&name, &address, amount.zatoshi(), cli.json)
         }

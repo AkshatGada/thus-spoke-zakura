@@ -5,9 +5,9 @@ operations mine a confirming block for you. This chapter mines explicitly and
 follows a block from the node to the wallet and browser.
 
 **Mining** asks Zakura to generate Regtest blocks on demand. When a mining
-request pays the coinbase elsewhere or asks for empty blocks, ths assembles the
-blocks itself from Zakura's block template instead (see
-[`ths mine`](cli.md#ths-mine-blocks)). A transaction is
+request pays the coinbase elsewhere, asks for empty blocks, or a transaction is
+held, ths assembles the blocks itself from Zakura's block template instead (see
+[`ths mine`](cli.md#ths-mine-blocks) and [`ths hold`](cli.md#ths-hold-txid-ths-release-txid)). A transaction is
 **confirmed** when the node reports it in a block on its current chain with
 a block hash. That does not instantly make every wallet view current:
 lightwalletd still has to index the block, and the wallet still has to scan
@@ -51,7 +51,8 @@ startup:
   interleaved with them.
 - `mempool` remembers the last transaction set it tried to mine. It only mines
   a new block when that set changes, so a transaction the node cannot include
-  does not make the server generate a stream of empty blocks.
+  does not make the server generate a stream of empty blocks. Held transactions
+  do not count as new work.
 - In `manual`, a payment is submitted and left pending. It confirms once a block
   that includes it arrives, normally from `ths mine`.
 

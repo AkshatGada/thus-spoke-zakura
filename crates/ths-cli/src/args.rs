@@ -151,6 +151,16 @@ pub(crate) enum Command {
         #[arg(long, value_parser = clap::value_parser!(u32).range(1..=1000))]
         depth: u32,
     },
+    /// Keep a transaction out of every block ths mines until released; it can be held before broadcast.
+    Hold {
+        /// Transaction ID, for example from the explorer's mempool view.
+        txid: String,
+    },
+    /// Let a held transaction be mined again.
+    Release {
+        /// Transaction ID.
+        txid: String,
+    },
     /// Send disposable Regtest ZEC to a unified or transparent address.
     Faucet {
         /// Regtest unified or transparent destination address.
