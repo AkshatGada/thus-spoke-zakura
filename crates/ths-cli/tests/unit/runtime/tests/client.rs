@@ -2371,3 +2371,79 @@ fn per_transaction_reorgs_send_their_plan_and_report_placements() {
         response
     );
 }
+
+#[test]
+fn mine_options_are_sent_and_keep_their_own_saved_key() {
+    let (url, requests) = serve(vec![
+        (
+            "202 Accepted",
+            r#"{"id":"job-1","requested_blocks":2,"to":"4","empty":true,"completed_blocks":0,"state":"mining","error":null,"progress_uncertain":false}"#,
+        ),
+        (
+            "200 OK",
+            r#"{"id":"job-1","requested_blocks":2,"to":"4","empty":true,"completed_blocks":2,"state":"completed","error":null,"progress_uncertain":false,"hashes":["a","b"]}"#,
+        ),
+    ]);
+    let client = reqwest::blocking::Client::new();
+    let alpha = name("alpha");
+    let (_dir, runtime) = runtime_with_instance_dir(&alpha);
+    // A plain `ths mine 2` key saved earlier must not be reused for other options.
+    let plain_key = IntentJournal::open(&runtime.instance_dir(&alpha), "mining")
+        .unwrap()
+        .key_for("mine:2")
+        .unwrap();
+
+    let options = MineOptions {
+        to: Some("4".into()),
+        empty: true,
+    };
+    runtime
+        .mine_with_options(
+            &alpha,
+            &url,
+            &client,
+            &mut Vec::new(),
+            Instant::now() + Duration::from_secs(5),
+            2,
+            &options,
+            false,
+        )
+        .unwrap();
+    let post: serde_json::Value =
+        serde_json::from_str(&requests.try_iter().next().unwrap().1).unwrap();
+    assert_eq!(post["to"], "4");
+    assert_eq!(post["empty"], true);
+    assert_ne!(post["idempotency_key"], plain_key.as_str());
+    // Only the completed job's key is forgotten; the plain one remains.
+    let journal = IntentJournal::open(&runtime.instance_dir(&alpha), "mining").unwrap();
+    assert_eq!(journal.key_for("mine:2").unwrap(), plain_key);
+}
+
+#[test]
+fn hold_and_release_post_the_txid_and_render_the_hold() {
+    let held = r#"{"txid":"abc","held_at":108,"in_mempool":true,"expiry_height":148}"#;
+    for operation in ["hold", "release"] {
+        let (url, requests) = serve(vec![("200 OK", held)]);
+        let result =
+            change_hold(&url, &reqwest::blocking::Client::new(), operation, "abc").unwrap();
+        let (line, body) = requests.recv().unwrap();
+        assert_eq!(line, format!("POST /api/v1/mempool/{operation} HTTP/1.1"));
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&body).unwrap(),
+            serde_json::json!({"txid":"abc"})
+        );
+        assert_eq!(
+            render_held(&result),
+            "abc: held since height 108, in the mempool, expires after height 148"
+        );
+    }
+    let (url, _requests) = serve(vec![(
+        "404 Not Found",
+        r#"{"error":{"message":"transaction is not in the mempool","status":404}}"#,
+    )]);
+    let error = change_hold(&url, &reqwest::blocking::Client::new(), "hold", "abc").unwrap_err();
+    assert!(
+        format!("{error:#}").contains("transaction is not in the mempool"),
+        "{error:#}"
+    );
+}

@@ -125,6 +125,12 @@ pub(crate) enum Command {
         /// Number of blocks to mine.
         #[arg(value_parser = clap::value_parser!(u32).range(1..=10_000))]
         blocks: u32,
+        /// Pay the coinbase to account 1-5's transparent address or to a transparent Regtest address.
+        #[arg(long, value_name = "ACCOUNT|ADDRESS")]
+        to: Option<String>,
+        /// Mine blocks that leave every mempool transaction out.
+        #[arg(long)]
+        empty: bool,
     },
     /// Replace recent Regtest blocks with a new branch.
     Reorg {
@@ -145,6 +151,18 @@ pub(crate) enum Command {
         #[arg(long, value_parser = clap::value_parser!(u32).range(1..=1000))]
         depth: u32,
     },
+    /// Keep a mempool transaction out of every block ths mines until released.
+    Hold {
+        /// Transaction ID, as listed by `ths tx` or the explorer's mempool.
+        txid: String,
+    },
+    /// Let a held transaction be mined again.
+    Release {
+        /// Transaction ID.
+        txid: String,
+    },
+    /// List held transactions.
+    Held,
     /// Send disposable Regtest ZEC to a unified or transparent address.
     Faucet {
         /// Regtest unified or transparent destination address.

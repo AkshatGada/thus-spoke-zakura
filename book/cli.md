@@ -353,7 +353,22 @@ for testing confirmations, expiry, or coinbase maturity.
 ```console
 ths mine 1
 ths mine 10 --json
+ths mine 1 --to 4          # pay the coinbase to account 4's transparent address
+ths mine 1 --to "$T_ADDR"  # or to any transparent Regtest address
+ths mine 3 --empty         # leave every mempool transaction out
 ```
+
+By default Zakura mines the blocks: they include every mempool transaction and
+pay the coinbase to the treasury. `--to` pays the coinbase miner output to a
+development account (1–5, which uses that account's transparent address) or to a
+transparent Regtest address instead; a unified address is rejected, because a
+shielded coinbase output would need an Ironwood bundle. `--empty` mines blocks
+that contain no mempool transactions, which stay in the mempool. With either
+option, ths assembles each block from Zakura's block template: it removes
+transactions, lowers the coinbase by their fee share so it still balances
+exactly, recomputes the header commitments, and submits the block. Coinbase
+outputs mature after 100 blocks and, like any transparent coinbase, can only be
+spent into a shielded pool (`ths wallet shield`).
 
 Counts must be **1–10,000**. Mining POSTs return 503 until startup finishes.
 The command submits to the mining-job API (`POST /api/v1/mining/jobs` with
@@ -380,10 +395,12 @@ and `hashes` fields, alongside the job's `id`, `requested_blocks`, `state`,
 `error`, and `progress_uncertain`. A failed job after partial progress still
 reports what it mined rather than only the error.
 
-Dashboard jobs use `POST /api/v1/mining/jobs` with `{blocks, idempotency_key}`;
-acceptance returns HTTP 202. Replaying an accepted key with the same count returns
-the same job, including after completion or failure. Reusing that key with a
-different count returns HTTP 409. The latest-job GET returns `{job}` or
+Dashboard jobs use `POST /api/v1/mining/jobs` with `{blocks, idempotency_key}`,
+plus the optional `to` and `empty` that `--to` and `--empty` send; acceptance
+returns HTTP 202. Replaying an accepted key with the same count and options
+returns the same job, including after completion or failure. Reusing that key
+with a different count or options returns HTTP 409. The CLI saves a separate key
+for each count and option combination. The latest-job GET returns `{job}` or
 `{job:null}`; `GET /api/v1/mining/jobs/{id}` returns the job directly or 404.
 The dashboard restores latest-job progress after refresh, navigation, modal
 dismissal, or closing and reopening a tab. Its accepted response clears the
@@ -403,7 +420,36 @@ Job history and keys last only for the server process lifetime, with a limit of
 existing-key replays and reads continue. Stopping the server cancels running work
 and discards this history. Jobs and deduplication do not survive a restart.
 
-### `ths reorg --depth <N> [--keep-txs] [--drop <TXID>]... [--place <TXID>=<K>]...` / `ths rollback --depth <N>`
+### `ths hold <TXID>` / `ths release <TXID>` / `ths held`
+
+`hold` keeps a transaction that is in the node's mempool out of every block ths
+mines, until `release`. Use it to keep a payment pending while blocks are mined
+around it, for example to test a wallet's unconfirmed state, a confirmation
+counter, or expiry. `held` lists the holds with the height each began, whether
+the transaction is still in the mempool, and its expiry height. All three
+support `--name` and `--json`.
+
+```console
+ths hold "$TXID"
+ths mine 3          # three blocks, none containing $TXID
+ths held
+ths release "$TXID"
+ths mine 1          # $TXID can be mined again
+```
+
+While anything is held, ths assembles every block itself (see
+[`ths mine`](#ths-mine-blocks)): manual jobs, payments in `auto` mode, `interval`
+and `mempool` mode blocks, and reorg replacement blocks all leave held
+transactions out, together with any mempool transaction that spends one of
+their outputs. In `mempool` mode a held transaction does not count as new work.
+
+Holding needs the transaction to be in the mempool, otherwise the request
+returns HTTP 404. A hold does not remove the transaction from the node, and
+Zakura has no RPC to do so: a held transaction still expires, and the node then
+drops it, so its hold reports it as no longer in the mempool until released.
+Holds last for the server lifetime; restarting the app container clears them.
+
+### `ths reorg --depth <N> [--keep-txs]` / `ths rollback --depth <N>`
 
 `reorg` removes the last N blocks and mines N replacements, keeping the tip
 height but changing those block hashes. `rollback` removes them without
@@ -938,9 +984,10 @@ compinit
 | `ths rpc [--raw] [--yes] <METHOD> [PARAMS...]` | Call the instance's Zakura JSON-RPC and print the result |
 | `ths tx <TXID> [--json]` | Show explorer transaction data |
 | `ths block [ID] [--json]` | Show a block by height or hash, or the chain tip when omitted |
-| `ths mine <N>` | Mine blocks and synchronize the wallet |
+| `ths mine <N> [--to ACCOUNT\|ADDRESS] [--empty]` | Mine blocks, optionally paying the coinbase elsewhere or leaving the mempool out, and synchronize the wallet |
 | `ths reorg --depth N [--keep-txs] [--drop TXID] [--place TXID=K]` | Replace recent blocks, optionally retaining, dropping, or placing individual transactions |
 | `ths rollback --depth N` | Remove recent blocks without replacements |
+| `ths hold <TXID>` / `ths release <TXID>` / `ths held` | Keep a mempool transaction out of mined blocks, let it be mined again, or list holds |
 | `ths faucet <ADDRESS> [--amount]` | Send disposable ZEC to any Regtest address |
 | `ths wallet balances [--json]` | Print the five accounts' balances and addresses |
 | `ths wallet activity [--limit N] [--json]` | Print recent development-wallet activity |

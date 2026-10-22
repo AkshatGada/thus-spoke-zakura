@@ -1,6 +1,7 @@
 #[cfg(test)]
 use crate::mining::MiningRuntime;
 use crate::{
+    blocks::BlockProducer,
     db::{Account, Store},
     mining::{MiningConfig, MiningCoordinator},
     rpc::{ChainCheckpoint, NodeRpc},
@@ -21,6 +22,7 @@ pub(crate) struct AppState(pub(crate) Arc<Inner>);
 pub(crate) struct Inner {
     started: AtomicBool,
     pub(crate) mining: Arc<MiningCoordinator>,
+    pub(crate) blocks: BlockProducer,
     #[cfg(test)]
     pub(crate) mining_runtime: Option<Arc<dyn MiningRuntime>>,
     #[cfg(test)]
@@ -81,6 +83,7 @@ impl AppState {
         Self(Arc::new(Inner {
             started: AtomicBool::new(false),
             mining: Arc::new(MiningCoordinator::new()),
+            blocks: BlockProducer::default(),
             #[cfg(test)]
             mining_runtime: None,
             #[cfg(test)]

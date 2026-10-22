@@ -480,7 +480,7 @@ async fn mining_adapter_accepts_one_nonempty_rpc_hash_and_forwards_events() {
     let (mut state, _dir) = state_with_local_wallet();
     Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(endpoint);
     let mut events = state.0.events.subscribe();
-    let adapter = ManualMiningAdapter(state);
+    let adapter = ManualMiningAdapter(state, BlockRequest::default());
     assert_eq!(adapter.generate_one().await.unwrap(), "one-hash");
     adapter.notify("mining");
     assert_eq!(events.recv().await.unwrap(), "mining");
@@ -1333,4 +1333,149 @@ async fn mine_and_sync_background_returns_unknown_on_service_unavailable() {
         ),
         "HTTP 503 must be Unknown, not Generation"
     );
+}
+
+/// A Zakura stand-in that serves a real two-transaction template and accepts
+/// one submitted block, recording the call sequence.
+async fn assembling_rpc() -> (
+    String,
+    Arc<std::sync::Mutex<Vec<String>>>,
+    Arc<std::sync::Mutex<Option<String>>>,
+) {
+    let template: Value = serde_json::from_str(include_str!("../blocks/template-4.json")).unwrap();
+    let calls = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let submitted: Arc<std::sync::Mutex<Option<String>>> = Arc::default();
+    let (record, block) = (calls.clone(), submitted.clone());
+    let url = rpc_server(move |req| {
+        let method = req["method"].as_str().unwrap().to_owned();
+        record.lock().unwrap().push(method.clone());
+        let result = match method.as_str() {
+            "getblocktemplate" => template.clone(),
+            "submitblock" => {
+                *block.lock().unwrap() = Some(req["params"][0].as_str().unwrap().to_owned());
+                Value::Null
+            }
+            "getblockchaininfo" => {
+                let hash = block.lock().unwrap().as_ref().map(|hex| {
+                    let raw = hex::decode(hex).unwrap();
+                    zcash_primitives::block::Block::read(&raw[..], &crate::network::regtest_network())
+                        .unwrap()
+                        .header()
+                        .hash()
+                        .to_string()
+                });
+                json!({"chain":"regtest","blocks":108,"bestblockhash":hash.unwrap_or_else(|| FAKE_HASH.to_owned()),"verificationprogress":1.0})
+            }
+            "getrawmempool" => json!(template["transactions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|tx| tx["hash"].clone())
+                .collect::<Vec<_>>()),
+            "getrawtransaction" => json!({"txid":req["params"][0],"expiryheight":148}),
+            _ => return json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]}),
+        };
+        json!({"result":result,"error":null,"id":req["id"]})
+    })
+    .await;
+    (url, calls, submitted)
+}
+
+#[tokio::test]
+async fn default_mining_uses_zakuras_generate_until_something_is_held() {
+    let url = rpc_server(|req| match req["method"].as_str() {
+        Some("generate") => json!({"result":[FAKE_HASH],"error":null,"id":req["id"]}),
+        _ => json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]}),
+    })
+    .await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
+    assert_eq!(
+        state
+            .generate_blocks(1, &BlockRequest::default())
+            .await
+            .unwrap(),
+        [FAKE_HASH]
+    );
+}
+
+#[tokio::test]
+async fn a_held_transaction_makes_every_mining_path_assemble_its_own_block() {
+    let (url, calls, submitted) = assembling_rpc().await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
+    let template: Value = serde_json::from_str(include_str!("../blocks/template-4.json")).unwrap();
+    let held = template["transactions"][0]["hash"].as_str().unwrap();
+    state.0.blocks.hold(held, 108).await;
+
+    let hashes = state
+        .generate_blocks(1, &BlockRequest::default())
+        .await
+        .unwrap();
+    assert_eq!(hashes.len(), 1);
+    assert!(!calls.lock().unwrap().contains(&"generate".to_owned()));
+    let raw = hex::decode(submitted.lock().unwrap().as_ref().unwrap()).unwrap();
+    let block =
+        zcash_primitives::block::Block::read(&raw[..], &crate::network::regtest_network()).unwrap();
+    let txids: Vec<_> = block
+        .vtx()
+        .iter()
+        .skip(1)
+        .map(|tx| tx.txid().to_string())
+        .collect();
+    assert_eq!(
+        txids,
+        [template["transactions"][1]["hash"].as_str().unwrap()]
+    );
+}
+
+#[tokio::test]
+async fn hold_and_release_require_a_mempool_or_held_transaction() {
+    let (url, _calls, _submitted) = assembling_rpc().await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
+    let template: Value = serde_json::from_str(include_str!("../blocks/template-4.json")).unwrap();
+    let txid = template["transactions"][0]["hash"].as_str().unwrap();
+    state.mark_started();
+    let app = crate::api::router(state.clone());
+
+    let (status, _) =
+        mining_request(&app, "POST", "/api/v1/mempool/hold", json!({"txid":"00"})).await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    let (status, _) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mempool/hold",
+        json!({"txid":txid,"note":"x"}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    let (status, hold) =
+        mining_request(&app, "POST", "/api/v1/mempool/hold", json!({"txid":txid})).await;
+    assert_eq!(status, StatusCode::OK, "{hold}");
+    assert_eq!(hold["txid"], txid);
+    assert_eq!(hold["in_mempool"], true);
+    assert_eq!(hold["expiry_height"], 148);
+
+    let (status, list) = mining_request(&app, "GET", "/api/v1/mempool/held", Value::Null).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(list["held"].as_array().unwrap().len(), 1);
+
+    let (status, _) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mempool/release",
+        json!({"txid":txid}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, _) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mempool/release",
+        json!({"txid":txid}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert!(state.0.blocks.held().await.is_empty());
 }

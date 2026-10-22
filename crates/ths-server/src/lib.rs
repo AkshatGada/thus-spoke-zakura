@@ -1,5 +1,6 @@
 mod api;
 mod args;
+mod blocks;
 mod bootstrap;
 mod chain;
 mod db;

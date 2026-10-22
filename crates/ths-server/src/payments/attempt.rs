@@ -1,4 +1,5 @@
 use super::progression::PAYMENT_LOOKUP_TIMEOUT;
+use crate::blocks::BlockRequest;
 use crate::state::AppState;
 use crate::state::notify;
 use anyhow::Context;
@@ -89,16 +90,14 @@ impl PaymentAttempt<'_> {
             .await?;
         let hashes = if self.dispatch_deadline.is_none() {
             self.state
-                .0
-                .rpc
-                .generate(blocks)
+                .generate_blocks(blocks, &BlockRequest::default())
                 .await
                 .context("automatically mining payment blocks")?
         } else {
             self.network(
                 Duration::from_secs(3600),
                 "automatically mining payment blocks",
-                self.state.0.rpc.generate(blocks),
+                self.state.generate_blocks(blocks, &BlockRequest::default()),
             )
             .await?
         };

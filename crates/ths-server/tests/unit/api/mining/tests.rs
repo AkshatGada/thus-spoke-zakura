@@ -379,3 +379,69 @@ async fn mining_survives_http_disconnect_and_discarded_async_response() {
     server.abort();
     assert!(server.await.unwrap_err().is_cancelled());
 }
+
+#[tokio::test]
+async fn mining_options_are_validated_and_part_of_the_job_identity() {
+    let runtime = Arc::new(ManualMiningRuntime::blocked());
+    let (state, _dir) = state_with_mining(runtime.clone(), 8);
+    let app = router(state.clone());
+    for body in [
+        json!({"blocks":1,"idempotency_key":"options-key-1","to":"9"}),
+        json!({"blocks":1,"idempotency_key":"options-key-1","to":"not-an-address"}),
+        json!({"blocks":1,"idempotency_key":"options-key-1","to":state.accounts().await[0].unified_address}),
+        json!({"blocks":1,"idempotency_key":"options-key-1","too":"4"}),
+    ] {
+        let (status, value) = mining_request(&app, "POST", "/api/v1/mining/jobs", body).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST, "{value}");
+    }
+    let (status, job) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mining/jobs",
+        json!({"blocks":1,"idempotency_key":"options-key-1","to":"4","empty":true}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::ACCEPTED, "{job}");
+    assert_eq!(job["to"], "4");
+    assert_eq!(job["empty"], true);
+    for (to, empty) in [("4", false), ("3", true)] {
+        let (status, _) = mining_request(
+            &app,
+            "POST",
+            "/api/v1/mining/jobs",
+            json!({"blocks":1,"idempotency_key":"options-key-1","to":to,"empty":empty}),
+        )
+        .await;
+        assert_eq!(status, StatusCode::CONFLICT);
+    }
+    let (status, replay) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mining/jobs",
+        json!({"blocks":1,"idempotency_key":"options-key-1","to":"4","empty":true}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::ACCEPTED);
+    assert_eq!(replay["id"], job["id"]);
+    runtime.release(1);
+}
+
+#[tokio::test]
+async fn default_jobs_do_not_report_options() {
+    let runtime = Arc::new(ManualMiningRuntime::blocked());
+    let (state, _dir) = state_with_mining(runtime.clone(), 8);
+    let app = router(state);
+    let (status, job) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mining/jobs",
+        json!({"blocks":1,"idempotency_key":"plain-key-01"}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::ACCEPTED);
+    assert!(
+        job.get("to").is_none() && job.get("empty").is_none(),
+        "{job}"
+    );
+    runtime.release(1);
+}

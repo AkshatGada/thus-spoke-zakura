@@ -198,10 +198,12 @@ These are every route the server serves today, from
 | `POST /api/v1/faucet` | Treasury payment to an account. Needs an idempotency key. |
 | `POST /api/v1/faucet/address` | Treasury payment to a supported Regtest address. Needs an idempotency key; external recipients have a separate stored faucet record. |
 | `GET /api/v1/faucet/address?idempotency_key=<key>` | Read an internal or external address-faucet result, or 404 if none is stored. |
-| `POST /api/v1/mine` | Generate 1–10,000 blocks and wait for wallet synchronization. Each call uses a fresh internal key. |
+| `POST /api/v1/mine` | `{blocks, to?, empty?}` generates 1–10,000 blocks and waits for wallet synchronization. `to` pays the coinbase to account 1–5 or a transparent Regtest address; `empty` leaves mempool transactions out. Each call uses a fresh internal key. Unknown fields are rejected. |
 | `POST /api/v1/reorg` | `{depth, keep_txs?, drop?, place?}` removes recent blocks and mines replacements. `drop` is a list of txids to leave out with `keep_txs`; `place` maps a txid to the replacement block (1 to `depth`) before which it is rebroadcast. Returns old/new tips, block hashes, retained transactions with their heights, dropped txids, and failures. Unknown fields are rejected. |
 | `POST /api/v1/rollback` | `{depth}` removes recent blocks without replacements and reconciles the wallet, and lists the dropped txids. Neither chain-changing POST is automatically retried. |
-| `POST /api/v1/mining/jobs` | Start a keyed mining job with `{blocks,idempotency_key}`; returns HTTP 202 and the job. |
+| `POST /api/v1/mining/jobs` | Start a keyed mining job with `{blocks,idempotency_key,to?,empty?}`; returns HTTP 202 and the job. |
+| `POST /api/v1/mempool/hold`, `/mempool/release` | `{txid}` keeps a mempool transaction out of every block ths mines, or lets it be mined again. Hold returns 404 unless the transaction is in the mempool; release returns 404 unless it is held. |
+| `GET /api/v1/mempool/held` | `{held:[{txid, held_at, in_mempool, expiry_height}]}` for every hold. |
 | `GET /api/v1/mining/jobs`, `/mining/jobs/{id}` | Read the latest job or a specific job; see [Chapter 5](mining-and-sync.md). |
 | `POST /api/v1/zip321/parse` | Parse one Regtest payment URI into its address, pool, optional amount, and memo; moves no funds. |
 | `POST /api/v1/zip321/request` | Generate a payment URI from `{account_id}` and an optional amount and memo; moves no funds. |

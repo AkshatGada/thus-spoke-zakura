@@ -83,6 +83,59 @@ struct RetainedTransaction {
     height: u64,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub(crate) struct HeldTransaction {
+    txid: String,
+    held_at: u64,
+    in_mempool: bool,
+    expiry_height: Option<u64>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub(crate) struct HeldTransactions {
+    held: Vec<HeldTransaction>,
+}
+
+/// `operation` is `hold` or `release`.
+pub(crate) fn change_hold(
+    dashboard: &str,
+    client: &reqwest::blocking::Client,
+    operation: &str,
+    txid: &str,
+) -> Result<HeldTransaction> {
+    client
+        .post(format!("{dashboard}/api/v1/mempool/{operation}"))
+        .json(&serde_json::json!({ "txid": txid }))
+        .send()
+        .map_err(anyhow::Error::from)
+        .and_then(decode_response)
+        .with_context(|| format!("asking the environment to {operation} {txid}"))
+}
+
+pub(crate) fn render_held(held: &HeldTransaction) -> String {
+    let expiry = match held.expiry_height {
+        Some(height) => format!("expires after height {height}"),
+        None => "expiry unknown".to_owned(),
+    };
+    let state = if held.in_mempool {
+        "in the mempool"
+    } else {
+        "no longer in the mempool"
+    };
+    format!(
+        "{}: held since height {}, {state}, {expiry}",
+        held.txid, held.held_at
+    )
+}
+
+/// How `ths mine` blocks differ from the default: who gets the coinbase, and
+/// whether mempool transactions are left out.
+#[derive(Debug, Default)]
+pub struct MineOptions {
+    pub to: Option<String>,
+    pub empty: bool,
+}
+
 /// Which removed transactions `ths reorg` asks the server to put back, and where.
 #[derive(Debug, Default)]
 pub(crate) struct ChainPlan {
@@ -533,21 +586,52 @@ impl Runtime {
         Ok(())
     }
 
-    pub fn mine(&self, name: &InstanceName, blocks: u32, json: bool) -> Result<()> {
+    pub fn mine(
+        &self,
+        name: &InstanceName,
+        blocks: u32,
+        options: &MineOptions,
+        json: bool,
+    ) -> Result<()> {
         let (dashboard, client) = self.instance_client(name)?;
-        self.mine_with(
+        self.mine_with_options(
             name,
             &dashboard,
             &client,
             std::io::stdout().lock(),
             Instant::now() + MINE_WAIT,
             blocks,
+            options,
+            json,
+        )
+    }
+
+    #[cfg(test)]
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn mine_with(
+        &self,
+        name: &InstanceName,
+        dashboard: &str,
+        client: &reqwest::blocking::Client,
+        out: impl std::io::Write,
+        deadline: Instant,
+        blocks: u32,
+        json: bool,
+    ) -> Result<()> {
+        self.mine_with_options(
+            name,
+            dashboard,
+            client,
+            out,
+            deadline,
+            blocks,
+            &MineOptions::default(),
             json,
         )
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub(crate) fn mine_with(
+    pub(crate) fn mine_with_options(
         &self,
         name: &InstanceName,
         dashboard: &str,
@@ -555,14 +639,30 @@ impl Runtime {
         mut out: impl std::io::Write,
         deadline: Instant,
         blocks: u32,
+        options: &MineOptions,
         json: bool,
     ) -> Result<()> {
         let journal = IntentJournal::open(&self.instance_dir(name), "mining")?;
-        let intent = format!("mine:{blocks}");
+        // Options are part of the server's job identity, so they are part of the
+        // saved intent: the same count with other options is a different job.
+        let mut intent = format!("mine:{blocks}");
+        if let Some(to) = &options.to {
+            intent.push_str(&format!(":to={to}"));
+        }
+        if options.empty {
+            intent.push_str(":empty");
+        }
         let idempotency_key = journal.key_for(&intent)?;
 
-        let mut job = submit_mining_job(client, dashboard, blocks, &idempotency_key, deadline)
-            .with_context(|| format!("asking environment {name} to mine {blocks} blocks"))?;
+        let mut job = submit_mining_job(
+            client,
+            dashboard,
+            blocks,
+            options,
+            &idempotency_key,
+            deadline,
+        )
+        .with_context(|| format!("asking environment {name} to mine {blocks} blocks"))?;
 
         let mut last_printed = None;
         let timed_out = loop {
@@ -660,6 +760,46 @@ impl Runtime {
                 "chain changed, but {} transaction(s) could not be retained",
                 result.failed_transactions.len()
             );
+        }
+        Ok(())
+    }
+
+    pub(crate) fn hold(
+        &self,
+        name: &InstanceName,
+        operation: &str,
+        txid: &str,
+        json: bool,
+    ) -> Result<()> {
+        let (dashboard, client) = self.instance_client(name)?;
+        let held = change_hold(&dashboard, &client, operation, txid)?;
+        if json {
+            println!("{}", serde_json::to_string_pretty(&held)?);
+        } else if operation == "hold" {
+            println!("Holding on {name}: {}", render_held(&held));
+            println!("ths will not mine it until `ths release {}`.", held.txid);
+        } else {
+            println!("Released on {name}: {}", held.txid);
+        }
+        Ok(())
+    }
+
+    pub(crate) fn held(&self, name: &InstanceName, json: bool) -> Result<()> {
+        let (dashboard, client) = self.instance_client(name)?;
+        let held: HeldTransactions = client
+            .get(format!("{dashboard}/api/v1/mempool/held"))
+            .send()
+            .map_err(anyhow::Error::from)
+            .and_then(decode_response)
+            .context("listing held transactions")?;
+        if json {
+            println!("{}", serde_json::to_string_pretty(&held)?);
+        } else if held.held.is_empty() {
+            println!("No transactions are held on {name}.");
+        } else {
+            for held in &held.held {
+                println!("{}", render_held(held));
+            }
         }
         Ok(())
     }
@@ -1471,10 +1611,18 @@ fn submit_mining_job(
     client: &reqwest::blocking::Client,
     dashboard: &str,
     blocks: u32,
+    options: &MineOptions,
     idempotency_key: &str,
     deadline: Instant,
 ) -> Result<MiningJob> {
-    let body = serde_json::json!({"blocks": blocks, "idempotency_key": idempotency_key});
+    let mut body = serde_json::json!({"blocks": blocks, "idempotency_key": idempotency_key});
+    // Sent only when used, so a plain `ths mine` matches older servers.
+    if let Some(to) = &options.to {
+        body["to"] = serde_json::json!(to);
+    }
+    if options.empty {
+        body["empty"] = serde_json::json!(true);
+    }
     loop {
         let Some(left) = remaining(deadline) else {
             bail!(

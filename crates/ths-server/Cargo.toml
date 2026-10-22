@@ -11,6 +11,9 @@ axum.workspace = true
 async-stream = "0.3"
 async-trait = "0.1"
 bip39 = "2"
+# Block assembly hashes the header commitments itself; both are already in the
+# dependency graph through the wallet crates.
+blake2b_simd = "1"
 clap.workspace = true
 hex.workspace = true
 futures-core = "0.3"
@@ -27,6 +30,7 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 uuid.workspace = true
 secrecy = "0.8"
+sha2 = "0.10"
 schemerz = "0.2"
 schemerz-rusqlite = "0.370"
 tonic = "0.14"

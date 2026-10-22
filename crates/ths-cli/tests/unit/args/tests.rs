@@ -69,11 +69,14 @@ fn separates_building_from_starting() {
     assert!(matches!(cli.command, Some(Command::Uninstall)));
 
     let cli = Cli::try_parse_from(["ths", "mine", "10"]).unwrap();
-    assert!(matches!(cli.command, Some(Command::Mine { blocks: 10 })));
+    assert!(matches!(
+        cli.command,
+        Some(Command::Mine { blocks: 10, .. })
+    ));
 
     let cli = Cli::try_parse_from(["ths", "--name", "alice", "mine", "3"]).unwrap();
     assert_eq!(cli.name.unwrap().to_string(), "alice");
-    assert!(matches!(cli.command, Some(Command::Mine { blocks: 3 })));
+    assert!(matches!(cli.command, Some(Command::Mine { blocks: 3, .. })));
 
     let cli = Cli::try_parse_from(["ths", "mine", "3", "--name", "alice"]).unwrap();
     assert_eq!(cli.name.unwrap().to_string(), "alice");
@@ -635,4 +638,35 @@ fn parses_per_transaction_reorg_options() {
         );
     }
     assert!(Cli::try_parse_from(["ths", "rollback", "--depth", "1", "--place", "cc=1"]).is_err());
+}
+
+#[test]
+fn parses_mine_coinbase_and_empty_options() {
+    let cli = Cli::try_parse_from(["ths", "mine", "2", "--to", "4", "--empty"]).unwrap();
+    let Some(Command::Mine { blocks, to, empty }) = cli.command else {
+        panic!("expected mine");
+    };
+    assert_eq!((blocks, to.as_deref(), empty), (2, Some("4"), true));
+    let cli = Cli::try_parse_from(["ths", "mine", "1"]).unwrap();
+    assert!(matches!(
+        cli.command,
+        Some(Command::Mine {
+            to: None,
+            empty: false,
+            ..
+        })
+    ));
+}
+
+#[test]
+fn parses_hold_release_and_held() {
+    let cli = Cli::try_parse_from(["ths", "hold", "abc"]).unwrap();
+    assert!(matches!(cli.command, Some(Command::Hold { txid }) if txid == "abc"));
+    let cli = Cli::try_parse_from(["ths", "release", "abc", "--json"]).unwrap();
+    assert!(matches!(cli.command, Some(Command::Release { txid }) if txid == "abc"));
+    assert!(matches!(
+        Cli::try_parse_from(["ths", "held"]).unwrap().command,
+        Some(Command::Held)
+    ));
+    assert!(Cli::try_parse_from(["ths", "hold"]).is_err());
 }
