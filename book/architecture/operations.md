@@ -266,7 +266,7 @@ a fresh internal key and can request additional mining.
 
 The dashboard and `ths mine` use `POST /api/v1/mining/jobs` with a caller key
 and receive an accepted job before completion. Replaying the same accepted
-key and count returns that job within the server's lifetime. After a lost response, read
+key, count and options (`to`, `empty`) returns that job within the server's lifetime. After a lost response, read
 `GET /api/v1/mining/jobs` to inspect the latest job before requesting more.
 
 The CLI saves its key before submission and retains it after an uncertain

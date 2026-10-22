@@ -9,7 +9,7 @@ use anyhow::{Context, Result};
 use serde::Serialize;
 use serde_json::Value;
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, HashSet},
     sync::Arc,
     time::Duration,
 };
@@ -39,17 +39,12 @@ pub(crate) struct ReorgPlan {
     /// Transactions to rebroadcast just before replacement block `k` (1-based),
     /// so they are mined in that block or later instead of the first one.
     pub(crate) place: BTreeMap<String, u32>,
+    /// Transactions held when the reorg starts. ths never mines them, so they
+    /// cannot be placed.
+    pub(crate) held: HashSet<String>,
 }
 
 impl ReorgPlan {
-    #[cfg(test)]
-    pub(crate) fn keep(keep_txs: bool) -> Self {
-        Self {
-            keep_txs,
-            ..Self::default()
-        }
-    }
-
     /// The first replacement block before which `txid` is rebroadcast, if any.
     fn first_offset(&self, txid: &str) -> Option<u32> {
         if let Some(offset) = self.place.get(txid) {
@@ -76,7 +71,7 @@ impl ReorgPlan {
         for txid in self.drop.iter().chain(self.place.keys()) {
             if !removed.contains(txid) {
                 return invalid(format!(
-                    "transaction {txid} is not a non-coinbase transaction in the removed blocks"
+                    "transaction {txid} was not in the removed blocks (coinbase transactions cannot be named)"
                 ));
             }
         }
@@ -89,6 +84,11 @@ impl ReorgPlan {
             if self.drop.contains(txid) {
                 return invalid(format!(
                     "transaction {txid} cannot be both dropped and placed"
+                ));
+            }
+            if self.held.contains(txid) {
+                return invalid(format!(
+                    "transaction {txid} is held; release it before placing it"
                 ));
             }
         }
@@ -108,7 +108,8 @@ pub(crate) struct ChainChangeResult {
     pub(crate) retained_transactions: Vec<RetainedTransaction>,
     pub(crate) failed_transactions: Vec<TransactionFailure>,
     /// Every non-coinbase transaction from the removed blocks that is not in a
-    /// replacement block. Zakura does not return them to its mempool.
+    /// replacement block. Invalidation does not return them to Zakura's
+    /// mempool, but a rebroadcast one may still be waiting there.
     pub(crate) dropped_txids: Vec<String>,
     /// Payments this operation left `unconfirmed`. They are not rebroadcast and
     /// keep their inputs reserved until they expire.
@@ -329,10 +330,18 @@ async fn change_chain_with(
         if replace {
             for offset in 1..=depth {
                 let mut submitted = Vec::new();
+                // A transaction admitted earlier but not mined yet is not
+                // rebroadcast: the node would refuse the duplicate.
+                let pool = if transactions.is_empty() {
+                    Vec::new()
+                } else {
+                    runtime.mempool().await?
+                };
                 for (txid, raw, first_offset) in &transactions {
                     // A placed transaction is withheld until its replacement block;
                     // after that, like a kept one, it is retried before each block.
-                    if included.contains_key(txid) || offset < *first_offset {
+                    if included.contains_key(txid) || offset < *first_offset || pool.contains(txid)
+                    {
                         continue;
                     }
                     match runtime.broadcast(raw).await {
@@ -390,8 +399,20 @@ async fn change_chain_with(
         let mut retained_txids = Vec::new();
         let mut retained_transactions = Vec::new();
         let mut failed_transactions = Vec::new();
-        for (txid, _, _) in transactions {
-            if let Some(height) = included.get(&txid) {
+        for (txid, _, first_offset) in transactions {
+            // The node may requeue an earlier submission on its own, so check
+            // that a placed transaction did not land before its block.
+            if let Some(height) = included.get(&txid)
+                && *height < u64::from(ancestor + first_offset)
+            {
+                failed_transactions.push(TransactionFailure {
+                    txid,
+                    error: format!(
+                        "mined at height {height}, before its placement block at height {}",
+                        ancestor + first_offset
+                    ),
+                });
+            } else if let Some(height) = included.get(&txid) {
                 retained_transactions.push(RetainedTransaction {
                     txid: txid.clone(),
                     height: *height,
@@ -452,8 +473,9 @@ impl AppState {
         &self,
         depth: u32,
         replace: bool,
-        plan: ReorgPlan,
+        mut plan: ReorgPlan,
     ) -> Result<ChainChangeResult> {
+        plan.held = self.0.blocks.held_txids().await;
         let _payment = self
             .0
             .payments

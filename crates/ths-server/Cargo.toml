@@ -11,8 +11,8 @@ axum.workspace = true
 async-stream = "0.3"
 async-trait = "0.1"
 bip39 = "2"
-# Block assembly hashes the header commitments itself; both are already in the
-# dependency graph through the wallet crates.
+# Block assembly hashes the header commitments itself with blake2b_simd and
+# sha2 (below); both were already in the dependency graph through the wallet crates.
 blake2b_simd = "1"
 clap.workspace = true
 hex.workspace = true

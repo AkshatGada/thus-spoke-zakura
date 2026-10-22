@@ -73,6 +73,23 @@ impl Store {
         Ok(())
     }
 
+    /// Whether a payment ths is still executing uses `txid`. Such a payment is
+    /// mined or replaced by its own progression, so it must not be held.
+    pub(crate) fn is_executing_payment(&self, txid: &str) -> Result<bool> {
+        let db = self.0.lock().unwrap();
+        let mut executing = false;
+        for table in ["activity", "address_faucets"] {
+            executing |= db.query_row(
+                &format!(
+                    "SELECT EXISTS(SELECT 1 FROM {table} WHERE txid=?1 AND status IN ('preparing','prepared','broadcast'))"
+                ),
+                params![txid],
+                |row| row.get::<_, bool>(0),
+            )?;
+        }
+        Ok(executing)
+    }
+
     pub fn activities(&self, limit: u32) -> Result<Vec<Activity>> {
         let db = self.0.lock().unwrap();
         let mut query = db.prepare(&format!(

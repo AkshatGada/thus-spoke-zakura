@@ -89,6 +89,16 @@ pub(crate) fn run(cli: Cli) -> anyhow::Result<ExitCode> {
             drop,
             place,
         } => {
+            if let Some((txid, _)) = place
+                .iter()
+                .enumerate()
+                .find(|(index, (txid, _))| {
+                    place[..*index].iter().any(|(earlier, _)| earlier == txid)
+                })
+                .map(|(_, placement)| placement)
+            {
+                anyhow::bail!("--place names {txid} more than once");
+            }
             let plan = ChainPlan {
                 keep_txs,
                 drop,
@@ -96,12 +106,11 @@ pub(crate) fn run(cli: Cli) -> anyhow::Result<ExitCode> {
             };
             runtime.change_chain(&name, "reorg", depth, &plan, cli.json)
         }
-        Command::Hold { txid } => runtime.hold(&name, "hold", &txid, cli.json),
-        Command::Release { txid } => runtime.hold(&name, "release", &txid, cli.json),
-        Command::Held => runtime.held(&name, cli.json),
         Command::Rollback { depth } => {
             runtime.change_chain(&name, "rollback", depth, &ChainPlan::default(), cli.json)
         }
+        Command::Hold { txid } => runtime.hold(&name, "hold", &txid, cli.json),
+        Command::Release { txid } => runtime.hold(&name, "release", &txid, cli.json),
         Command::Faucet { address, amount } => {
             runtime.faucet(&name, &address, amount.zatoshi(), cli.json)
         }

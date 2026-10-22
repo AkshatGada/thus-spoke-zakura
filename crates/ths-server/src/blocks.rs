@@ -12,7 +12,6 @@ use std::collections::{BTreeMap, HashSet};
 use anyhow::{Context, Result, bail};
 use blake2b_simd::Params;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
 use transparent::{address::Script, bundle::TxOut};
@@ -25,7 +24,8 @@ use zcash_protocol::{
     value::Zatoshis,
 };
 
-use crate::{network::regtest_network, rpc::NodeRpc, state::AppState};
+use crate::{db::TREASURY_ACCOUNT_ID, network::regtest_network, rpc::NodeRpc, state::AppState};
+use zcash_keys::address::Address;
 
 /// Regtest's placeholder Equihash solution: a 36-byte, all-zero field.
 const REGTEST_SOLUTION_LEN: usize = 36;
@@ -53,11 +53,21 @@ pub(crate) struct HeldTransaction {
     pub(crate) txid: String,
     /// Chain height when the hold began.
     pub(crate) held_at: u64,
+    /// Whether ths has seen the transaction in the mempool since the hold began.
+    #[serde(skip)]
+    seen: bool,
 }
 
+/// A hold placed before its transaction reaches the mempool ends if the
+/// transaction has still not arrived this many blocks later.
+pub(crate) const UNSEEN_HOLD_BLOCKS: u64 = 20;
+
 /// Holds last for the server lifetime. Zakura has no RPC to evict a mempool
-/// transaction, so a hold only stops ths from mining it; the node still drops
-/// it when it expires.
+/// transaction, so a hold only stops ths from mining it.
+///
+/// The hold set's lock also serializes block production: every mining path
+/// takes it from reading the holds to confirming its block, so two paths never
+/// build on one template and a hold always applies to the next block mined.
 #[derive(Default)]
 pub(crate) struct BlockProducer {
     held: Mutex<BTreeMap<String, HeldTransaction>>,
@@ -72,6 +82,7 @@ impl BlockProducer {
             .or_insert_with(|| HeldTransaction {
                 txid: txid.to_owned(),
                 held_at,
+                seen: false,
             })
             .clone()
     }
@@ -80,13 +91,27 @@ impl BlockProducer {
         self.held.lock().await.remove(txid)
     }
 
-    pub(crate) async fn held(&self) -> Vec<HeldTransaction> {
-        self.held.lock().await.values().cloned().collect()
-    }
-
     pub(crate) async fn held_txids(&self) -> HashSet<String> {
         self.held.lock().await.keys().cloned().collect()
     }
+}
+
+/// Ends holds that can no longer matter, so a mistyped, expired or externally
+/// mined transaction does not keep every block on the assembly path: a held
+/// transaction that has left the mempool, and one held before broadcast that
+/// has not arrived within [`UNSEEN_HOLD_BLOCKS`].
+fn prune_holds(held: &mut BTreeMap<String, HeldTransaction>, mempool: &[String], tip: u64) {
+    held.retain(|txid, hold| {
+        if mempool.contains(txid) {
+            hold.seen = true;
+            return true;
+        }
+        let keep = !hold.seen && tip < hold.held_at + UNSEEN_HOLD_BLOCKS;
+        if !keep {
+            tracing::info!(%txid, "ending a hold whose transaction is no longer pending");
+        }
+        keep
+    });
 }
 
 #[derive(Deserialize)]
@@ -107,16 +132,22 @@ struct DefaultRoots {
     chainhistoryroot: String,
 }
 
+// Zakura always leaves the template's `depends` empty, so dependencies are
+// found from each transaction's inputs instead.
 #[derive(Deserialize)]
 struct TemplateTransaction {
     data: String,
     hash: String,
     authdigest: String,
     fee: i64,
-    /// One-based indexes of earlier template transactions this one spends.
-    #[serde(default)]
-    depends: Vec<usize>,
 }
+
+/// The outcome of a block submission could not be established, so the block
+/// may or may not be on the chain. Deliberately not an `RpcError`: background
+/// mining treats a JSON-RPC error as "no block produced, safe to retry".
+#[derive(Debug, thiserror::Error)]
+#[error("{0}")]
+pub(crate) struct UncertainSubmission(String);
 
 impl AppState {
     /// Mines `blocks` blocks. Without a request or held transactions this is
@@ -127,35 +158,88 @@ impl AppState {
         blocks: u32,
         request: &BlockRequest,
     ) -> Result<Vec<String>> {
-        let held = self.0.blocks.held_txids().await;
-        if request.is_default() && held.is_empty() {
-            return self.0.rpc.generate(blocks).await;
-        }
         let mut hashes = Vec::with_capacity(blocks as usize);
         for _ in 0..blocks {
-            hashes.push(mine_assembled_block(&self.0.rpc, request, &held).await?);
+            let mut held = self.0.blocks.held.lock().await;
+            self.prune_held(&mut held).await?;
+            if request.is_default() && held.is_empty() && hashes.is_empty() {
+                // Keep Zakura's multi-block `generate`, under the lock so a hold
+                // cannot be acknowledged while these blocks are being mined.
+                return self.0.rpc.generate(blocks).await;
+            }
+            let excluded = held.keys().cloned().collect();
+            let miner = self.treasury_script()?;
+            hashes.push(mine_assembled_block(&self.0.rpc, request, &excluded, &miner).await?);
         }
         Ok(hashes)
+    }
+
+    /// The current holds, after ending those that no longer matter.
+    pub(crate) async fn held_transactions(&self) -> Result<Vec<HeldTransaction>> {
+        let mut held = self.0.blocks.held.lock().await;
+        self.prune_held(&mut held).await?;
+        Ok(held.values().cloned().collect())
+    }
+
+    async fn prune_held(&self, held: &mut BTreeMap<String, HeldTransaction>) -> Result<()> {
+        if held.is_empty() {
+            return Ok(());
+        }
+        let mempool = self.0.rpc.mempool().await?;
+        let tip = self.0.rpc.checkpoint().await?.height;
+        prune_holds(held, &mempool, tip);
+        Ok(())
+    }
+
+    /// The configured miner output script: the treasury's transparent address.
+    fn treasury_script(&self) -> Result<Script> {
+        let address = self
+            .0
+            .store
+            .account(TREASURY_ACCOUNT_ID)?
+            .transparent_address;
+        match Address::decode(&regtest_network(), &address) {
+            Some(Address::Transparent(address)) => Ok(Script::from(address.script())),
+            _ => bail!("the treasury miner address {address} is not a transparent Regtest address"),
+        }
     }
 }
 
 async fn mine_assembled_block(
     rpc: &NodeRpc,
     request: &BlockRequest,
-    held: &HashSet<String>,
+    excluded: &HashSet<String>,
+    miner: &Script,
 ) -> Result<String> {
     let template: BlockTemplate = serde_json::from_value(rpc.block_template().await?)
         .context("decoding Zakura's block template")?;
-    let (block, hash) = assemble(&template, request, held)?;
-    if let Some(reason) = rpc.submit_block(&hex::encode(&block)).await? {
-        bail!("Zakura rejected the assembled block: {reason}");
+    let (block, hash) = assemble(&template, request, excluded, miner)?;
+    // From here on an error does not prove that no block was produced.
+    let uncertain =
+        |error: anyhow::Error| anyhow::Error::new(UncertainSubmission(format!("{error:#}")));
+    let reason = rpc
+        .submit_block(&hex::encode(&block))
+        .await
+        .map_err(uncertain)?;
+    match reason.as_deref() {
+        None => {}
+        // Zakura could not establish the outcome, or already had the block.
+        Some(reason) if reason.starts_with("inconclusive") || reason.starts_with("duplicate") => {}
+        Some(reason) => bail!("Zakura rejected the assembled block: {reason}"),
     }
-    let tip = rpc.checkpoint().await?;
-    anyhow::ensure!(
-        tip.hash == hash,
-        "the assembled block {hash} did not become the chain tip"
-    );
-    Ok(hash)
+    // Another path may already have built on this block, so require it to be
+    // canonical at its height rather than the tip.
+    match rpc
+        .canonical_hash(template.height)
+        .await
+        .map_err(uncertain)?
+    {
+        Some(canonical) if canonical == hash => Ok(hash),
+        _ => Err(uncertain(anyhow::anyhow!(
+            "the assembled block {hash} is not canonical at height {}",
+            template.height
+        ))),
+    }
 }
 
 /// Builds a complete serialized block and returns it with its display hash.
@@ -163,9 +247,10 @@ fn assemble(
     template: &BlockTemplate,
     request: &BlockRequest,
     held: &HashSet<String>,
+    miner: &Script,
 ) -> Result<(Vec<u8>, String)> {
-    let included = included_transactions(template, request, held);
     let height = BlockHeight::from_u32(template.height);
+    let included = included_transactions(template, request, held, height)?;
     let all_fees = template_fees(template.transactions.iter())?;
     let included_fees = template_fees(included.iter().copied())?;
     let template_share = miner_fee_share(height, all_fees);
@@ -181,6 +266,7 @@ fn assemble(
         &template.coinbasetxn.data,
         height,
         excluded_share,
+        miner,
         request.coinbase.as_ref(),
     )?;
 
@@ -191,6 +277,8 @@ fn assemble(
         auth_digests.push(internal_bytes(&tx.authdigest)?);
     }
     let merkle_root = merkle_root(&txids);
+    // Zakura special-cases the Heartwood activation block's history root; ths
+    // never assembles that block, because every upgrade activates at height 1.
     let commitments = block_commitments(
         &internal_bytes(&template.defaultroots.chainhistoryroot)?,
         &auth_data_root(&auth_digests),
@@ -230,38 +318,63 @@ fn assemble(
 }
 
 /// Template transactions to include: none for an empty block, otherwise all
-/// except held ones and any that depend, directly or not, on an excluded one.
+/// except held ones and any that spend, directly or not, an output of an
+/// excluded one. Zakura's mempool chains transparent transactions, and an
+/// unmined shielded note cannot be spent, so transparent inputs are the only
+/// dependencies.
 fn included_transactions<'a>(
     template: &'a BlockTemplate,
     request: &BlockRequest,
     held: &HashSet<String>,
-) -> Vec<&'a TemplateTransaction> {
+    height: BlockHeight,
+) -> Result<Vec<&'a TemplateTransaction>> {
     if request.empty {
-        return Vec::new();
+        return Ok(Vec::new());
     }
-    let mut excluded: Vec<bool> = template
+    let branch = BranchId::for_height(&regtest_network(), height);
+    let mut parents = Vec::with_capacity(template.transactions.len());
+    for tx in &template.transactions {
+        let raw = hex::decode(&tx.data).context("invalid template transaction")?;
+        let parsed = Transaction::read(&raw[..], branch)
+            .with_context(|| format!("parsing template transaction {}", tx.hash))?;
+        let spent: HashSet<String> = parsed
+            .transparent_bundle()
+            .map(|bundle| {
+                bundle
+                    .vin
+                    .iter()
+                    .map(|input| input.prevout().txid().to_string())
+                    .collect()
+            })
+            .unwrap_or_default();
+        parents.push(spent);
+    }
+    let mut excluded: HashSet<&str> = template
         .transactions
         .iter()
-        .map(|tx| held.contains(&tx.hash))
+        .map(|tx| tx.hash.as_str())
+        .filter(|txid| held.contains(*txid))
         .collect();
-    // `depends` only points at earlier transactions, so one forward pass
-    // excludes every descendant.
-    for index in 0..template.transactions.len() {
-        if template.transactions[index]
-            .depends
-            .iter()
-            .any(|parent| parent.checked_sub(1).is_some_and(|parent| excluded[parent]))
-        {
-            excluded[index] = true;
+    // The template order is not relied on: repeat until no descendant is added.
+    loop {
+        let before = excluded.len();
+        for (tx, spent) in template.transactions.iter().zip(&parents) {
+            if spent
+                .iter()
+                .any(|parent| excluded.contains(parent.as_str()))
+            {
+                excluded.insert(tx.hash.as_str());
+            }
+        }
+        if excluded.len() == before {
+            break;
         }
     }
-    template
+    Ok(template
         .transactions
         .iter()
-        .zip(excluded)
-        .filter(|(_, excluded)| !excluded)
-        .map(|(tx, _)| tx)
-        .collect()
+        .filter(|tx| !excluded.contains(tx.hash.as_str()))
+        .collect())
 }
 
 fn template_fees<'a>(transactions: impl Iterator<Item = &'a TemplateTransaction>) -> Result<u64> {
@@ -289,21 +402,33 @@ struct Coinbase {
 
 /// Lowers the miner output by the fee share of excluded transactions so the
 /// coinbase still balances exactly, and optionally pays it to another script.
+/// It changes nothing it cannot identify: the miner output must be the first
+/// transparent output and pay the configured `miner` script, as Zakura builds
+/// it, so a funding-stream output is never altered.
 fn rewrite_coinbase(
     data: &str,
     height: BlockHeight,
     excluded_share: u64,
+    miner: &Script,
     destination: Option<&Script>,
 ) -> Result<Coinbase> {
     let raw = hex::decode(data).context("invalid template coinbase")?;
     let branch = BranchId::for_height(&regtest_network(), height);
     let tx = Transaction::read(&raw[..], branch).context("parsing the template coinbase")?;
+    if excluded_share > 0 || destination.is_some() {
+        let first = tx
+            .transparent_bundle()
+            .and_then(|bundle| bundle.vout.first());
+        anyhow::ensure!(
+            first.is_some_and(|output| output.script_pubkey() == miner),
+            "the template coinbase does not pay the treasury in its first transparent output"
+        );
+    }
     let mut rewritten = Ok(());
     let data = tx.into_data().map_bundles(
         |bundle| {
             bundle.map(|mut bundle| {
                 let Some(miner) = bundle.vout.first() else {
-                    rewritten = Err(anyhow::anyhow!("the template coinbase has no miner output"));
                     return bundle;
                 };
                 match Zatoshis::from_u64(excluded_share)
@@ -418,24 +543,6 @@ fn write_compact_size(out: &mut Vec<u8>, n: u64) {
     }
 }
 
-impl NodeRpc {
-    pub(crate) async fn block_template(&self) -> Result<Value> {
-        self.call("getblocktemplate", serde_json::json!([])).await
-    }
-
-    /// `None` when Zakura accepted the block, otherwise its rejection reason.
-    pub(crate) async fn submit_block(&self, block_hex: &str) -> Result<Option<String>> {
-        let result: Value = self
-            .call("submitblock", serde_json::json!([block_hex]))
-            .await?;
-        Ok(match result {
-            Value::Null => None,
-            Value::String(reason) => Some(reason),
-            other => Some(other.to_string()),
-        })
-    }
-}
-
 #[cfg(test)]
 #[path = "../tests/unit/blocks/tests.rs"]
-mod tests;
+pub(crate) mod tests;

@@ -115,8 +115,9 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
         "depth":3,"old_tip":{"height":108,"hash":"old-tip"},
         "new_tip":{"height":108,"hash":"new-tip"},
         "removed_hashes":["a","b","c"],"replacement_hashes":["d","e","f"],
-        "retained_txids":["kept"],"failed_transactions":[{"txid":"dropped","error":"invalid anchor"}],
-        "unconfirmed_txids":["dropped"]
+        "retained_txids":["kept"],"retained_transactions":[{"txid":"kept","height":106}],
+        "failed_transactions":[{"txid":"dropped","error":"invalid anchor"}],
+        "dropped_txids":["dropped"],"unconfirmed_txids":["dropped"]
     });
     for (operation, keep_txs, body) in [
         (
@@ -137,7 +138,10 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
             &reqwest::blocking::Client::new(),
             operation,
             3,
-            &ChainPlan::keep(keep_txs),
+            &ChainPlan {
+                keep_txs,
+                ..ChainPlan::default()
+            },
         )
         .unwrap();
         let (request_line, request_body) = requests.recv().unwrap();
@@ -289,6 +293,7 @@ fn mine_polls_until_completion_and_reports_the_confirmed_count() {
             &mut out,
             Instant::now() + Duration::from_secs(5),
             3,
+            &MineOptions::default(),
             false,
         )
         .unwrap();
@@ -338,6 +343,7 @@ fn mine_reports_partial_progress_alongside_the_servers_error() {
             &mut out,
             Instant::now() + Duration::from_secs(5),
             5,
+            &MineOptions::default(),
             true,
         )
         .unwrap_err();
@@ -392,6 +398,7 @@ fn mine_keeps_the_journal_key_when_writing_the_json_result_fails() {
             FailingWriter,
             Instant::now() + Duration::from_secs(5),
             1,
+            &MineOptions::default(),
             true,
         )
         .unwrap_err();
@@ -426,6 +433,7 @@ fn submission_retries_pause_between_attempts_instead_of_busy_looping() {
             &mut out,
             Instant::now() + Duration::from_millis(900),
             1,
+            &MineOptions::default(),
             false,
         )
         .unwrap_err();
@@ -452,6 +460,8 @@ fn mine_status_line_reports_progress_for_every_state() {
         error: None,
         progress_uncertain: false,
         hashes: None,
+        to: None,
+        empty: false,
     };
     assert_eq!(
         mine_status_line(&mining, &name("alpha")),
@@ -529,6 +539,7 @@ fn a_dropped_poll_connection_is_retried_within_the_deadline() {
             &mut out,
             Instant::now() + Duration::from_secs(10),
             1,
+            &MineOptions::default(),
             false,
         )
         .unwrap();
@@ -566,6 +577,7 @@ fn a_stalled_poll_times_out_within_the_deadline_instead_of_hanging() {
             &mut out,
             Instant::now() + Duration::from_millis(500),
             1,
+            &MineOptions::default(),
             false,
         )
         .unwrap_err();
@@ -606,6 +618,7 @@ fn an_unresolved_submission_key_survives_for_the_next_invocation() {
             &mut out,
             Instant::now() + Duration::from_millis(300),
             5,
+            &MineOptions::default(),
             false,
         )
         .unwrap_err();
@@ -627,6 +640,7 @@ fn an_unresolved_submission_key_survives_for_the_next_invocation() {
             &mut out,
             Instant::now() + Duration::from_secs(5),
             5,
+            &MineOptions::default(),
             false,
         )
         .unwrap();
@@ -2398,7 +2412,7 @@ fn mine_options_are_sent_and_keep_their_own_saved_key() {
         empty: true,
     };
     runtime
-        .mine_with_options(
+        .mine_with(
             &alpha,
             &url,
             &client,
@@ -2439,11 +2453,89 @@ fn hold_and_release_post_the_txid_and_render_the_hold() {
     }
     let (url, _requests) = serve(vec![(
         "404 Not Found",
-        r#"{"error":{"message":"transaction is not in the mempool","status":404}}"#,
+        r#"{"error":{"message":"transaction is not held","status":404}}"#,
     )]);
-    let error = change_hold(&url, &reqwest::blocking::Client::new(), "hold", "abc").unwrap_err();
+    let error = change_hold(&url, &reqwest::blocking::Client::new(), "release", "abc").unwrap_err();
     assert!(
-        format!("{error:#}").contains("transaction is not in the mempool"),
+        format!("{error:#}").contains("transaction is not held"),
         "{error:#}"
     );
+}
+
+#[test]
+fn mine_refuses_a_server_that_ignored_its_options() {
+    // An older server accepts --to and --empty but neither applies nor echoes them.
+    let (url, _requests) = serve(vec![(
+        "202 Accepted",
+        r#"{"id":"job-1","requested_blocks":1,"completed_blocks":0,"state":"mining","error":null,"progress_uncertain":false}"#,
+    )]);
+    let alpha = name("alpha");
+    let (_dir, runtime) = runtime_with_instance_dir(&alpha);
+    let error = runtime
+        .mine_with(
+            &alpha,
+            &url,
+            &reqwest::blocking::Client::new(),
+            &mut Vec::new(),
+            Instant::now() + Duration::from_secs(5),
+            1,
+            &MineOptions {
+                to: Some("4".into()),
+                empty: false,
+            },
+            false,
+        )
+        .unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("does not support --to or --empty"),
+        "{error:#}"
+    );
+}
+
+#[test]
+fn a_per_transaction_reorg_refuses_a_server_that_ignored_the_plan() {
+    let response = serde_json::json!({
+        "depth":1,"old_tip":{"height":108,"hash":"a"},"new_tip":{"height":108,"hash":"b"},
+        "removed_hashes":["a"],"replacement_hashes":["b"],
+        "retained_txids":[],"failed_transactions":[],"unconfirmed_txids":[]
+    });
+    let (url, _requests) = serve(vec![("200 OK", response.to_string())]);
+    let plan = ChainPlan {
+        place: vec![("tx".into(), 1)],
+        ..ChainPlan::default()
+    };
+    let error =
+        change_chain(&url, &reqwest::blocking::Client::new(), "reorg", 1, &plan).unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("does not support --drop or --place"),
+        "{error:#}"
+    );
+}
+
+#[test]
+fn reorg_json_always_lists_retained_and_dropped_transactions() {
+    let response = serde_json::json!({
+        "depth":1,"old_tip":{"height":108,"hash":"a"},"new_tip":{"height":108,"hash":"b"},
+        "removed_hashes":["a"],"replacement_hashes":["b"],
+        "retained_txids":[],"failed_transactions":[],"unconfirmed_txids":[]
+    });
+    let (url, _requests) = serve(vec![("200 OK", response.to_string())]);
+    let result = change_chain(
+        &url,
+        &reqwest::blocking::Client::new(),
+        "rollback",
+        1,
+        &ChainPlan::default(),
+    )
+    .unwrap();
+    let json: serde_json::Value = serde_json::from_str(
+        &render_chain_change(&result, &name("alpha"), "rollback", true).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(json["dropped_txids"], serde_json::json!([]));
+    assert_eq!(json["retained_transactions"], serde_json::json!([]));
 }

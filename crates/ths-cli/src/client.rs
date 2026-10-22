@@ -17,6 +17,11 @@ pub(crate) struct MiningJob {
     // Older servers may omit this; treat it the same as "not completed yet".
     #[serde(default)]
     pub(crate) hashes: Option<Vec<String>>,
+    /// The options the server applied; a server that predates them omits both.
+    #[serde(default)]
+    pub(crate) to: Option<String>,
+    #[serde(default)]
+    pub(crate) empty: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
@@ -36,6 +41,10 @@ struct MineOutput {
     id: String,
     blocks: u32,
     requested_blocks: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    to: Option<String>,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    empty: bool,
     state: MiningJobState,
     error: Option<String>,
     progress_uncertain: bool,
@@ -68,10 +77,10 @@ pub(crate) struct ChainChangeResult {
     removed_hashes: Vec<String>,
     replacement_hashes: Vec<String>,
     retained_txids: Vec<String>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(default)]
     retained_transactions: Vec<RetainedTransaction>,
     failed_transactions: Vec<TransactionFailure>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(default)]
     dropped_txids: Vec<String>,
     #[serde(default)]
     unconfirmed_txids: Vec<String>,
@@ -89,11 +98,6 @@ pub(crate) struct HeldTransaction {
     held_at: u64,
     in_mempool: bool,
     expiry_height: Option<u64>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub(crate) struct HeldTransactions {
-    held: Vec<HeldTransaction>,
 }
 
 /// `operation` is `hold` or `release`.
@@ -145,16 +149,6 @@ pub(crate) struct ChainPlan {
     pub(crate) place: Vec<(String, u32)>,
 }
 
-impl ChainPlan {
-    #[cfg(test)]
-    pub(crate) fn keep(keep_txs: bool) -> Self {
-        Self {
-            keep_txs,
-            ..Self::default()
-        }
-    }
-}
-
 #[derive(Debug, Deserialize, Serialize)]
 struct TransactionFailure {
     txid: String,
@@ -187,13 +181,22 @@ pub(crate) fn change_chain(
     } else {
         serde_json::json!({"depth": depth})
     };
-    client
+    let result = client
         .post(format!("{dashboard}/api/v1/{operation}"))
         .json(&body)
         .send()
         .map_err(anyhow::Error::from)
-        .and_then(decode_response)
-        .context("chain operation failed; inspect the current tip before retrying")
+        .and_then(decode_response::<serde_json::Value>)
+        .context("chain operation failed; inspect the current tip before retrying")?;
+    // A server that predates --drop and --place ignores them and reports no
+    // dropped_txids, so the reorg it ran kept every transaction or none.
+    if (!plan.drop.is_empty() || !plan.place.is_empty()) && result.get("dropped_txids").is_none() {
+        bail!(
+            "this environment's server does not support --drop or --place, so the reorg ran \
+             without them; rebuild or update the environment"
+        );
+    }
+    serde_json::from_value(result).context("decoding the chain operation result")
 }
 
 pub(crate) fn render_chain_change(
@@ -226,16 +229,32 @@ pub(crate) fn render_chain_change(
             failure.txid, failure.error
         ));
     }
+    // Name each transaction once: a failure line already covers a refused
+    // placement, and a dropped wallet payment is annotated in place.
+    let failed: Vec<&str> = result
+        .failed_transactions
+        .iter()
+        .map(|failure| failure.txid.as_str())
+        .collect();
     for txid in &result.dropped_txids {
-        output.push_str(&format!("\nDropped: {txid}"));
+        if failed.contains(&txid.as_str()) {
+            continue;
+        }
+        if result.unconfirmed_txids.contains(txid) {
+            output.push_str(&format!("\nDropped: {txid} (payment now unconfirmed)"));
+        } else {
+            output.push_str(&format!("\nDropped: {txid}"));
+        }
     }
     for txid in &result.unconfirmed_txids {
-        output.push_str(&format!("\nNow unconfirmed: {txid}"));
+        if !result.dropped_txids.contains(txid) || failed.contains(&txid.as_str()) {
+            output.push_str(&format!("\nNow unconfirmed: {txid}"));
+        }
     }
     if !result.unconfirmed_txids.is_empty() {
         output.push_str(
             "\nUnconfirmed payments are not rebroadcast. Their inputs stay reserved until each \
-             transaction expires, about 40 blocks after it was created.",
+             transaction expires; mine past the expiry height that `ths tx` shows to release them.",
         );
     }
     Ok(output)
@@ -595,7 +614,7 @@ impl Runtime {
         json: bool,
     ) -> Result<()> {
         let (dashboard, client) = self.instance_client(name)?;
-        self.mine_with_options(
+        self.mine_with(
             name,
             &dashboard,
             &client,
@@ -607,32 +626,8 @@ impl Runtime {
         )
     }
 
-    #[cfg(test)]
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn mine_with(
-        &self,
-        name: &InstanceName,
-        dashboard: &str,
-        client: &reqwest::blocking::Client,
-        out: impl std::io::Write,
-        deadline: Instant,
-        blocks: u32,
-        json: bool,
-    ) -> Result<()> {
-        self.mine_with_options(
-            name,
-            dashboard,
-            client,
-            out,
-            deadline,
-            blocks,
-            &MineOptions::default(),
-            json,
-        )
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) fn mine_with_options(
         &self,
         name: &InstanceName,
         dashboard: &str,
@@ -664,6 +659,15 @@ impl Runtime {
             deadline,
         )
         .with_context(|| format!("asking environment {name} to mine {blocks} blocks"))?;
+        // A server that predates --to and --empty accepts them silently and
+        // mines ordinary blocks; it also does not echo them in the job.
+        if job.to != options.to || job.empty != options.empty {
+            bail!(
+                "environment {name} does not support --to or --empty, so its job {} mines \
+                 ordinary blocks; rebuild or update the environment",
+                job.id
+            );
+        }
 
         let mut last_printed = None;
         let timed_out = loop {
@@ -723,6 +727,8 @@ impl Runtime {
                 id: job.id.clone(),
                 blocks: job.completed_blocks,
                 requested_blocks: job.requested_blocks,
+                to: job.to.clone(),
+                empty: job.empty,
                 state: job.state,
                 error: job.error.clone(),
                 progress_uncertain: job.progress_uncertain,
@@ -781,26 +787,6 @@ impl Runtime {
             println!("ths will not mine it until `ths release {}`.", held.txid);
         } else {
             println!("Released on {name}: {}", held.txid);
-        }
-        Ok(())
-    }
-
-    pub(crate) fn held(&self, name: &InstanceName, json: bool) -> Result<()> {
-        let (dashboard, client) = self.instance_client(name)?;
-        let held: HeldTransactions = client
-            .get(format!("{dashboard}/api/v1/mempool/held"))
-            .send()
-            .map_err(anyhow::Error::from)
-            .and_then(decode_response)
-            .context("listing held transactions")?;
-        if json {
-            println!("{}", serde_json::to_string_pretty(&held)?);
-        } else if held.held.is_empty() {
-            println!("No transactions are held on {name}.");
-        } else {
-            for held in &held.held {
-                println!("{}", render_held(held));
-            }
         }
         Ok(())
     }

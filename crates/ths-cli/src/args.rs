@@ -153,7 +153,7 @@ pub(crate) enum Command {
     },
     /// Keep a transaction out of every block ths mines until released; it can be held before broadcast.
     Hold {
-        /// Transaction ID, as listed by `ths tx` or the explorer's mempool.
+        /// Transaction ID, for example from the explorer's mempool view.
         txid: String,
     },
     /// Let a held transaction be mined again.
@@ -161,8 +161,6 @@ pub(crate) enum Command {
         /// Transaction ID.
         txid: String,
     },
-    /// List held transactions.
-    Held,
     /// Send disposable Regtest ZEC to a unified or transparent address.
     Faucet {
         /// Regtest unified or transparent destination address.
@@ -380,14 +378,14 @@ fn _assert_pathbuf_send(_: PathBuf) {}
 fn parse_placement(value: &str) -> Result<(String, u32)> {
     let (txid, block) = value
         .split_once('=')
-        .context("expected TXID=K, for example --place 4c6c…=2")?;
+        .context("expected TXID=K, for example --place <txid>=2")?;
     let block = block
         .parse::<u32>()
         .ok()
         .filter(|block| *block >= 1)
         .context("K must be a replacement block number of at least 1")?;
     if txid.is_empty() {
-        bail!("expected TXID=K, for example --place 4c6c…=2");
+        bail!("expected TXID=K, for example --place <txid>=2");
     }
     Ok((txid.to_owned(), block))
 }

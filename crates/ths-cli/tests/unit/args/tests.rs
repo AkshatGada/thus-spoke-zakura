@@ -659,14 +659,26 @@ fn parses_mine_coinbase_and_empty_options() {
 }
 
 #[test]
-fn parses_hold_release_and_held() {
+fn parses_hold_and_release() {
     let cli = Cli::try_parse_from(["ths", "hold", "abc"]).unwrap();
     assert!(matches!(cli.command, Some(Command::Hold { txid }) if txid == "abc"));
     let cli = Cli::try_parse_from(["ths", "release", "abc", "--json"]).unwrap();
     assert!(matches!(cli.command, Some(Command::Release { txid }) if txid == "abc"));
-    assert!(matches!(
-        Cli::try_parse_from(["ths", "held"]).unwrap().command,
-        Some(Command::Held)
-    ));
+    assert!(Cli::try_parse_from(["ths", "held"]).is_err());
     assert!(Cli::try_parse_from(["ths", "hold"]).is_err());
+}
+
+#[test]
+fn a_reorg_may_name_each_placed_transaction_once() {
+    let cli = Cli::try_parse_from([
+        "ths", "reorg", "--depth", "2", "--place", "aa=1", "--place", "aa=2",
+    ])
+    .unwrap();
+    let error = crate::commands::run(cli).unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("--place names aa more than once"),
+        "{error:#}"
+    );
 }

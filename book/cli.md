@@ -366,13 +366,17 @@ shielded coinbase output would need an Ironwood bundle. `--empty` mines blocks
 that contain no mempool transactions, which stay in the mempool. With either
 option, ths assembles each block from Zakura's block template: it removes
 transactions, lowers the coinbase by their fee share so it still balances
-exactly, recomputes the header commitments, and submits the block. Coinbase
-outputs mature after 100 blocks and, like any transparent coinbase, can only be
-spent into a shielded pool (`ths wallet shield`).
+exactly, recomputes the header commitments, and submits the block. It accepts
+the block once it is canonical at its height. A coinbase paid to a development
+account appears in that account's transparent balance at once, but outputs only
+mature after 100 blocks, and the development wallet's `send` and `shield` do not
+spend coinbase outputs even then: quotes report them as unspendable. Use it to
+test receiving a coinbase, or spend it with your own wallet's keys.
 
 Counts must be **1–10,000**. Mining POSTs return 503 until startup finishes.
 The command submits to the mining-job API (`POST /api/v1/mining/jobs` with
-`{blocks, idempotency_key}`; acceptance returns HTTP 202) and polls
+`{blocks, idempotency_key}`, plus `to` and `empty` when given; acceptance returns
+HTTP 202) and polls
 `GET /api/v1/mining/jobs/{id}` until the job completes or fails, printing
 progress as it goes in human-readable mode (including the mined tip hash on
 completion and the job ID on failure) and the final job as JSON with
@@ -384,7 +388,7 @@ idempotency key for a given block count is saved to the instance directory
 before the request is sent and only cleared once the job reaches a terminal
 state, so a submission whose response is lost or fails to decode, or a
 command interrupted or timed out mid-poll, does not lose track of the job:
-the next `ths mine` with the same block count reuses the saved key and picks
+the next `ths mine` with the same block count and options reuses the saved key and picks
 the same job back up instead of starting a second one. Once a job completes
 or fails, its key is forgotten, so repeating that command afterward starts a
 fresh job. A different manual request during mining or wallet synchronization
@@ -420,35 +424,46 @@ Job history and keys last only for the server process lifetime, with a limit of
 existing-key replays and reads continue. Stopping the server cancels running work
 and discards this history. Jobs and deduplication do not survive a restart.
 
-### `ths hold <TXID>` / `ths release <TXID>` / `ths held`
+### `ths hold <TXID>` / `ths release <TXID>`
 
-`hold` keeps a transaction out of every block ths mines, until `release`. Use it to keep a payment pending while blocks are mined
-around it, for example to test a wallet's unconfirmed state, a confirmation
-counter, or expiry. `held` lists the holds with the height each began, whether
-the transaction is still in the mempool, and its expiry height. All three
-support `--name` and `--json`.
+`hold` keeps a transaction out of every block ths mines, until `release`. Use it
+to keep a payment pending while blocks are mined around it, for example to test
+a wallet's unconfirmed state, a confirmation counter, or expiry. Both print the
+hold (the height it began, whether the transaction is in the mempool, and its
+expiry height) and support `--name` and `--json`. `GET /api/v1/mempool/held`
+lists every hold.
 
 ```console
 ths hold "$TXID"
 ths mine 3          # three blocks, none containing $TXID
-ths held
 ths release "$TXID"
 ths mine 1          # $TXID can be mined again
 ```
+
+Hold transactions built outside ths, such as your app's payments. A payment ths
+is still executing cannot be held (HTTP 409): its own progression mines it in
+`auto` mode, and replaces it under a new txid once it expires.
 
 While anything is held, ths assembles every block itself (see
 [`ths mine`](#ths-mine-blocks)): manual jobs, payments in `auto` mode, `interval`
 and `mempool` mode blocks, and reorg replacement blocks all leave held
 transactions out, together with any mempool transaction that spends one of
-their outputs. In `mempool` mode a held transaction does not count as new work.
+their transparent outputs. In `mempool` mode a held transaction does not count
+as new work. A hold applies to every block mined after it returns. Blocks mined
+outside ths, for example with `ths rpc generate`, ignore holds.
 
 A transaction can be held before it is broadcast: hold its txid first, then
 broadcast it. That is the only reliable order in `mempool` mode, where a block
 follows a broadcast within seconds. Holding an already mined transaction returns
 HTTP 409. A hold does not remove the transaction from the node, and Zakura has no
-RPC to do so: a held transaction still expires, and the node then drops it, so
-its hold reports it as not in the mempool until released.
-Holds last for the server lifetime; restarting the app container clears them.
+RPC to do so: a held transaction still expires, and the node then drops it.
+
+A hold ends by itself once its transaction has left the mempool (it expired, or
+was mined outside ths), or, for a hold placed before broadcast, if the
+transaction has not reached the mempool within 20 blocks, so a mistyped txid
+does not keep every block on the assembly path. `release` of a transaction that
+is no longer held returns HTTP 404. Holds last for the server lifetime;
+restarting the app container clears them.
 
 ### `ths reorg --depth <N> [--keep-txs]` / `ths rollback --depth <N>`
 
@@ -468,23 +483,24 @@ ths wait
 ```
 
 Without `--keep-txs`, ths does not rebroadcast dropped transactions; replacement
-mining still uses the node's mempool. Zakura can independently requeue a prior
+mining still uses the node's mempool. Invalidating a block does not return its
+transactions to Zakura's mempool, but Zakura can independently requeue a prior
 RPC submission, so neither rollback nor reorg guarantees an empty mempool or
 prevents later inclusion of a dropped transaction. With `--keep-txs`, ths
 attempts to reinclude the original non-coinbase transactions and verifies their
-replacement-block inclusion.
+replacement-block inclusion; one already back in the mempool is not
+rebroadcast.
 Invalid anchors or other admission failures may prevent reinclusion. Failures
 are reported in both output modes; `--json` also lists `retained_txids`,
 `retained_transactions` (each retained txid with the replacement height that now
-holds it) and `failed_transactions`. The CLI exits nonzero if any transaction it
-tried to retain was not retained, even though the chain changed.
+holds it; `retained_txids` remains for compatibility) and `failed_transactions`.
+The CLI exits nonzero if any transaction it tried to retain was not retained,
+even though the chain changed.
 
 Both output modes also list every non-coinbase transaction from the removed
 blocks that is not in a replacement block (`dropped_txids` in `--json`),
-whether or not it belongs to the development wallet. Invalidating a block does
-not return its transactions to Zakura's mempool, so a dropped transaction
-normally stays out of the chain unless something rebroadcasts it (subject to the
-requeue caveat above).
+whether or not it belongs to the development wallet. A dropped transaction that
+was rebroadcast but not mined may still wait in the mempool.
 
 Two options choose what happens to individual transactions from the removed
 blocks. Each names a txid that a removed block contained, otherwise the request
@@ -495,9 +511,12 @@ is rejected with HTTP 400 before the chain changes:
 - `--place <TXID>=<K>` withholds the transaction until replacement block K,
   where K is 1 to `--depth`, then rebroadcasts it, so a payment confirmed at
   height H moves to a later height of the same branch. It works with or without
-  `--keep-txs`. A transaction whose shielded anchor came from a removed block is
-  refused by the node and reported as not retained; send a new transaction
-  instead.
+  `--keep-txs`. If the node mines it earlier anyway (a requeued submission), it
+  is reported as not retained. A shielded transaction may be refused, for example
+  with "unknown Ironwood anchor", when its anchor is a note-commitment tree state
+  that the replacement blocks do not recreate. Keeping the transactions mined
+  before it, in order, recreates that state. A held transaction cannot be
+  placed.
 
 A rebroadcast transaction that depends on another removed transaction is
 retried before each later replacement block, so place a dependent transaction at
@@ -508,10 +527,10 @@ Both output modes list them (`unconfirmed_txids` in `--json`). The server
 observes them but does not automatically rebroadcast, replace, or mine them.
 Later canonical inclusion can restore `confirmed`. This is not a wallet
 snapshot restore: an unconfirmed payment still reserves its inputs until its
-transaction expires, about 40 blocks after it was created. Until then the
-sending account's balance includes those funds, but its quotes and sends cannot
-use them. Mine past the expiry (for example `ths mine 40`) to release them, or
-use `--keep-txs` to keep the payments in the replacement blocks.
+transaction expires. Until then the sending account's balance includes those
+funds, but its quotes and sends cannot use them. Mine past the expiry height
+that `ths tx <TXID>` shows to release them, or use `--keep-txs` to keep the
+payments in the replacement blocks.
 The server owns admitted work after client disconnection. An error or lost
 response can follow a partial chain change; inspect the current tip before
 retrying. Neither invalidation nor replacement mining is automatically retried.
@@ -988,7 +1007,7 @@ compinit
 | `ths mine <N> [--to ACCOUNT\|ADDRESS] [--empty]` | Mine blocks, optionally paying the coinbase elsewhere or leaving the mempool out, and synchronize the wallet |
 | `ths reorg --depth N [--keep-txs] [--drop TXID] [--place TXID=K]` | Replace recent blocks, optionally retaining, dropping, or placing individual transactions |
 | `ths rollback --depth N` | Remove recent blocks without replacements |
-| `ths hold <TXID>` / `ths release <TXID>` / `ths held` | Keep a transaction out of mined blocks (even before broadcast), let it be mined again, or list holds |
+| `ths hold <TXID>` / `ths release <TXID>` | Keep a transaction out of mined blocks (even before broadcast), or let it be mined again |
 | `ths faucet <ADDRESS> [--amount]` | Send disposable ZEC to any Regtest address |
 | `ths wallet balances [--json]` | Print the five accounts' balances and addresses |
 | `ths wallet activity [--limit N] [--json]` | Print recent development-wallet activity |

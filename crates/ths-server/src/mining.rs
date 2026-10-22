@@ -220,18 +220,7 @@ impl MiningCoordinator {
         }
     }
 
-    #[cfg(test)]
     pub async fn start(
-        self: &Arc<Self>,
-        runtime: Arc<dyn MiningRuntime>,
-        blocks: u32,
-        key: String,
-    ) -> Result<Admission, MiningAdmissionError> {
-        self.start_with(runtime, blocks, key, MiningOptions::default())
-            .await
-    }
-
-    pub async fn start_with(
         self: &Arc<Self>,
         runtime: Arc<dyn MiningRuntime>,
         blocks: u32,
@@ -433,7 +422,7 @@ impl MiningCoordinator {
 
 #[cfg(test)]
 #[path = "../tests/unit/mining/tests.rs"]
-mod tests;
+pub(crate) mod tests;
 
 struct ManualMiningAdapter(AppState, BlockRequest);
 
@@ -477,10 +466,7 @@ impl AppState {
         let runtime: Arc<dyn MiningRuntime> = Arc::new(ManualMiningAdapter(self.clone(), request));
         #[cfg(test)]
         let runtime = self.0.mining_runtime.clone().unwrap_or(runtime);
-        self.0
-            .mining
-            .start_with(runtime, blocks, key, options)
-            .await
+        self.0.mining.start(runtime, blocks, key, options).await
     }
 
     /// Mines one block outside the manual coordinator and synchronizes the

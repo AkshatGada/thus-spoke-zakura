@@ -325,6 +325,18 @@ fn parse_errors_use_the_same_language_as_handler_checks() {
             "limit must be a whole number",
         ),
         (
+            "Failed to deserialize the JSON body into the target type: too: unknown field `too`, expected one of `blocks`, `idempotency_key`, `to`, `empty` at line 1 column 15",
+            "unknown field too; allowed fields are blocks, idempotency_key, to, empty",
+        ),
+        (
+            "Failed to deserialize the JSON body into the target type: depth: unknown field `depth`, expected `txid` at line 1 column 8",
+            "unknown field depth; allowed fields are txid",
+        ),
+        (
+            "Failed to deserialize the JSON body into the target type: place.ab: invalid type: string \"x\", expected u32 at line 1 column 30",
+            "place values must be replacement block numbers",
+        ),
+        (
             "Failed to deserialize query string: limit: cannot parse integer from empty string",
             "limit must be a whole number",
         ),

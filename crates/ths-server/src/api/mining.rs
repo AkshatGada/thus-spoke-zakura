@@ -104,13 +104,8 @@ pub(crate) async fn mining_job(
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
 pub(crate) struct MineRequest {
     blocks: u32,
-    #[serde(default)]
-    to: Option<String>,
-    #[serde(default)]
-    empty: bool,
 }
 pub(crate) async fn mine(
     State(state): State<AppState>,
@@ -120,13 +115,12 @@ pub(crate) async fn mine(
     if !(1..=10_000).contains(&req.blocks) {
         return Err(ApiError::bad_request("blocks must be between 1 and 10,000"));
     }
-    let (options, request) = resolve_options(&state, req.to, req.empty).await?;
     let mut admission = state
         .start_mining(
             req.blocks,
             uuid::Uuid::new_v4().to_string(),
-            options,
-            request,
+            MiningOptions::default(),
+            BlockRequest::default(),
         )
         .await?;
     loop {
@@ -177,33 +171,32 @@ async fn held_view(
     state: &AppState,
     hold: HeldTransaction,
     mempool: &[String],
-) -> HeldTransactionView {
+) -> ApiResult<HeldTransactionView> {
     let in_mempool = mempool.contains(&hold.txid);
-    // Expiry is informative, so an unknown transaction (already expired and
-    // dropped) reports none instead of failing the whole listing.
-    let expiry_height = match state.0.rpc.lookup_transaction(&hold.txid).await {
-        Ok(Some(tx)) => tx.get("expiryheight").and_then(Value::as_u64),
-        Ok(None) => None,
-        Err(error) => {
-            tracing::debug!(error = %format_args!("{error:#}"), txid = %hold.txid, "reading held transaction expiry");
-            None
-        }
-    };
-    HeldTransactionView {
+    // A transaction the node does not know yet (held before broadcast) has no
+    // expiry to report.
+    let expiry_height = state
+        .0
+        .rpc
+        .lookup_transaction(&hold.txid)
+        .await?
+        .and_then(|tx| tx.get("expiryheight").and_then(Value::as_u64));
+    Ok(HeldTransactionView {
         hold,
         in_mempool,
         expiry_height,
-    }
+    })
 }
 
 pub(crate) async fn held_transactions(State(state): State<AppState>) -> ApiResult<Json<Value>> {
     require_started(&state)?;
+    let held = state.held_transactions().await?;
     let mempool = state.0.rpc.mempool().await?;
-    let mut held = Vec::new();
-    for hold in state.0.blocks.held().await {
-        held.push(held_view(&state, hold, &mempool).await);
+    let mut views = Vec::with_capacity(held.len());
+    for hold in held {
+        views.push(held_view(&state, hold, &mempool).await?);
     }
-    Ok(Json(json!({ "held": held })))
+    Ok(Json(json!({ "held": views })))
 }
 
 /// Keeps a transaction out of every block ths mines until released. It may be
@@ -224,6 +217,14 @@ pub(crate) async fn hold_transaction(
             "txid must be 64 lowercase hexadecimal characters",
         ));
     }
+    // A payment ths is still executing would be mined by its own progression,
+    // or replaced under a new txid once it expired, so holding it cannot work.
+    if state.0.store.is_executing_payment(&req.txid)? {
+        return Err(ApiError {
+            status: StatusCode::CONFLICT,
+            message: "transaction belongs to a ths payment that is still executing; hold transactions built outside ths".into(),
+        });
+    }
     let mempool = state.0.rpc.mempool().await?;
     if !mempool.contains(&req.txid)
         && let Some(tx) = state.0.rpc.lookup_transaction(&req.txid).await?
@@ -237,7 +238,7 @@ pub(crate) async fn hold_transaction(
     }
     let height = state.0.rpc.checkpoint().await?.height;
     let hold = state.0.blocks.hold(&req.txid, height).await;
-    Ok(Json(held_view(&state, hold, &mempool).await))
+    Ok(Json(held_view(&state, hold, &mempool).await?))
 }
 
 pub(crate) async fn release_transaction(
@@ -255,7 +256,7 @@ pub(crate) async fn release_transaction(
             message: "transaction is not held".into(),
         })?;
     let mempool = state.0.rpc.mempool().await?;
-    Ok(Json(held_view(&state, hold, &mempool).await))
+    Ok(Json(held_view(&state, hold, &mempool).await?))
 }
 
 #[cfg(test)]

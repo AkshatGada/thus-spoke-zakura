@@ -64,22 +64,38 @@ async fn chain_operation_excludes_new_mining_but_preserves_job_replays() {
     let jobs = Arc::new(MiningCoordinator::new());
     runtime.release(1);
     let accepted = jobs
-        .start(runtime.clone(), 1, "before-reorg".into())
+        .start(
+            runtime.clone(),
+            1,
+            "before-reorg".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     let id = accepted.job.id.clone();
     terminal(accepted.updates).await;
     let chain = jobs.chain_operations.write().await;
     assert_eq!(
-        jobs.start(runtime.clone(), 1, "before-reorg".into())
-            .await
-            .unwrap()
-            .job
-            .id,
+        jobs.start(
+            runtime.clone(),
+            1,
+            "before-reorg".into(),
+            MiningOptions::default()
+        )
+        .await
+        .unwrap()
+        .job
+        .id,
         id
     );
     assert!(matches!(
-        jobs.start(runtime.clone(), 1, "during-reorg".into()).await,
+        jobs.start(
+            runtime.clone(),
+            1,
+            "during-reorg".into(),
+            MiningOptions::default()
+        )
+        .await,
         Err(MiningAdmissionError::ChainBusy)
     ));
     assert_eq!(runtime.calls(), 1);
@@ -87,7 +103,12 @@ async fn chain_operation_excludes_new_mining_but_preserves_job_replays() {
     runtime.release(1);
     runtime.sync_permits.add_permits(1);
     let next = jobs
-        .start(runtime.clone(), 1, "after-reorg".into())
+        .start(
+            runtime.clone(),
+            1,
+            "after-reorg".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     terminal(next.updates).await;
@@ -101,7 +122,12 @@ async fn mining_holds_chain_exclusion_through_wallet_synchronization() {
     runtime.release(1);
     let jobs = Arc::new(MiningCoordinator::new());
     let accepted = jobs
-        .start(runtime.clone(), 1, "sync-exclusion".into())
+        .start(
+            runtime.clone(),
+            1,
+            "sync-exclusion".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     tokio::time::timeout(Duration::from_secs(2), async {
@@ -139,7 +165,12 @@ async fn mining_continues_without_request_receiver() {
     let runtime = Arc::new(FakeRuntime::blocked());
     let jobs = Arc::new(MiningCoordinator::new());
     let admission = jobs
-        .start(runtime.clone(), 3, "disconnect-test".into())
+        .start(
+            runtime.clone(),
+            3,
+            "disconnect-test".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     let id = admission.job.id;
@@ -161,7 +192,12 @@ async fn mining_continues_with_zero_receivers() {
     let runtime = Arc::new(FakeRuntime::blocked());
     let jobs = Arc::new(MiningCoordinator::new());
     let admission = jobs
-        .start(runtime.clone(), 2, "zero-receivers".into())
+        .start(
+            runtime.clone(),
+            2,
+            "zero-receivers".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     drop(admission.updates);
@@ -169,7 +205,12 @@ async fn mining_continues_with_zero_receivers() {
     tokio::time::timeout(Duration::from_secs(2), async {
         loop {
             let replay = jobs
-                .start(runtime.clone(), 2, "zero-receivers".into())
+                .start(
+                    runtime.clone(),
+                    2,
+                    "zero-receivers".into(),
+                    MiningOptions::default(),
+                )
                 .await
                 .unwrap();
             if replay.job.state == MiningState::Completed {
@@ -188,17 +229,39 @@ async fn concurrent_replay_has_one_worker_and_conflicts_are_rejected() {
     let runtime = Arc::new(FakeRuntime::blocked());
     let jobs = Arc::new(MiningCoordinator::new());
     let (first, replay) = tokio::join!(
-        jobs.start(runtime.clone(), 2, "same-key".into()),
-        jobs.start(runtime.clone(), 2, "same-key".into()),
+        jobs.start(
+            runtime.clone(),
+            2,
+            "same-key".into(),
+            MiningOptions::default()
+        ),
+        jobs.start(
+            runtime.clone(),
+            2,
+            "same-key".into(),
+            MiningOptions::default()
+        ),
     );
     let first = first.unwrap();
     assert_eq!(first.job.id, replay.unwrap().job.id);
     assert!(matches!(
-        jobs.start(runtime.clone(), 3, "same-key".into()).await,
+        jobs.start(
+            runtime.clone(),
+            3,
+            "same-key".into(),
+            MiningOptions::default()
+        )
+        .await,
         Err(MiningAdmissionError::KeyConflict)
     ));
     assert!(matches!(
-        jobs.start(runtime.clone(), 2, "other-key".into()).await,
+        jobs.start(
+            runtime.clone(),
+            2,
+            "other-key".into(),
+            MiningOptions::default()
+        )
+        .await,
         Err(MiningAdmissionError::Busy)
     ));
     runtime.release(2);
@@ -212,8 +275,13 @@ async fn validates_blocks_and_keys() {
     let jobs = Arc::new(MiningCoordinator::new());
     for blocks in [0, 10_001] {
         assert!(matches!(
-            jobs.start(runtime.clone(), blocks, "valid-key".into())
-                .await,
+            jobs.start(
+                runtime.clone(),
+                blocks,
+                "valid-key".into(),
+                MiningOptions::default()
+            )
+            .await,
             Err(MiningAdmissionError::InvalidBlocks)
         ));
     }
@@ -225,7 +293,8 @@ async fn validates_blocks_and_keys() {
         "control\n".into(),
     ] {
         assert!(matches!(
-            jobs.start(runtime.clone(), 1, key).await,
+            jobs.start(runtime.clone(), 1, key, MiningOptions::default())
+                .await,
             Err(MiningAdmissionError::InvalidKey)
         ));
     }
@@ -237,7 +306,12 @@ async fn capacity_keeps_old_replays_and_history_without_eviction() {
     let runtime = Arc::new(FakeRuntime::blocked());
     let jobs = Arc::new(MiningCoordinator::with_capacity(2));
     let first = jobs
-        .start(runtime.clone(), 1, "first-key".into())
+        .start(
+            runtime.clone(),
+            1,
+            "first-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     let first_id = first.job.id;
@@ -245,18 +319,34 @@ async fn capacity_keeps_old_replays_and_history_without_eviction() {
     terminal(first.updates).await;
     runtime.sync_permits.add_permits(1);
     let second = jobs
-        .start(runtime.clone(), 1, "second-key".into())
+        .start(
+            runtime.clone(),
+            1,
+            "second-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     let second_id = second.job.id;
     runtime.release(1);
     terminal(second.updates).await;
     assert!(matches!(
-        jobs.start(runtime.clone(), 1, "third-key".into()).await,
+        jobs.start(
+            runtime.clone(),
+            1,
+            "third-key".into(),
+            MiningOptions::default()
+        )
+        .await,
         Err(MiningAdmissionError::Capacity)
     ));
     let replay = jobs
-        .start(runtime.clone(), 1, "first-key".into())
+        .start(
+            runtime.clone(),
+            1,
+            "first-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     assert_eq!(replay.job.id, first_id);
@@ -276,7 +366,12 @@ async fn rpc_failure_preserves_acknowledged_count_without_retry() {
     });
     let jobs = Arc::new(MiningCoordinator::new());
     let first = jobs
-        .start(runtime.clone(), 3, "failure-key".into())
+        .start(
+            runtime.clone(),
+            3,
+            "failure-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     let id = first.job.id;
@@ -287,7 +382,12 @@ async fn rpc_failure_preserves_acknowledged_count_without_retry() {
     assert!(failed.progress_uncertain);
     assert!(failed.error.unwrap().contains("injected RPC failure"));
     let replay = jobs
-        .start(runtime.clone(), 3, "failure-key".into())
+        .start(
+            runtime.clone(),
+            3,
+            "failure-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     assert_eq!(replay.job.id, id);
@@ -296,7 +396,12 @@ async fn rpc_failure_preserves_acknowledged_count_without_retry() {
     assert_eq!(runtime.scans.load(Ordering::SeqCst), 0);
     runtime.sync_permits.add_permits(1);
     let next = jobs
-        .start(runtime.clone(), 1, "next-key".into())
+        .start(
+            runtime.clone(),
+            1,
+            "next-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     terminal(next.updates).await;
@@ -311,7 +416,12 @@ async fn synchronization_failure_has_full_known_count() {
     });
     let jobs = Arc::new(MiningCoordinator::new());
     let admission = jobs
-        .start(runtime.clone(), 2, "sync-failure".into())
+        .start(
+            runtime.clone(),
+            2,
+            "sync-failure".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     runtime.release(2);
@@ -337,7 +447,12 @@ async fn syncing_keeps_admission_busy() {
     });
     let jobs = Arc::new(MiningCoordinator::new());
     let mut admission = jobs
-        .start(runtime.clone(), 1, "syncing-key".into())
+        .start(
+            runtime.clone(),
+            1,
+            "syncing-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     runtime.release(1);
@@ -349,7 +464,13 @@ async fn syncing_keeps_admission_busy() {
     .await
     .unwrap();
     assert!(matches!(
-        jobs.start(runtime.clone(), 1, "other-key".into()).await,
+        jobs.start(
+            runtime.clone(),
+            1,
+            "other-key".into(),
+            MiningOptions::default()
+        )
+        .await,
         Err(MiningAdmissionError::Busy)
     ));
     runtime.sync_permits.add_permits(1);
@@ -364,7 +485,12 @@ async fn worker_panic_publishes_failure_and_releases_admission() {
     });
     let jobs = Arc::new(MiningCoordinator::new());
     let admission = jobs
-        .start(runtime.clone(), 3, "panic-key".into())
+        .start(
+            runtime.clone(),
+            3,
+            "panic-key".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     runtime.release(3);
@@ -374,7 +500,12 @@ async fn worker_panic_publishes_failure_and_releases_admission() {
     assert!(failed.progress_uncertain);
     assert!(failed.error.unwrap().contains("worker"));
     let next = jobs
-        .start(runtime.clone(), 1, "after-panic".into())
+        .start(
+            runtime.clone(),
+            1,
+            "after-panic".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     assert_eq!(
@@ -542,7 +673,12 @@ async fn mining_coordinator_reports_an_active_job() {
     let jobs = Arc::new(MiningCoordinator::new());
     assert!(!jobs.is_active().await);
     let admission = jobs
-        .start(runtime.clone(), 1, "active-probe".into())
+        .start(
+            runtime.clone(),
+            1,
+            "active-probe".into(),
+            MiningOptions::default(),
+        )
         .await
         .unwrap();
     let observer = admission.updates.clone();
@@ -598,7 +734,9 @@ fn genesis_checkpoint_response(id: &Value) -> Value {
     })
 }
 
-async fn rpc_server(handler: impl Fn(Value) -> Value + Send + Sync + Clone + 'static) -> String {
+pub(crate) async fn rpc_server(
+    handler: impl Fn(Value) -> Value + Send + Sync + Clone + 'static,
+) -> String {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
     tokio::spawn(async move {
@@ -1335,43 +1473,71 @@ async fn mine_and_sync_background_returns_unknown_on_service_unavailable() {
     );
 }
 
-/// A Zakura stand-in that serves a real two-transaction template and accepts
-/// one submitted block, recording the call sequence.
-async fn assembling_rpc() -> (
+/// How the Zakura stand-in answers `submitblock`.
+#[derive(Clone, Copy, PartialEq)]
+pub(crate) enum Submission {
+    Accepted,
+    Inconclusive,
+    RpcError,
+}
+
+/// A Zakura stand-in that serves a real two-transaction template, records the
+/// call sequence and the submitted block, and answers `submitblock` as asked.
+/// With `tip_moved_on`, another block has been mined on top of the submitted
+/// one by the time ths checks it.
+pub(crate) async fn assembling_rpc(
+    submission: Submission,
+    tip_moved_on: bool,
+) -> (
     String,
     Arc<std::sync::Mutex<Vec<String>>>,
     Arc<std::sync::Mutex<Option<String>>>,
 ) {
-    let template: Value = serde_json::from_str(include_str!("../blocks/template-4.json")).unwrap();
+    let template: Value = serde_json::from_str(crate::blocks::tests::TWO_TX_TEMPLATE).unwrap();
     let calls = Arc::new(std::sync::Mutex::new(Vec::new()));
     let submitted: Arc<std::sync::Mutex<Option<String>>> = Arc::default();
     let (record, block) = (calls.clone(), submitted.clone());
     let url = rpc_server(move |req| {
         let method = req["method"].as_str().unwrap().to_owned();
         record.lock().unwrap().push(method.clone());
+        let submitted_hash = || {
+            block.lock().unwrap().as_ref().map(|hex| {
+                let raw = hex::decode(hex).unwrap();
+                zcash_primitives::block::Block::read(&raw[..], &crate::network::regtest_network())
+                    .unwrap()
+                    .header()
+                    .hash()
+                    .to_string()
+            })
+        };
         let result = match method.as_str() {
             "getblocktemplate" => template.clone(),
             "submitblock" => {
                 *block.lock().unwrap() = Some(req["params"][0].as_str().unwrap().to_owned());
-                Value::Null
+                match submission {
+                    Submission::Accepted => Value::Null,
+                    Submission::Inconclusive => json!("inconclusive"),
+                    Submission::RpcError => {
+                        return json!({"result":null,"error":{"code":-1,"message":"mined block lifecycle task failed"},"id":req["id"]});
+                    }
+                }
             }
+            "getblockhash" => json!(submitted_hash().unwrap_or_else(|| FAKE_HASH.to_owned())),
             "getblockchaininfo" => {
-                let hash = block.lock().unwrap().as_ref().map(|hex| {
-                    let raw = hex::decode(hex).unwrap();
-                    zcash_primitives::block::Block::read(&raw[..], &crate::network::regtest_network())
-                        .unwrap()
-                        .header()
-                        .hash()
-                        .to_string()
-                });
-                json!({"chain":"regtest","blocks":108,"bestblockhash":hash.unwrap_or_else(|| FAKE_HASH.to_owned()),"verificationprogress":1.0})
+                let tip = submitted_hash()
+                    .filter(|_| !tip_moved_on)
+                    .unwrap_or_else(|| FAKE_HASH.to_owned());
+                let blocks = if tip_moved_on { 109 } else { 108 };
+                json!({"chain":"regtest","blocks":blocks,"bestblockhash":tip,"verificationprogress":1.0})
             }
-            "getrawmempool" => json!(template["transactions"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .map(|tx| tx["hash"].clone())
-                .collect::<Vec<_>>()),
+            "getrawmempool" => json!(
+                template["transactions"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|tx| tx["hash"].clone())
+                    .collect::<Vec<_>>()
+            ),
             "getrawtransaction" if req["params"][0] == "cd".repeat(32) => {
                 json!({"txid":req["params"][0],"height":100,"expiryheight":140})
             }
@@ -1379,12 +1545,22 @@ async fn assembling_rpc() -> (
                 return json!({"result":null,"error":{"code":-5,"message":"No such mempool or main chain transaction"},"id":req["id"]});
             }
             "getrawtransaction" => json!({"txid":req["params"][0],"expiryheight":148}),
-            _ => return json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]}),
+            _ => {
+                return json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]});
+            }
         };
         json!({"result":result,"error":null,"id":req["id"]})
     })
     .await;
     (url, calls, submitted)
+}
+
+fn first_template_txid() -> String {
+    let template: Value = serde_json::from_str(crate::blocks::tests::TWO_TX_TEMPLATE).unwrap();
+    template["transactions"][0]["hash"]
+        .as_str()
+        .unwrap()
+        .to_owned()
 }
 
 #[tokio::test]
@@ -1406,13 +1582,12 @@ async fn default_mining_uses_zakuras_generate_until_something_is_held() {
 }
 
 #[tokio::test]
-async fn a_held_transaction_makes_every_mining_path_assemble_its_own_block() {
-    let (url, calls, submitted) = assembling_rpc().await;
+async fn generate_blocks_assembles_its_own_block_while_a_transaction_is_held() {
+    let (url, calls, submitted) = assembling_rpc(Submission::Accepted, false).await;
     let (mut state, _dir) = state_with_local_wallet();
     Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
-    let template: Value = serde_json::from_str(include_str!("../blocks/template-4.json")).unwrap();
-    let held = template["transactions"][0]["hash"].as_str().unwrap();
-    state.0.blocks.hold(held, 108).await;
+    let held = first_template_txid();
+    state.0.blocks.hold(&held, 108).await;
 
     let hashes = state
         .generate_blocks(1, &BlockRequest::default())
@@ -1429,82 +1604,71 @@ async fn a_held_transaction_makes_every_mining_path_assemble_its_own_block() {
         .skip(1)
         .map(|tx| tx.txid().to_string())
         .collect();
-    assert_eq!(
-        txids,
-        [template["transactions"][1]["hash"].as_str().unwrap()]
-    );
+    assert_eq!(txids.len(), 1);
+    assert!(!txids.contains(&held));
 }
 
 #[tokio::test]
-async fn hold_and_release_validate_the_transaction() {
-    let (url, _calls, _submitted) = assembling_rpc().await;
+async fn a_block_canonical_at_its_height_is_accepted_after_the_tip_moves_on() {
+    let (url, _calls, _submitted) = assembling_rpc(Submission::Accepted, true).await;
     let (mut state, _dir) = state_with_local_wallet();
     Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
-    let template: Value = serde_json::from_str(include_str!("../blocks/template-4.json")).unwrap();
-    let txid = template["transactions"][0]["hash"].as_str().unwrap();
+    let request = BlockRequest {
+        empty: true,
+        ..BlockRequest::default()
+    };
+    assert_eq!(state.generate_blocks(1, &request).await.unwrap().len(), 1);
+}
+
+#[tokio::test]
+async fn submission_outcomes_that_may_have_produced_a_block_are_uncertain() {
+    let request = BlockRequest {
+        empty: true,
+        ..BlockRequest::default()
+    };
+    // "inconclusive" is settled by checking the chain: here the block is canonical.
+    let (url, _calls, _submitted) = assembling_rpc(Submission::Inconclusive, false).await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
+    assert_eq!(state.generate_blocks(1, &request).await.unwrap().len(), 1);
+
+    // A JSON-RPC error from submitblock itself must not read as "no block
+    // produced", or background mining would retry the same transactions.
+    let (url, _calls, _submitted) = assembling_rpc(Submission::RpcError, false).await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
+    let error = state.generate_blocks(1, &request).await.unwrap_err();
+    assert!(error.downcast_ref::<RpcError>().is_none(), "{error:#}");
+    assert!(
+        error
+            .downcast_ref::<crate::blocks::UncertainSubmission>()
+            .is_some()
+    );
+}
+
+#[tokio::test(start_paused = true)]
+async fn mempool_loop_does_not_mine_when_only_held_transactions_wait() {
+    let calls = Arc::new(AtomicUsize::new(0));
+    let mining_calls = calls.clone();
+    let url = rpc_server(move |req| match req["method"].as_str() {
+        Some("getrawmempool") => json!({"result":["held-tx"],"error":null,"id":req["id"]}),
+        Some("generate" | "getblocktemplate") => {
+            mining_calls.fetch_add(1, Ordering::SeqCst);
+            json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]})
+        }
+        _ => genesis_checkpoint_response(&req["id"]),
+    })
+    .await;
+    let (mut state, _dir) = state_with_local_wallet();
+    Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
     state.mark_started();
-    let app = crate::api::router(state.clone());
-
-    let (status, _) =
-        mining_request(&app, "POST", "/api/v1/mempool/hold", json!({"txid":"00"})).await;
-    assert_eq!(status, StatusCode::BAD_REQUEST);
-    // A transaction can be held before it is broadcast.
-    let early = "ab".repeat(32);
-    let (status, hold) =
-        mining_request(&app, "POST", "/api/v1/mempool/hold", json!({"txid":early})).await;
-    assert_eq!(status, StatusCode::OK, "{hold}");
-    assert_eq!(hold["in_mempool"], false);
-    let (status, _) = mining_request(
-        &app,
-        "POST",
-        "/api/v1/mempool/release",
-        json!({"txid":early}),
-    )
-    .await;
-    assert_eq!(status, StatusCode::OK);
-    // An already mined transaction cannot be held.
-    let (status, _) = mining_request(
-        &app,
-        "POST",
-        "/api/v1/mempool/hold",
-        json!({"txid":"cd".repeat(32)}),
-    )
-    .await;
-    assert_eq!(status, StatusCode::CONFLICT);
-    let (status, _) = mining_request(
-        &app,
-        "POST",
-        "/api/v1/mempool/hold",
-        json!({"txid":txid,"note":"x"}),
-    )
-    .await;
-    assert_eq!(status, StatusCode::BAD_REQUEST);
-    let (status, hold) =
-        mining_request(&app, "POST", "/api/v1/mempool/hold", json!({"txid":txid})).await;
-    assert_eq!(status, StatusCode::OK, "{hold}");
-    assert_eq!(hold["txid"], txid);
-    assert_eq!(hold["in_mempool"], true);
-    assert_eq!(hold["expiry_height"], 148);
-
-    let (status, list) = mining_request(&app, "GET", "/api/v1/mempool/held", Value::Null).await;
-    assert_eq!(status, StatusCode::OK);
-    assert_eq!(list["held"].as_array().unwrap().len(), 1);
-
-    let (status, _) = mining_request(
-        &app,
-        "POST",
-        "/api/v1/mempool/release",
-        json!({"txid":txid}),
-    )
-    .await;
-    assert_eq!(status, StatusCode::OK);
-    let (status, _) = mining_request(
-        &app,
-        "POST",
-        "/api/v1/mempool/release",
-        json!({"txid":txid}),
-    )
-    .await;
-    assert_eq!(status, StatusCode::NOT_FOUND);
-    assert!(state.0.blocks.held().await.is_empty());
+    state.0.blocks.hold("held-tx", 0).await;
+    tokio::spawn(mempool_mining_loop(state));
+    for _ in 0..3 {
+        tokio::time::advance(Duration::from_secs(2)).await;
+        for _ in 0..20 {
+            tokio::task::yield_now().await;
+        }
+    }
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
 }
