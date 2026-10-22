@@ -8,7 +8,7 @@ use anyhow::{Context, Result};
 use serde::Serialize;
 use serde_json::Value;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap},
     sync::Arc,
     time::Duration,
 };
@@ -24,6 +24,75 @@ pub(crate) enum ChainChangeError {
     InvalidDepth,
     #[error("mining, payment execution, or another chain operation is active")]
     Busy,
+    #[error("{0}")]
+    InvalidPlan(String),
+}
+
+/// Which transactions from the removed blocks a reorg puts back, and where.
+#[derive(Debug, Default, Clone)]
+pub(crate) struct ReorgPlan {
+    /// Rebroadcast every removed transaction before the first replacement block.
+    pub(crate) keep_txs: bool,
+    /// With `keep_txs`, transactions to leave out of the replacement blocks.
+    pub(crate) drop: Vec<String>,
+    /// Transactions to rebroadcast just before replacement block `k` (1-based),
+    /// so they are mined in that block or later instead of the first one.
+    pub(crate) place: BTreeMap<String, u32>,
+}
+
+impl ReorgPlan {
+    #[cfg(test)]
+    pub(crate) fn keep(keep_txs: bool) -> Self {
+        Self {
+            keep_txs,
+            ..Self::default()
+        }
+    }
+
+    /// The first replacement block before which `txid` is rebroadcast, if any.
+    fn first_offset(&self, txid: &str) -> Option<u32> {
+        if let Some(offset) = self.place.get(txid) {
+            Some(*offset)
+        } else if self.keep_txs && !self.drop.iter().any(|dropped| dropped == txid) {
+            Some(1)
+        } else {
+            None
+        }
+    }
+
+    fn validate(&self, depth: u32, replace: bool, removed: &[String]) -> Result<()> {
+        let invalid = |message: String| Err(ChainChangeError::InvalidPlan(message).into());
+        if !replace && (self.keep_txs || !self.drop.is_empty() || !self.place.is_empty()) {
+            return invalid(
+                "a rollback mines no replacement blocks to keep transactions in".into(),
+            );
+        }
+        if !self.drop.is_empty() && !self.keep_txs {
+            return invalid(
+                "drop only applies with keep_txs; without it every transaction is dropped".into(),
+            );
+        }
+        for txid in self.drop.iter().chain(self.place.keys()) {
+            if !removed.contains(txid) {
+                return invalid(format!(
+                    "transaction {txid} is not a non-coinbase transaction in the removed blocks"
+                ));
+            }
+        }
+        for (txid, offset) in &self.place {
+            if !(1..=depth).contains(offset) {
+                return invalid(format!(
+                    "place for {txid} must name a replacement block between 1 and {depth}"
+                ));
+            }
+            if self.drop.contains(txid) {
+                return invalid(format!(
+                    "transaction {txid} cannot be both dropped and placed"
+                ));
+            }
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -34,10 +103,21 @@ pub(crate) struct ChainChangeResult {
     pub(crate) removed_hashes: Vec<String>,
     pub(crate) replacement_hashes: Vec<String>,
     pub(crate) retained_txids: Vec<String>,
+    /// Each retained transaction with the replacement height that now holds it.
+    pub(crate) retained_transactions: Vec<RetainedTransaction>,
     pub(crate) failed_transactions: Vec<TransactionFailure>,
+    /// Every non-coinbase transaction from the removed blocks that is not in a
+    /// replacement block. Zakura does not return them to its mempool.
+    pub(crate) dropped_txids: Vec<String>,
     /// Payments this operation left `unconfirmed`. They are not rebroadcast and
     /// keep their inputs reserved until they expire.
     pub(crate) unconfirmed_txids: Vec<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub(crate) struct RetainedTransaction {
+    pub(crate) txid: String,
+    pub(crate) height: u64,
 }
 
 #[derive(Debug, Serialize)]
@@ -186,7 +266,7 @@ async fn change_chain_with(
     store: &Store,
     depth: u32,
     replace: bool,
-    keep_txs: bool,
+    plan: &ReorgPlan,
 ) -> Result<ChainChangeResult> {
     let info = runtime.chain_info().await?;
     // Zakura's BIP70 label is "test" for both Testnet and Regtest, so the
@@ -207,18 +287,23 @@ async fn change_chain_with(
     };
     let ancestor_hash = runtime.block_hash(ancestor).await?;
     let mut removed_hashes = Vec::with_capacity(depth as usize);
-    let mut transactions = Vec::new();
+    let mut removed_txids = Vec::new();
     for height in ancestor + 1..=u32::try_from(old_tip.height)? {
         let hash = runtime.block_hash(height).await?;
-        if keep_txs {
-            let ids = transaction_ids(&runtime.block(&hash).await?)?;
-            anyhow::ensure!(!ids.is_empty(), "block omitted its coinbase transaction");
-            for txid in ids.into_iter().skip(1) {
-                let raw = runtime.raw_transaction(&txid).await?;
-                transactions.push((txid, raw));
-            }
-        }
+        let ids = transaction_ids(&runtime.block(&hash).await?)?;
+        anyhow::ensure!(!ids.is_empty(), "block omitted its coinbase transaction");
+        removed_txids.extend(ids.into_iter().skip(1));
         removed_hashes.push(hash);
+    }
+    plan.validate(depth, replace, &removed_txids)?;
+    // Only transactions the plan rebroadcasts need their bytes; the rest are
+    // reported as dropped.
+    let mut transactions = Vec::new();
+    for txid in &removed_txids {
+        if let Some(offset) = plan.first_offset(txid) {
+            let raw = runtime.raw_transaction(txid).await?;
+            transactions.push((txid.clone(), raw, offset));
+        }
     }
     let current = runtime.chain_info().await?;
     anyhow::ensure!(
@@ -237,13 +322,15 @@ async fn change_chain_with(
             "invalidation did not reach the expected ancestor"
         );
         let mut replacement_hashes = Vec::new();
-        let mut included = HashSet::new();
+        let mut included = HashMap::new();
         let mut failures = HashMap::new();
         if replace {
             for offset in 1..=depth {
                 let mut submitted = Vec::new();
-                for (txid, raw) in &transactions {
-                    if included.contains(txid) {
+                for (txid, raw, first_offset) in &transactions {
+                    // A placed transaction is withheld until its replacement block;
+                    // after that, like a kept one, it is retried before each block.
+                    if included.contains_key(txid) || offset < *first_offset {
                         continue;
                     }
                     match runtime.broadcast(raw).await {
@@ -269,11 +356,9 @@ async fn change_chain_with(
                     runtime.block_hash(ancestor + offset).await? == hash,
                     "replacement block is not canonical"
                 );
-                if keep_txs {
-                    for txid in transaction_ids(&runtime.block(&hash).await?)? {
-                        store.confirm_reorged_transaction(&txid, &hash)?;
-                        included.insert(txid);
-                    }
+                for txid in transaction_ids(&runtime.block(&hash).await?)? {
+                    store.confirm_reorged_transaction(&txid, &hash)?;
+                    included.insert(txid, u64::from(ancestor + offset));
                 }
                 replacement_hashes.push(hash);
             }
@@ -291,14 +376,24 @@ async fn change_chain_with(
         );
         let mut unconfirmed_txids = Vec::new();
         for (txid, _) in &confirmations {
-            if !included.contains(txid) && !unconfirmed_txids.contains(txid) {
+            if !included.contains_key(txid) && !unconfirmed_txids.contains(txid) {
                 unconfirmed_txids.push(txid.clone());
             }
         }
+        let dropped_txids = removed_txids
+            .iter()
+            .filter(|txid| !included.contains_key(*txid))
+            .cloned()
+            .collect();
         let mut retained_txids = Vec::new();
+        let mut retained_transactions = Vec::new();
         let mut failed_transactions = Vec::new();
-        for (txid, _) in transactions {
-            if included.contains(&txid) {
+        for (txid, _, _) in transactions {
+            if let Some(height) = included.get(&txid) {
+                retained_transactions.push(RetainedTransaction {
+                    txid: txid.clone(),
+                    height: *height,
+                });
                 retained_txids.push(txid);
             } else {
                 let error = failures
@@ -317,7 +412,9 @@ async fn change_chain_with(
             removed_hashes,
             replacement_hashes,
             retained_txids,
+            retained_transactions,
             failed_transactions,
+            dropped_txids,
             unconfirmed_txids,
         })
     }
@@ -353,7 +450,7 @@ impl AppState {
         &self,
         depth: u32,
         replace: bool,
-        keep_txs: bool,
+        plan: ReorgPlan,
     ) -> Result<ChainChangeResult> {
         let _payment = self
             .0
@@ -371,7 +468,7 @@ impl AppState {
         #[cfg(test)]
         let runtime = self.0.chain_runtime.clone().unwrap_or(runtime);
         let result =
-            change_chain_with(runtime.as_ref(), &self.0.store, depth, replace, keep_txs).await;
+            change_chain_with(runtime.as_ref(), &self.0.store, depth, replace, &plan).await;
         notify(self, "chain");
         notify(self, "wallet");
         result

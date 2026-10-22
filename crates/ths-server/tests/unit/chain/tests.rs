@@ -193,7 +193,7 @@ async fn reorg_replaces_exactly_the_suffix_and_preserves_the_payment_identity() 
     let runtime = FakeChain::new();
     let store = store();
     let original = confirmed_payment(&store, &runtime.block_hash(106).await.unwrap());
-    let result = change_chain_with(&runtime, &store, 3, true, false)
+    let result = change_chain_with(&runtime, &store, 3, true, &ReorgPlan::keep(false))
         .await
         .unwrap();
     assert_eq!(result.old_tip.height, 108);
@@ -244,7 +244,7 @@ async fn reorg_replaces_exactly_the_suffix_and_preserves_the_payment_identity() 
             )
             .is_err()
     );
-    let next = change_chain_with(&runtime, &store, 3, true, false)
+    let next = change_chain_with(&runtime, &store, 3, true, &ReorgPlan::keep(false))
         .await
         .unwrap();
     assert_eq!(next.new_tip.height, 108);
@@ -263,7 +263,7 @@ async fn rollback_does_not_mine_and_invalid_depth_does_not_mutate() {
     for depth in [0, 108, 1001] {
         let runtime = FakeChain::new();
         assert!(
-            change_chain_with(&runtime, &store(), depth, false, false)
+            change_chain_with(&runtime, &store(), depth, false, &ReorgPlan::keep(false))
                 .await
                 .is_err()
         );
@@ -271,7 +271,7 @@ async fn rollback_does_not_mine_and_invalid_depth_does_not_mutate() {
         assert_eq!(runtime.generated.load(Ordering::SeqCst), 0);
     }
     let runtime = FakeChain::new();
-    let result = change_chain_with(&runtime, &store(), 3, false, false)
+    let result = change_chain_with(&runtime, &store(), 3, false, &ReorgPlan::keep(false))
         .await
         .unwrap();
     assert_eq!(result.new_tip.height, 105);
@@ -289,7 +289,7 @@ async fn chain_changes_reject_other_networks_before_any_mutation() {
         runtime.blocks.lock().unwrap()[0].hash =
             "05a60a92d99d85997cce3b87616c089f6124d7342af37106edc76126334a2c38".into();
         assert!(
-            change_chain_with(&runtime, &store(), 3, true, true)
+            change_chain_with(&runtime, &store(), 3, true, &ReorgPlan::keep(true))
                 .await
                 .is_err()
         );
@@ -302,7 +302,7 @@ async fn chain_changes_reject_other_networks_before_any_mutation() {
 async fn accepted_broadcast_without_inclusion_is_reported_as_a_retention_failure() {
     let runtime = FakeChain::new();
     runtime.add_transaction(108, "queued");
-    let result = change_chain_with(&runtime, &store(), 1, true, true)
+    let result = change_chain_with(&runtime, &store(), 1, true, &ReorgPlan::keep(true))
         .await
         .unwrap();
     assert_eq!(result.new_tip.height, 108);
@@ -324,7 +324,7 @@ async fn keep_txs_retries_dependencies_and_reports_invalid_transactions() {
     runtime.add_transaction(108, "invalid-anchor");
     let store = store();
     let original = confirmed_payment(&store, &runtime.block_hash(106).await.unwrap());
-    let result = change_chain_with(&runtime, &store, 3, true, true)
+    let result = change_chain_with(&runtime, &store, 3, true, &ReorgPlan::keep(true))
         .await
         .unwrap();
     assert_eq!(result.retained_txids, ["payment", "dependent"]);
@@ -359,7 +359,7 @@ async fn failed_mutations_reconcile_without_retrying_chain_changes() {
         let store = store();
         let original = confirmed_payment(&store, &runtime.block_hash(106).await.unwrap());
         assert!(
-            change_chain_with(&runtime, &store, 3, true, false)
+            change_chain_with(&runtime, &store, 3, true, &ReorgPlan::keep(false))
                 .await
                 .is_err()
         );
@@ -411,12 +411,17 @@ async fn admission_rejects_other_chain_work_and_http_disconnect_does_not_cancel(
         assert_eq!(status, axum::http::StatusCode::BAD_REQUEST);
     }
     let payment = state.0.payments.lock().await;
-    assert!(state.change_chain(3, true, false).await.is_err());
+    assert!(
+        state
+            .change_chain(3, true, ReorgPlan::keep(false))
+            .await
+            .is_err()
+    );
     drop(payment);
     let manual = state.0.mining.chain_operations.read().await;
     assert!(matches!(
         state
-            .change_chain(3, true, false)
+            .change_chain(3, true, ReorgPlan::keep(false))
             .await
             .unwrap_err()
             .downcast_ref::<ChainChangeError>(),
@@ -469,7 +474,7 @@ async fn chain_changes_report_payments_they_leave_unconfirmed() {
         runtime.add_transaction(107, "payment");
         let store = store();
         let original = confirmed_payment(&store, &runtime.block_hash(107).await.unwrap());
-        let result = change_chain_with(&runtime, &store, 2, true, keep_txs)
+        let result = change_chain_with(&runtime, &store, 2, true, &ReorgPlan::keep(keep_txs))
             .await
             .unwrap();
         let expected: &[&str] = if keep_txs { &[] } else { &["payment"] };
@@ -481,8 +486,184 @@ async fn chain_changes_report_payments_they_leave_unconfirmed() {
     }
 
     let runtime = FakeChain::new();
-    let result = change_chain_with(&runtime, &store(), 2, false, false)
+    let result = change_chain_with(&runtime, &store(), 2, false, &ReorgPlan::keep(false))
         .await
         .unwrap();
     assert!(result.unconfirmed_txids.is_empty());
+}
+
+#[tokio::test]
+async fn placed_transactions_are_withheld_until_their_replacement_block() {
+    let runtime = FakeChain::new();
+    runtime.add_transaction(106, "kept");
+    runtime.add_transaction(107, "placed");
+    let plan = ReorgPlan {
+        keep_txs: true,
+        place: [("placed".to_owned(), 3)].into(),
+        ..ReorgPlan::default()
+    };
+    let result = change_chain_with(&runtime, &store(), 3, true, &plan)
+        .await
+        .unwrap();
+    let heights: Vec<_> = result
+        .retained_transactions
+        .iter()
+        .map(|retained| (retained.txid.as_str(), retained.height))
+        .collect();
+    assert_eq!(heights, [("kept", 106), ("placed", 108)]);
+    assert_eq!(result.retained_txids, ["kept", "placed"]);
+    assert!(result.dropped_txids.is_empty());
+    assert!(result.failed_transactions.is_empty());
+    // Withholding means the placed transaction was never offered to the first
+    // two replacement blocks.
+    assert_eq!(*runtime.broadcasts.lock().unwrap(), ["kept", "placed"]);
+}
+
+#[tokio::test]
+async fn placement_works_without_keep_txs_and_reports_the_rest_as_dropped() {
+    let runtime = FakeChain::new();
+    runtime.add_transaction(107, "left-out");
+    runtime.add_transaction(108, "placed");
+    let plan = ReorgPlan {
+        place: [("placed".to_owned(), 2)].into(),
+        ..ReorgPlan::default()
+    };
+    let result = change_chain_with(&runtime, &store(), 2, true, &plan)
+        .await
+        .unwrap();
+    assert_eq!(result.retained_transactions.len(), 1);
+    assert_eq!(result.retained_transactions[0].height, 108);
+    assert_eq!(result.dropped_txids, ["left-out"]);
+    assert_eq!(*runtime.broadcasts.lock().unwrap(), ["placed"]);
+}
+
+#[tokio::test]
+async fn dropped_transactions_are_reported_and_never_rebroadcast() {
+    let runtime = FakeChain::new();
+    runtime.add_transaction(107, "kept");
+    runtime.add_transaction(108, "dropped");
+    let plan = ReorgPlan {
+        keep_txs: true,
+        drop: vec!["dropped".to_owned()],
+        ..ReorgPlan::default()
+    };
+    let result = change_chain_with(&runtime, &store(), 2, true, &plan)
+        .await
+        .unwrap();
+    assert_eq!(result.retained_txids, ["kept"]);
+    assert_eq!(result.dropped_txids, ["dropped"]);
+    assert_eq!(*runtime.broadcasts.lock().unwrap(), ["kept"]);
+
+    // Without a plan, every removed transaction is dropped, including on rollback.
+    let runtime = FakeChain::new();
+    runtime.add_transaction(108, "gone");
+    let result = change_chain_with(&runtime, &store(), 1, false, &ReorgPlan::default())
+        .await
+        .unwrap();
+    assert_eq!(result.dropped_txids, ["gone"]);
+    assert!(runtime.broadcasts.lock().unwrap().is_empty());
+}
+
+#[tokio::test]
+async fn a_refused_placement_is_reported_per_transaction() {
+    let runtime = FakeChain::new();
+    runtime.add_transaction(107, "invalid-anchor");
+    let plan = ReorgPlan {
+        place: [("invalid-anchor".to_owned(), 1)].into(),
+        ..ReorgPlan::default()
+    };
+    let result = change_chain_with(&runtime, &store(), 2, true, &plan)
+        .await
+        .unwrap();
+    assert_eq!(result.failed_transactions.len(), 1);
+    assert!(
+        result.failed_transactions[0]
+            .error
+            .contains("anchor is no longer canonical")
+    );
+    assert_eq!(result.dropped_txids, ["invalid-anchor"]);
+}
+
+#[tokio::test]
+async fn invalid_plans_are_rejected_before_any_mutation() {
+    let cases = [
+        (
+            ReorgPlan {
+                drop: vec!["tx".into()],
+                ..ReorgPlan::default()
+            },
+            true,
+            "drop only applies with keep_txs",
+        ),
+        (
+            ReorgPlan {
+                place: [("tx".to_owned(), 3)].into(),
+                ..ReorgPlan::default()
+            },
+            true,
+            "between 1 and 2",
+        ),
+        (
+            ReorgPlan {
+                place: [("missing".to_owned(), 1)].into(),
+                ..ReorgPlan::default()
+            },
+            true,
+            "is not a non-coinbase transaction",
+        ),
+        (
+            ReorgPlan {
+                keep_txs: true,
+                drop: vec!["tx".into()],
+                place: [("tx".to_owned(), 1)].into(),
+            },
+            true,
+            "both dropped and placed",
+        ),
+        (
+            ReorgPlan::keep(true),
+            false,
+            "a rollback mines no replacement blocks",
+        ),
+    ];
+    for (plan, replace, message) in cases {
+        let runtime = FakeChain::new();
+        runtime.add_transaction(108, "tx");
+        let error = change_chain_with(&runtime, &store(), 2, replace, &plan)
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(
+                error.downcast_ref::<ChainChangeError>(),
+                Some(ChainChangeError::InvalidPlan(text)) if text.contains(message)
+            ),
+            "{error:#}"
+        );
+        assert_eq!(runtime.invalidations.load(Ordering::SeqCst), 0);
+    }
+}
+
+#[tokio::test]
+async fn chain_change_requests_reject_unknown_fields() {
+    let (mut state, _dir) = started_state_with_local_wallet();
+    let runtime = Arc::new(FakeChain::new());
+    Arc::get_mut(&mut state.0).unwrap().chain_runtime = Some(runtime.clone());
+    for (path, body) in [
+        (
+            "/api/v1/reorg",
+            serde_json::json!({"depth":1,"keep_tx":true}),
+        ),
+        (
+            "/api/v1/reorg",
+            serde_json::json!({"depth":1,"reinclude":{}}),
+        ),
+        (
+            "/api/v1/rollback",
+            serde_json::json!({"depth":1,"keep_txs":true}),
+        ),
+    ] {
+        let (status, body) = api_request(&state, "POST", path, body).await;
+        assert_eq!(status, axum::http::StatusCode::BAD_REQUEST, "{body}");
+    }
+    assert_eq!(runtime.invalidations.load(Ordering::SeqCst), 0);
 }

@@ -2,7 +2,7 @@ mod amount;
 
 use std::{ffi::OsString, path::PathBuf};
 
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand};
 
 use crate::runtime::InstanceName;
@@ -133,6 +133,12 @@ pub(crate) enum Command {
         /// Attempt to include the dropped transactions in replacement blocks.
         #[arg(long)]
         keep_txs: bool,
+        /// With --keep-txs, leave this transaction out of the replacement blocks.
+        #[arg(long = "drop", value_name = "TXID", requires = "keep_txs")]
+        drop: Vec<String>,
+        /// Withhold this transaction until replacement block K (1 to --depth).
+        #[arg(long = "place", value_name = "TXID=K", value_parser = parse_placement)]
+        place: Vec<(String, u32)>,
     },
     /// Remove recent Regtest blocks without mining replacements.
     Rollback {
@@ -352,6 +358,21 @@ impl Pool {
 }
 
 fn _assert_pathbuf_send(_: PathBuf) {}
+
+fn parse_placement(value: &str) -> Result<(String, u32)> {
+    let (txid, block) = value
+        .split_once('=')
+        .context("expected TXID=K, for example --place 4c6c…=2")?;
+    let block = block
+        .parse::<u32>()
+        .ok()
+        .filter(|block| *block >= 1)
+        .context("K must be a replacement block number of at least 1")?;
+    if txid.is_empty() {
+        bail!("expected TXID=K, for example --place 4c6c…=2");
+    }
+    Ok((txid.to_owned(), block))
+}
 
 /// `--memo ""` is allowed and sends an explicit empty text memo.
 fn parse_memo(value: &str) -> Result<String> {

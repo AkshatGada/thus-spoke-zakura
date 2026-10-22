@@ -403,7 +403,7 @@ Job history and keys last only for the server process lifetime, with a limit of
 existing-key replays and reads continue. Stopping the server cancels running work
 and discards this history. Jobs and deduplication do not survive a restart.
 
-### `ths reorg --depth <N> [--keep-txs]` / `ths rollback --depth <N>`
+### `ths reorg --depth <N> [--keep-txs] [--drop <TXID>]... [--place <TXID>=<K>]...` / `ths rollback --depth <N>`
 
 `reorg` removes the last N blocks and mines N replacements, keeping the tip
 height but changing those block hashes. `rollback` removes them without
@@ -415,6 +415,7 @@ chain operation causes HTTP 409.
 ```console
 ths reorg --depth 3
 ths reorg --depth 3 --keep-txs --json
+ths reorg --depth 3 --keep-txs --drop "$TXID_A" --place "$TXID_B=3"
 ths rollback --depth 3
 ths wait
 ```
@@ -426,9 +427,34 @@ prevents later inclusion of a dropped transaction. With `--keep-txs`, ths
 attempts to reinclude the original non-coinbase transactions and verifies their
 replacement-block inclusion.
 Invalid anchors or other admission failures may prevent reinclusion. Failures
-are reported in both output modes; `--json` also lists `retained_txids` and
-`failed_transactions`. The CLI exits nonzero if any transaction was not retained,
-even though the chain changed.
+are reported in both output modes; `--json` also lists `retained_txids`,
+`retained_transactions` (each retained txid with the replacement height that now
+holds it) and `failed_transactions`. The CLI exits nonzero if any transaction it
+tried to retain was not retained, even though the chain changed.
+
+Both output modes also list every non-coinbase transaction from the removed
+blocks that is not in a replacement block (`dropped_txids` in `--json`),
+whether or not it belongs to the development wallet. Invalidating a block does
+not return its transactions to Zakura's mempool, so a dropped transaction
+normally stays out of the chain unless something rebroadcasts it (subject to the
+requeue caveat above).
+
+Two options choose what happens to individual transactions from the removed
+blocks. Each names a txid that a removed block contained, otherwise the request
+is rejected with HTTP 400 before the chain changes:
+
+- `--drop <TXID>` (with `--keep-txs`) leaves that transaction out, so it is
+  reported as dropped while the others are retained. Repeat it to drop several.
+- `--place <TXID>=<K>` withholds the transaction until replacement block K,
+  where K is 1 to `--depth`, then rebroadcasts it, so a payment confirmed at
+  height H moves to a later height of the same branch. It works with or without
+  `--keep-txs`. A transaction whose shielded anchor came from a removed block is
+  refused by the node and reported as not retained; send a new transaction
+  instead.
+
+A rebroadcast transaction that depends on another removed transaction is
+retried before each later replacement block, so place a dependent transaction at
+or after its parent.
 
 Affected payment records become `unconfirmed`, keeping their txids and keys.
 Both output modes list them (`unconfirmed_txids` in `--json`). The server
@@ -913,7 +939,7 @@ compinit
 | `ths tx <TXID> [--json]` | Show explorer transaction data |
 | `ths block [ID] [--json]` | Show a block by height or hash, or the chain tip when omitted |
 | `ths mine <N>` | Mine blocks and synchronize the wallet |
-| `ths reorg --depth N [--keep-txs]` | Replace recent blocks, optionally attempting transaction reinclusion |
+| `ths reorg --depth N [--keep-txs] [--drop TXID] [--place TXID=K]` | Replace recent blocks, optionally retaining, dropping, or placing individual transactions |
 | `ths rollback --depth N` | Remove recent blocks without replacements |
 | `ths faucet <ADDRESS> [--amount]` | Send disposable ZEC to any Regtest address |
 | `ths wallet balances [--json]` | Print the five accounts' balances and addresses |

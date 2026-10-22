@@ -59,7 +59,8 @@ impl From<anyhow::Error> for ApiError {
     fn from(error: anyhow::Error) -> Self {
         let status = if let Some(error) = error.downcast_ref::<crate::chain::ChainChangeError>() {
             match error {
-                crate::chain::ChainChangeError::InvalidDepth => StatusCode::BAD_REQUEST,
+                crate::chain::ChainChangeError::InvalidDepth
+                | crate::chain::ChainChangeError::InvalidPlan(_) => StatusCode::BAD_REQUEST,
                 crate::chain::ChainChangeError::Busy => StatusCode::CONFLICT,
             }
         } else if error.downcast_ref::<IdempotencyConflict>().is_some() {

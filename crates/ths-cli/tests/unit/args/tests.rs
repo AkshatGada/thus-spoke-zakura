@@ -594,3 +594,45 @@ fn send_to_address_excludes_other_destinations() {
         assert!(send(conflicting).is_err(), "{conflicting:?}");
     }
 }
+
+#[test]
+fn parses_per_transaction_reorg_options() {
+    let cli = Cli::try_parse_from([
+        "ths",
+        "reorg",
+        "--depth",
+        "3",
+        "--keep-txs",
+        "--drop",
+        "aa",
+        "--drop",
+        "bb",
+        "--place",
+        "cc=2",
+    ])
+    .unwrap();
+    let Some(Command::Reorg {
+        depth,
+        keep_txs,
+        drop,
+        place,
+    }) = cli.command
+    else {
+        panic!("expected reorg");
+    };
+    assert_eq!(depth, 3);
+    assert!(keep_txs);
+    assert_eq!(drop, ["aa", "bb"]);
+    assert_eq!(place, [("cc".to_owned(), 2)]);
+
+    // --place works without --keep-txs; --drop only narrows --keep-txs.
+    assert!(Cli::try_parse_from(["ths", "reorg", "--depth", "2", "--place", "cc=1"]).is_ok());
+    assert!(Cli::try_parse_from(["ths", "reorg", "--depth", "2", "--drop", "aa"]).is_err());
+    for invalid in ["cc", "=2", "cc=0", "cc=x"] {
+        assert!(
+            Cli::try_parse_from(["ths", "reorg", "--depth", "2", "--place", invalid]).is_err(),
+            "{invalid}"
+        );
+    }
+    assert!(Cli::try_parse_from(["ths", "rollback", "--depth", "1", "--place", "cc=1"]).is_err());
+}

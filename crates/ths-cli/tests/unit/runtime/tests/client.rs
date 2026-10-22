@@ -137,7 +137,7 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
             &reqwest::blocking::Client::new(),
             operation,
             3,
-            keep_txs,
+            &ChainPlan::keep(keep_txs),
         )
         .unwrap();
         let (request_line, request_body) = requests.recv().unwrap();
@@ -197,8 +197,14 @@ fn explorer_tip_lookup_fails_without_fetching_another_block() {
 fn chain_changes_do_not_retry_rejected_or_lost_responses() {
     for status in ["409 Conflict", "drop"] {
         let (url, requests) = serve(vec![(status, "busy")]);
-        let error =
-            change_chain(&url, &reqwest::blocking::Client::new(), "reorg", 3, false).unwrap_err();
+        let error = change_chain(
+            &url,
+            &reqwest::blocking::Client::new(),
+            "reorg",
+            3,
+            &ChainPlan::default(),
+        )
+        .unwrap_err();
         assert!(
             error
                 .to_string()
@@ -2329,5 +2335,39 @@ fn address_send_submits_the_address_and_its_pool() {
     assert_eq!(
         json_stdout(&out)["to_address"],
         "tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ"
+    );
+}
+
+#[test]
+fn per_transaction_reorgs_send_their_plan_and_report_placements() {
+    let response = serde_json::json!({
+        "depth":3,"old_tip":{"height":108,"hash":"old-tip"},
+        "new_tip":{"height":108,"hash":"new-tip"},
+        "removed_hashes":["a","b","c"],"replacement_hashes":["d","e","f"],
+        "retained_txids":["placed"],
+        "retained_transactions":[{"txid":"placed","height":108}],
+        "failed_transactions":[],
+        "dropped_txids":["left-out"],
+        "unconfirmed_txids":[]
+    });
+    let (url, requests) = serve(vec![("200 OK", response.to_string())]);
+    let plan = ChainPlan {
+        keep_txs: true,
+        drop: vec!["left-out".into()],
+        place: vec![("placed".into(), 3)],
+    };
+    let result = change_chain(&url, &reqwest::blocking::Client::new(), "reorg", 3, &plan).unwrap();
+    let (_, request_body) = requests.recv().unwrap();
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&request_body).unwrap(),
+        serde_json::json!({"depth":3,"keep_txs":true,"drop":["left-out"],"place":{"placed":3}})
+    );
+    let text = render_chain_change(&result, &name("alpha"), "reorg", false).unwrap();
+    assert!(text.contains("Retained: placed at height 108"), "{text}");
+    assert!(text.contains("Dropped: left-out"), "{text}");
+    let json = render_chain_change(&result, &name("alpha"), "reorg", true).unwrap();
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&json).unwrap(),
+        response
     );
 }

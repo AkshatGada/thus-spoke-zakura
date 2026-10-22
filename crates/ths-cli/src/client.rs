@@ -68,9 +68,37 @@ pub(crate) struct ChainChangeResult {
     removed_hashes: Vec<String>,
     replacement_hashes: Vec<String>,
     retained_txids: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    retained_transactions: Vec<RetainedTransaction>,
     failed_transactions: Vec<TransactionFailure>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    dropped_txids: Vec<String>,
     #[serde(default)]
     unconfirmed_txids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct RetainedTransaction {
+    txid: String,
+    height: u64,
+}
+
+/// Which removed transactions `ths reorg` asks the server to put back, and where.
+#[derive(Debug, Default)]
+pub(crate) struct ChainPlan {
+    pub(crate) keep_txs: bool,
+    pub(crate) drop: Vec<String>,
+    pub(crate) place: Vec<(String, u32)>,
+}
+
+impl ChainPlan {
+    #[cfg(test)]
+    pub(crate) fn keep(keep_txs: bool) -> Self {
+        Self {
+            keep_txs,
+            ..Self::default()
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -84,10 +112,24 @@ pub(crate) fn change_chain(
     client: &reqwest::blocking::Client,
     operation: &str,
     depth: u32,
-    keep_txs: bool,
+    plan: &ChainPlan,
 ) -> Result<ChainChangeResult> {
     let body = if operation == "reorg" {
-        serde_json::json!({"depth": depth, "keep_txs": keep_txs})
+        let mut body = serde_json::json!({"depth": depth, "keep_txs": plan.keep_txs});
+        // Only send the per-transaction fields when used, so a plain reorg stays
+        // compatible with servers that predate them.
+        if !plan.drop.is_empty() {
+            body["drop"] = serde_json::json!(plan.drop);
+        }
+        if !plan.place.is_empty() {
+            body["place"] = plan
+                .place
+                .iter()
+                .map(|(txid, block)| (txid.clone(), serde_json::json!(block)))
+                .collect::<serde_json::Map<_, _>>()
+                .into();
+        }
+        body
     } else {
         serde_json::json!({"depth": depth})
     };
@@ -118,11 +160,20 @@ pub(crate) fn render_chain_change(
         "{action} {} blocks on {name}.\nNew tip: {} ({})",
         result.depth, result.new_tip.height, result.new_tip.hash
     );
+    for retained in &result.retained_transactions {
+        output.push_str(&format!(
+            "\nRetained: {} at height {}",
+            retained.txid, retained.height
+        ));
+    }
     for failure in &result.failed_transactions {
         output.push_str(&format!(
             "\nNot retained: {}: {}",
             failure.txid, failure.error
         ));
+    }
+    for txid in &result.dropped_txids {
+        output.push_str(&format!("\nDropped: {txid}"));
     }
     for txid in &result.unconfirmed_txids {
         output.push_str(&format!("\nNow unconfirmed: {txid}"));
@@ -598,11 +649,11 @@ impl Runtime {
         name: &InstanceName,
         operation: &str,
         depth: u32,
-        keep_txs: bool,
+        plan: &ChainPlan,
         json: bool,
     ) -> Result<()> {
         let (dashboard, client) = self.instance_client(name)?;
-        let result = change_chain(&dashboard, &client, operation, depth, keep_txs)?;
+        let result = change_chain(&dashboard, &client, operation, depth, plan)?;
         println!("{}", render_chain_change(&result, name, operation, json)?);
         if !result.failed_transactions.is_empty() {
             bail!(
