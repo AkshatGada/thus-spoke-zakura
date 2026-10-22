@@ -120,7 +120,8 @@ pub(crate) fn render_held(held: &HeldTransaction) -> String {
     let state = if held.in_mempool {
         "in the mempool"
     } else {
-        "no longer in the mempool"
+        // Either not broadcast yet or already dropped by the node.
+        "not in the mempool"
     };
     format!(
         "{}: held since height {}, {state}, {expiry}",

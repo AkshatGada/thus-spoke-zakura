@@ -1372,6 +1372,12 @@ async fn assembling_rpc() -> (
                 .iter()
                 .map(|tx| tx["hash"].clone())
                 .collect::<Vec<_>>()),
+            "getrawtransaction" if req["params"][0] == "cd".repeat(32) => {
+                json!({"txid":req["params"][0],"height":100,"expiryheight":140})
+            }
+            "getrawtransaction" if req["params"][0] == "ab".repeat(32) => {
+                return json!({"result":null,"error":{"code":-5,"message":"No such mempool or main chain transaction"},"id":req["id"]});
+            }
             "getrawtransaction" => json!({"txid":req["params"][0],"expiryheight":148}),
             _ => return json!({"result":null,"error":{"code":-1,"message":"unexpected"},"id":req["id"]}),
         };
@@ -1430,7 +1436,7 @@ async fn a_held_transaction_makes_every_mining_path_assemble_its_own_block() {
 }
 
 #[tokio::test]
-async fn hold_and_release_require_a_mempool_or_held_transaction() {
+async fn hold_and_release_validate_the_transaction() {
     let (url, _calls, _submitted) = assembling_rpc().await;
     let (mut state, _dir) = state_with_local_wallet();
     Arc::get_mut(&mut state.0).unwrap().rpc = NodeRpc::new(url);
@@ -1441,7 +1447,30 @@ async fn hold_and_release_require_a_mempool_or_held_transaction() {
 
     let (status, _) =
         mining_request(&app, "POST", "/api/v1/mempool/hold", json!({"txid":"00"})).await;
-    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    // A transaction can be held before it is broadcast.
+    let early = "ab".repeat(32);
+    let (status, hold) =
+        mining_request(&app, "POST", "/api/v1/mempool/hold", json!({"txid":early})).await;
+    assert_eq!(status, StatusCode::OK, "{hold}");
+    assert_eq!(hold["in_mempool"], false);
+    let (status, _) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mempool/release",
+        json!({"txid":early}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    // An already mined transaction cannot be held.
+    let (status, _) = mining_request(
+        &app,
+        "POST",
+        "/api/v1/mempool/hold",
+        json!({"txid":"cd".repeat(32)}),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT);
     let (status, _) = mining_request(
         &app,
         "POST",

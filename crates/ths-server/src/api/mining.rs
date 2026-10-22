@@ -206,17 +206,33 @@ pub(crate) async fn held_transactions(State(state): State<AppState>) -> ApiResul
     Ok(Json(json!({ "held": held })))
 }
 
-/// Keeps a mempool transaction out of every block ths mines until released.
+/// Keeps a transaction out of every block ths mines until released. It may be
+/// held before it reaches the mempool: in `mempool` mining mode a block follows
+/// within seconds of a broadcast, so holding first is the only reliable order.
 pub(crate) async fn hold_transaction(
     State(state): State<AppState>,
     ApiJson(req): ApiJson<HoldRequest>,
 ) -> ApiResult<Json<HeldTransactionView>> {
     require_started(&state)?;
+    if req.txid.len() != 64
+        || !req
+            .txid
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+    {
+        return Err(ApiError::bad_request(
+            "txid must be 64 lowercase hexadecimal characters",
+        ));
+    }
     let mempool = state.0.rpc.mempool().await?;
-    if !mempool.contains(&req.txid) {
+    if !mempool.contains(&req.txid)
+        && let Some(tx) = state.0.rpc.lookup_transaction(&req.txid).await?
+        && tx.get("height").and_then(Value::as_u64).is_some()
+    {
         return Err(ApiError {
-            status: StatusCode::NOT_FOUND,
-            message: "transaction is not in the mempool".into(),
+            status: StatusCode::CONFLICT,
+            message: "transaction is already mined; a hold only applies to unmined transactions"
+                .into(),
         });
     }
     let height = state.0.rpc.checkpoint().await?.height;

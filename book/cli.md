@@ -422,8 +422,7 @@ and discards this history. Jobs and deduplication do not survive a restart.
 
 ### `ths hold <TXID>` / `ths release <TXID>` / `ths held`
 
-`hold` keeps a transaction that is in the node's mempool out of every block ths
-mines, until `release`. Use it to keep a payment pending while blocks are mined
+`hold` keeps a transaction out of every block ths mines, until `release`. Use it to keep a payment pending while blocks are mined
 around it, for example to test a wallet's unconfirmed state, a confirmation
 counter, or expiry. `held` lists the holds with the height each began, whether
 the transaction is still in the mempool, and its expiry height. All three
@@ -443,10 +442,12 @@ and `mempool` mode blocks, and reorg replacement blocks all leave held
 transactions out, together with any mempool transaction that spends one of
 their outputs. In `mempool` mode a held transaction does not count as new work.
 
-Holding needs the transaction to be in the mempool, otherwise the request
-returns HTTP 404. A hold does not remove the transaction from the node, and
-Zakura has no RPC to do so: a held transaction still expires, and the node then
-drops it, so its hold reports it as no longer in the mempool until released.
+A transaction can be held before it is broadcast: hold its txid first, then
+broadcast it. That is the only reliable order in `mempool` mode, where a block
+follows a broadcast within seconds. Holding an already mined transaction returns
+HTTP 409. A hold does not remove the transaction from the node, and Zakura has no
+RPC to do so: a held transaction still expires, and the node then drops it, so
+its hold reports it as not in the mempool until released.
 Holds last for the server lifetime; restarting the app container clears them.
 
 ### `ths reorg --depth <N> [--keep-txs]` / `ths rollback --depth <N>`
@@ -987,7 +988,7 @@ compinit
 | `ths mine <N> [--to ACCOUNT\|ADDRESS] [--empty]` | Mine blocks, optionally paying the coinbase elsewhere or leaving the mempool out, and synchronize the wallet |
 | `ths reorg --depth N [--keep-txs] [--drop TXID] [--place TXID=K]` | Replace recent blocks, optionally retaining, dropping, or placing individual transactions |
 | `ths rollback --depth N` | Remove recent blocks without replacements |
-| `ths hold <TXID>` / `ths release <TXID>` / `ths held` | Keep a mempool transaction out of mined blocks, let it be mined again, or list holds |
+| `ths hold <TXID>` / `ths release <TXID>` / `ths held` | Keep a transaction out of mined blocks (even before broadcast), let it be mined again, or list holds |
 | `ths faucet <ADDRESS> [--amount]` | Send disposable ZEC to any Regtest address |
 | `ths wallet balances [--json]` | Print the five accounts' balances and addresses |
 | `ths wallet activity [--limit N] [--json]` | Print recent development-wallet activity |

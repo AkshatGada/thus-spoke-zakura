@@ -151,7 +151,7 @@ pub(crate) enum Command {
         #[arg(long, value_parser = clap::value_parser!(u32).range(1..=1000))]
         depth: u32,
     },
-    /// Keep a mempool transaction out of every block ths mines until released.
+    /// Keep a transaction out of every block ths mines until released; it can be held before broadcast.
     Hold {
         /// Transaction ID, as listed by `ths tx` or the explorer's mempool.
         txid: String,
