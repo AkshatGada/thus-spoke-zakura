@@ -183,6 +183,20 @@ impl NodeRpc {
     pub async fn mempool(&self) -> Result<Vec<String>> {
         self.call("getrawmempool", json!([])).await
     }
+
+    pub(crate) async fn block_template(&self) -> Result<Value> {
+        self.call("getblocktemplate", json!([])).await
+    }
+
+    /// `None` when Zakura accepted the block, otherwise its rejection reason.
+    pub(crate) async fn submit_block(&self, block_hex: &str) -> Result<Option<String>> {
+        let result: Value = self.call("submitblock", json!([block_hex])).await?;
+        Ok(match result {
+            Value::Null => None,
+            Value::String(reason) => Some(reason),
+            other => Some(other.to_string()),
+        })
+    }
 }
 
 fn transaction_missing(error: &anyhow::Error) -> bool {

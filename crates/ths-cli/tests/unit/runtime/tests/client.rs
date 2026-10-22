@@ -293,6 +293,7 @@ fn mine_polls_until_completion_and_reports_the_confirmed_count() {
             &mut out,
             Instant::now() + Duration::from_secs(5),
             3,
+            &MineOptions::default(),
             false,
         )
         .unwrap();
@@ -342,6 +343,7 @@ fn mine_reports_partial_progress_alongside_the_servers_error() {
             &mut out,
             Instant::now() + Duration::from_secs(5),
             5,
+            &MineOptions::default(),
             true,
         )
         .unwrap_err();
@@ -396,6 +398,7 @@ fn mine_keeps_the_journal_key_when_writing_the_json_result_fails() {
             FailingWriter,
             Instant::now() + Duration::from_secs(5),
             1,
+            &MineOptions::default(),
             true,
         )
         .unwrap_err();
@@ -430,6 +433,7 @@ fn submission_retries_pause_between_attempts_instead_of_busy_looping() {
             &mut out,
             Instant::now() + Duration::from_millis(900),
             1,
+            &MineOptions::default(),
             false,
         )
         .unwrap_err();
@@ -456,6 +460,8 @@ fn mine_status_line_reports_progress_for_every_state() {
         error: None,
         progress_uncertain: false,
         hashes: None,
+        to: None,
+        empty: false,
     };
     assert_eq!(
         mine_status_line(&mining, &name("alpha")),
@@ -533,6 +539,7 @@ fn a_dropped_poll_connection_is_retried_within_the_deadline() {
             &mut out,
             Instant::now() + Duration::from_secs(10),
             1,
+            &MineOptions::default(),
             false,
         )
         .unwrap();
@@ -570,6 +577,7 @@ fn a_stalled_poll_times_out_within_the_deadline_instead_of_hanging() {
             &mut out,
             Instant::now() + Duration::from_millis(500),
             1,
+            &MineOptions::default(),
             false,
         )
         .unwrap_err();
@@ -610,6 +618,7 @@ fn an_unresolved_submission_key_survives_for_the_next_invocation() {
             &mut out,
             Instant::now() + Duration::from_millis(300),
             5,
+            &MineOptions::default(),
             false,
         )
         .unwrap_err();
@@ -631,6 +640,7 @@ fn an_unresolved_submission_key_survives_for_the_next_invocation() {
             &mut out,
             Instant::now() + Duration::from_secs(5),
             5,
+            &MineOptions::default(),
             false,
         )
         .unwrap();
@@ -2373,6 +2383,85 @@ fn per_transaction_reorgs_send_their_plan_and_report_placements() {
     assert_eq!(
         serde_json::from_str::<serde_json::Value>(&json).unwrap(),
         response
+    );
+}
+
+#[test]
+fn mine_options_are_sent_and_keep_their_own_saved_key() {
+    let (url, requests) = serve(vec![
+        (
+            "202 Accepted",
+            r#"{"id":"job-1","requested_blocks":2,"to":"4","empty":true,"completed_blocks":0,"state":"mining","error":null,"progress_uncertain":false}"#,
+        ),
+        (
+            "200 OK",
+            r#"{"id":"job-1","requested_blocks":2,"to":"4","empty":true,"completed_blocks":2,"state":"completed","error":null,"progress_uncertain":false,"hashes":["a","b"]}"#,
+        ),
+    ]);
+    let client = reqwest::blocking::Client::new();
+    let alpha = name("alpha");
+    let (_dir, runtime) = runtime_with_instance_dir(&alpha);
+    // A plain `ths mine 2` key saved earlier must not be reused for other options.
+    let plain_key = IntentJournal::open(&runtime.instance_dir(&alpha), "mining")
+        .unwrap()
+        .key_for("mine:2")
+        .unwrap();
+
+    let options = MineOptions {
+        to: Some("4".into()),
+        empty: true,
+    };
+    runtime
+        .mine_with(
+            &alpha,
+            &url,
+            &client,
+            &mut Vec::new(),
+            Instant::now() + Duration::from_secs(5),
+            2,
+            &options,
+            false,
+        )
+        .unwrap();
+    let post: serde_json::Value =
+        serde_json::from_str(&requests.try_iter().next().unwrap().1).unwrap();
+    assert_eq!(post["to"], "4");
+    assert_eq!(post["empty"], true);
+    assert_ne!(post["idempotency_key"], plain_key.as_str());
+    // Only the completed job's key is forgotten; the plain one remains.
+    let journal = IntentJournal::open(&runtime.instance_dir(&alpha), "mining").unwrap();
+    assert_eq!(journal.key_for("mine:2").unwrap(), plain_key);
+}
+
+#[test]
+fn mine_refuses_a_server_that_ignored_its_options() {
+    // An older server accepts --to and --empty but neither applies nor echoes them.
+    let (url, _requests) = serve(vec![(
+        "202 Accepted",
+        r#"{"id":"job-1","requested_blocks":1,"completed_blocks":0,"state":"mining","error":null,"progress_uncertain":false}"#,
+    )]);
+    let alpha = name("alpha");
+    let (_dir, runtime) = runtime_with_instance_dir(&alpha);
+    let error = runtime
+        .mine_with(
+            &alpha,
+            &url,
+            &reqwest::blocking::Client::new(),
+            &mut Vec::new(),
+            Instant::now() + Duration::from_secs(5),
+            1,
+            &MineOptions {
+                to: Some("4".into()),
+                empty: false,
+            },
+            false,
+        )
+        .unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("does not support --to or --empty"),
+        "{error:#}"
     );
 }
 

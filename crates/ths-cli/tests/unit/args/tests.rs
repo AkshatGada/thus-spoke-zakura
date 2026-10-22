@@ -641,6 +641,24 @@ fn parses_per_transaction_reorg_options() {
 }
 
 #[test]
+fn parses_mine_coinbase_and_empty_options() {
+    let cli = Cli::try_parse_from(["ths", "mine", "2", "--to", "4", "--empty"]).unwrap();
+    let Some(Command::Mine { blocks, to, empty }) = cli.command else {
+        panic!("expected mine");
+    };
+    assert_eq!((blocks, to.as_deref(), empty), (2, Some("4"), true));
+    let cli = Cli::try_parse_from(["ths", "mine", "1"]).unwrap();
+    assert!(matches!(
+        cli.command,
+        Some(Command::Mine {
+            to: None,
+            empty: false,
+            ..
+        })
+    ));
+}
+
+#[test]
 fn a_reorg_may_name_each_placed_transaction_once() {
     let cli = Cli::try_parse_from([
         "ths", "reorg", "--depth", "2", "--place", "aa=1", "--place", "aa=2",

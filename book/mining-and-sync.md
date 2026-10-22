@@ -4,7 +4,10 @@ You have funded Account 2 and sent a payment. In the default `auto` mode both
 operations mine a confirming block for you. This chapter mines explicitly and
 follows a block from the node to the wallet and browser.
 
-**Mining** asks Zakura to generate Regtest blocks on demand. A transaction is
+**Mining** asks Zakura to generate Regtest blocks on demand. When a mining
+request pays the coinbase elsewhere or asks for empty blocks, ths assembles the
+blocks itself from Zakura's block template instead (see
+[`ths mine`](cli.md#ths-mine-blocks)). A transaction is
 **confirmed** when the node reports it in a block on its current chain with
 a block hash. That does not instantly make every wallet view current:
 lightwalletd still has to index the block, and the wallet still has to scan
@@ -16,8 +19,8 @@ and reconcile it.
    `POST /api/v1/mining/jobs` with a block count and
    idempotency key; each receives HTTP **202** and a job before mining finishes.
    The server accepts **1–10,000** blocks.
-2. Zakura generates blocks and returns their hashes. The server asks Zakura
-   for the last returned block's height.
+2. Zakura generates blocks, or ths assembles and submits them, and the server
+   has their hashes. The server asks Zakura for the last block's height.
 3. The wallet waits for lightwalletd to index that height, scans compact
    blocks, reconciles against Zakura's canonical block hashes, and publishes
    a fresh user-account snapshot at a matching checkpoint.
@@ -86,7 +89,7 @@ manual job can be active, including its synchronization phase.
 
 The dashboard reads `GET /api/v1/mining/jobs` for the latest job, or
 `GET /api/v1/mining/jobs/{id}` for a specific job. Reusing an accepted key with
-the same block count returns the same job within that server lifetime.
+the same block count and options returns the same job within that server lifetime.
 
 `ths mine` saves its key in the instance directory before submission and polls
 for progress. A lost or undecodable response, interruption, or 300-second

@@ -675,7 +675,8 @@ fn deleting_keeps_metadata_while_docker_is_unreachable() {
 fn commands_report_docker_errors_instead_of_a_stopped_environment() {
     let runtime = runtime_for_tests();
     let name = name("alpha");
-    let err = with_unreachable_docker(|| runtime.mine(&name, 1, false)).unwrap_err();
+    let err = with_unreachable_docker(|| runtime.mine(&name, 1, &MineOptions::default(), false))
+        .unwrap_err();
     assert!(
         !err.to_string().contains("is not running"),
         "reported a Docker error as a stopped environment: {err}"

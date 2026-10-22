@@ -17,6 +17,11 @@ pub(crate) struct MiningJob {
     // Older servers may omit this; treat it the same as "not completed yet".
     #[serde(default)]
     pub(crate) hashes: Option<Vec<String>>,
+    /// The options the server applied; a server that predates them omits both.
+    #[serde(default)]
+    pub(crate) to: Option<String>,
+    #[serde(default)]
+    pub(crate) empty: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
@@ -36,6 +41,10 @@ struct MineOutput {
     id: String,
     blocks: u32,
     requested_blocks: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    to: Option<String>,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    empty: bool,
     state: MiningJobState,
     error: Option<String>,
     progress_uncertain: bool,
@@ -81,6 +90,14 @@ pub(crate) struct ChainChangeResult {
 struct RetainedTransaction {
     txid: String,
     height: u64,
+}
+
+/// How `ths mine` blocks differ from the default: who gets the coinbase, and
+/// whether mempool transactions are left out.
+#[derive(Debug, Default)]
+pub struct MineOptions {
+    pub to: Option<String>,
+    pub empty: bool,
 }
 
 /// Which removed transactions `ths reorg` asks the server to put back, and where.
@@ -548,7 +565,13 @@ impl Runtime {
         Ok(())
     }
 
-    pub fn mine(&self, name: &InstanceName, blocks: u32, json: bool) -> Result<()> {
+    pub fn mine(
+        &self,
+        name: &InstanceName,
+        blocks: u32,
+        options: &MineOptions,
+        json: bool,
+    ) -> Result<()> {
         let (dashboard, client) = self.instance_client(name)?;
         self.mine_with(
             name,
@@ -557,6 +580,7 @@ impl Runtime {
             std::io::stdout().lock(),
             Instant::now() + MINE_WAIT,
             blocks,
+            options,
             json,
         )
     }
@@ -570,14 +594,39 @@ impl Runtime {
         mut out: impl std::io::Write,
         deadline: Instant,
         blocks: u32,
+        options: &MineOptions,
         json: bool,
     ) -> Result<()> {
         let journal = IntentJournal::open(&self.instance_dir(name), "mining")?;
-        let intent = format!("mine:{blocks}");
+        // Options are part of the server's job identity, so they are part of the
+        // saved intent: the same count with other options is a different job.
+        let mut intent = format!("mine:{blocks}");
+        if let Some(to) = &options.to {
+            intent.push_str(&format!(":to={to}"));
+        }
+        if options.empty {
+            intent.push_str(":empty");
+        }
         let idempotency_key = journal.key_for(&intent)?;
 
-        let mut job = submit_mining_job(client, dashboard, blocks, &idempotency_key, deadline)
-            .with_context(|| format!("asking environment {name} to mine {blocks} blocks"))?;
+        let mut job = submit_mining_job(
+            client,
+            dashboard,
+            blocks,
+            options,
+            &idempotency_key,
+            deadline,
+        )
+        .with_context(|| format!("asking environment {name} to mine {blocks} blocks"))?;
+        // A server that predates --to and --empty accepts them silently and
+        // mines ordinary blocks; it also does not echo them in the job.
+        if job.to != options.to || job.empty != options.empty {
+            bail!(
+                "environment {name} does not support --to or --empty, so its job {} mines \
+                 ordinary blocks; rebuild or update the environment",
+                job.id
+            );
+        }
 
         let mut last_printed = None;
         let timed_out = loop {
@@ -637,6 +686,8 @@ impl Runtime {
                 id: job.id.clone(),
                 blocks: job.completed_blocks,
                 requested_blocks: job.requested_blocks,
+                to: job.to.clone(),
+                empty: job.empty,
                 state: job.state,
                 error: job.error.clone(),
                 progress_uncertain: job.progress_uncertain,
@@ -1486,10 +1537,18 @@ fn submit_mining_job(
     client: &reqwest::blocking::Client,
     dashboard: &str,
     blocks: u32,
+    options: &MineOptions,
     idempotency_key: &str,
     deadline: Instant,
 ) -> Result<MiningJob> {
-    let body = serde_json::json!({"blocks": blocks, "idempotency_key": idempotency_key});
+    let mut body = serde_json::json!({"blocks": blocks, "idempotency_key": idempotency_key});
+    // Sent only when used, so a plain `ths mine` matches older servers.
+    if let Some(to) = &options.to {
+        body["to"] = serde_json::json!(to);
+    }
+    if options.empty {
+        body["empty"] = serde_json::json!(true);
+    }
     loop {
         let Some(left) = remaining(deadline) else {
             bail!(

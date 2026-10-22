@@ -6,7 +6,7 @@ use clap::CommandFactory;
 
 use crate::{
     args::{Cli, Command, CompletionShell, Pool, SendArgs, WalletCommand},
-    client::ChainPlan,
+    client::{ChainPlan, MineOptions},
     runtime::{InstanceName, MiningConfig, Runtime},
     updater,
 };
@@ -80,7 +80,9 @@ pub(crate) fn run(cli: Cli) -> anyhow::Result<ExitCode> {
         } => runtime.rpc(&name, &method, &params, raw, yes),
         Command::Tx { txid } => runtime.explorer(&name, "transactions", Some(&txid), cli.json),
         Command::Block { id } => runtime.explorer(&name, "blocks", id.as_deref(), cli.json),
-        Command::Mine { blocks } => runtime.mine(&name, blocks, cli.json),
+        Command::Mine { blocks, to, empty } => {
+            runtime.mine(&name, blocks, &MineOptions { to, empty }, cli.json)
+        }
         Command::Reorg {
             depth,
             keep_txs,

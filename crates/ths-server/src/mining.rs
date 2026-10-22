@@ -1,3 +1,4 @@
+use crate::blocks::BlockRequest;
 use crate::rpc::{ChainCheckpoint, RpcError};
 use crate::state::{AppState, notify};
 use serde_json::Value;
@@ -109,10 +110,24 @@ impl MiningConfig {
     }
 }
 
+/// How a manual job's blocks differ from Zakura's defaults. Part of the job's
+/// identity: replaying its idempotency key with other options is a conflict.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
+pub struct MiningOptions {
+    /// The account (`"1"` to `"5"`) or transparent address paid the coinbase.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub to: Option<String>,
+    /// Mine blocks that contain no mempool transactions.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub empty: bool,
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct MiningJob {
     pub id: String,
     pub requested_blocks: u32,
+    #[serde(flatten)]
+    pub options: MiningOptions,
     pub completed_blocks: u32,
     pub state: MiningState,
     pub error: Option<String>,
@@ -160,7 +175,7 @@ pub enum MiningAdmissionError {
     InvalidBlocks,
     #[error("idempotency_key must contain 8-128 visible ASCII characters without spaces")]
     InvalidKey,
-    #[error("idempotency_key was already used with a different block count")]
+    #[error("idempotency_key was already used with a different block count or options")]
     KeyConflict,
     #[error("A manual mining job is already active")]
     Busy,
@@ -210,6 +225,7 @@ impl MiningCoordinator {
         runtime: Arc<dyn MiningRuntime>,
         blocks: u32,
         key: String,
+        options: MiningOptions,
     ) -> Result<Admission, MiningAdmissionError> {
         if !(1..=10_000).contains(&blocks) {
             return Err(MiningAdmissionError::InvalidBlocks);
@@ -224,7 +240,7 @@ impl MiningCoordinator {
                 .get(id)
                 .expect("Every mining key has a snapshot")
                 .clone();
-            if job.requested_blocks != blocks {
+            if job.requested_blocks != blocks || job.options != options {
                 return Err(MiningAdmissionError::KeyConflict);
             }
             let updates = if state.latest_id.as_ref() == Some(id) {
@@ -256,6 +272,7 @@ impl MiningCoordinator {
         let job = MiningJob {
             id: uuid::Uuid::new_v4().to_string(),
             requested_blocks: blocks,
+            options,
             completed_blocks: 0,
             state: MiningState::Mining,
             error: None,
@@ -405,14 +422,14 @@ impl MiningCoordinator {
 
 #[cfg(test)]
 #[path = "../tests/unit/mining/tests.rs"]
-mod tests;
+pub(crate) mod tests;
 
-struct ManualMiningAdapter(AppState);
+struct ManualMiningAdapter(AppState, BlockRequest);
 
 #[async_trait::async_trait]
 impl MiningRuntime for ManualMiningAdapter {
     async fn generate_one(&self) -> anyhow::Result<String> {
-        let mut hashes = self.0.0.rpc.generate(1).await?;
+        let mut hashes = self.0.generate_blocks(1, &self.1).await?;
         anyhow::ensure!(
             hashes.len() == 1 && !hashes[0].is_empty(),
             "Zakura must return exactly one nonempty mined block hash"
@@ -443,11 +460,13 @@ impl AppState {
         &self,
         blocks: u32,
         key: String,
+        options: MiningOptions,
+        request: BlockRequest,
     ) -> Result<Admission, MiningAdmissionError> {
-        let runtime: Arc<dyn MiningRuntime> = Arc::new(ManualMiningAdapter(self.clone()));
+        let runtime: Arc<dyn MiningRuntime> = Arc::new(ManualMiningAdapter(self.clone(), request));
         #[cfg(test)]
         let runtime = self.0.mining_runtime.clone().unwrap_or(runtime);
-        self.0.mining.start(runtime, blocks, key).await
+        self.0.mining.start(runtime, blocks, key, options).await
     }
 
     /// Mines one block outside the manual coordinator and synchronizes the
@@ -478,7 +497,7 @@ impl AppState {
             .checkpoint()
             .await
             .map_err(BackgroundMineError::Generation)?;
-        let mut hashes = match self.0.rpc.generate(1).await {
+        let mut hashes = match self.generate_blocks(1, &BlockRequest::default()).await {
             Ok(hashes) => hashes,
             Err(error) => {
                 // Only an explicit JSON-RPC error from the node proves the

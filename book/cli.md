@@ -353,11 +353,30 @@ for testing confirmations, expiry, or coinbase maturity.
 ```console
 ths mine 1
 ths mine 10 --json
+ths mine 1 --to 4          # pay the coinbase to account 4's transparent address
+ths mine 1 --to "$T_ADDR"  # or to any transparent Regtest address
+ths mine 3 --empty         # leave every mempool transaction out
 ```
+
+By default Zakura mines the blocks: they include every mempool transaction and
+pay the coinbase to the treasury. `--to` pays the coinbase miner output to a
+development account (1–5, which uses that account's transparent address) or to a
+transparent Regtest address instead; a unified address is rejected, because a
+shielded coinbase output would need an Ironwood bundle. `--empty` mines blocks
+that contain no mempool transactions, which stay in the mempool. With either
+option, ths assembles each block from Zakura's block template: it removes
+transactions, lowers the coinbase by their fee share so it still balances
+exactly, recomputes the header commitments, and submits the block. It accepts
+the block once it is canonical at its height. A coinbase paid to a development
+account appears in that account's transparent balance at once, but outputs only
+mature after 100 blocks, and the development wallet's `send` and `shield` do not
+spend coinbase outputs even then: quotes report them as unspendable. Use it to
+test receiving a coinbase, or spend it with your own wallet's keys.
 
 Counts must be **1–10,000**. Mining POSTs return 503 until startup finishes.
 The command submits to the mining-job API (`POST /api/v1/mining/jobs` with
-`{blocks, idempotency_key}`; acceptance returns HTTP 202) and polls
+`{blocks, idempotency_key}`, plus `to` and `empty` when given; acceptance returns
+HTTP 202) and polls
 `GET /api/v1/mining/jobs/{id}` until the job completes or fails, printing
 progress as it goes in human-readable mode (including the mined tip hash on
 completion and the job ID on failure) and the final job as JSON with
@@ -369,7 +388,7 @@ idempotency key for a given block count is saved to the instance directory
 before the request is sent and only cleared once the job reaches a terminal
 state, so a submission whose response is lost or fails to decode, or a
 command interrupted or timed out mid-poll, does not lose track of the job:
-the next `ths mine` with the same block count reuses the saved key and picks
+the next `ths mine` with the same block count and options reuses the saved key and picks
 the same job back up instead of starting a second one. Once a job completes
 or fails, its key is forgotten, so repeating that command afterward starts a
 fresh job. A different manual request during mining or wallet synchronization
@@ -380,10 +399,12 @@ and `hashes` fields, alongside the job's `id`, `requested_blocks`, `state`,
 `error`, and `progress_uncertain`. A failed job after partial progress still
 reports what it mined rather than only the error.
 
-Dashboard jobs use `POST /api/v1/mining/jobs` with `{blocks, idempotency_key}`;
-acceptance returns HTTP 202. Replaying an accepted key with the same count returns
-the same job, including after completion or failure. Reusing that key with a
-different count returns HTTP 409. The latest-job GET returns `{job}` or
+Dashboard jobs use `POST /api/v1/mining/jobs` with `{blocks, idempotency_key}`,
+plus the optional `to` and `empty` that `--to` and `--empty` send; acceptance
+returns HTTP 202. Replaying an accepted key with the same count and options
+returns the same job, including after completion or failure. Reusing that key
+with a different count or options returns HTTP 409. The CLI saves a separate key
+for each count and option combination. The latest-job GET returns `{job}` or
 `{job:null}`; `GET /api/v1/mining/jobs/{id}` returns the job directly or 404.
 The dashboard restores latest-job progress after refresh, navigation, modal
 dismissal, or closing and reopening a tab. Its accepted response clears the
@@ -941,7 +962,7 @@ compinit
 | `ths rpc [--raw] [--yes] <METHOD> [PARAMS...]` | Call the instance's Zakura JSON-RPC and print the result |
 | `ths tx <TXID> [--json]` | Show explorer transaction data |
 | `ths block [ID] [--json]` | Show a block by height or hash, or the chain tip when omitted |
-| `ths mine <N>` | Mine blocks and synchronize the wallet |
+| `ths mine <N> [--to ACCOUNT\|ADDRESS] [--empty]` | Mine blocks, optionally paying the coinbase elsewhere or leaving the mempool out, and synchronize the wallet |
 | `ths reorg --depth N [--keep-txs] [--drop TXID] [--place TXID=K]` | Replace recent blocks, optionally retaining, dropping, or placing individual transactions |
 | `ths rollback --depth N` | Remove recent blocks without replacements |
 | `ths faucet <ADDRESS> [--amount]` | Send disposable ZEC to any Regtest address |

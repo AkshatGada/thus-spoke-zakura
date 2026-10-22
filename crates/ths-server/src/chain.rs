@@ -1,4 +1,5 @@
 use crate::{
+    blocks::BlockRequest,
     db::Store,
     rpc::{ChainCheckpoint, ChainInfo},
     state::{AppState, notify},
@@ -170,7 +171,8 @@ impl ChainRuntime for ChainAdapter {
         self.0.0.rpc.mempool().await
     }
     async fn generate_one(&self) -> Result<String> {
-        let mut hashes = self.0.0.rpc.generate(1).await?;
+        // Replacement blocks are serialized with every other mining path.
+        let mut hashes = self.0.generate_blocks(1, &BlockRequest::default()).await?;
         anyhow::ensure!(
             hashes.len() == 1 && !hashes[0].is_empty(),
             "Zakura must return one nonempty replacement hash"

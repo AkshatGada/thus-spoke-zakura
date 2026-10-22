@@ -201,7 +201,7 @@ These are every route the server serves today, from
 | `POST /api/v1/mine` | Generate 1–10,000 blocks and wait for wallet synchronization. Each call uses a fresh internal key. |
 | `POST /api/v1/reorg` | `{depth, keep_txs?, drop?, place?}` removes recent blocks and mines replacements. `drop` is a list of txids to leave out with `keep_txs`; `place` maps a txid to the replacement block (1 to `depth`) before which it is rebroadcast. Returns old/new tips, block hashes, `retained_transactions` with their heights, `dropped_txids`, `failed_transactions`, and `unconfirmed_txids`. Unknown fields are rejected (HTTP 400). |
 | `POST /api/v1/rollback` | `{depth}` removes recent blocks without replacements, reconciles the wallet, and lists the dropped txids. Unknown fields are rejected (HTTP 400). Neither chain-changing POST is automatically retried. |
-| `POST /api/v1/mining/jobs` | Start a keyed mining job with `{blocks,idempotency_key}`; returns HTTP 202 and the job. |
+| `POST /api/v1/mining/jobs` | Start a keyed mining job with `{blocks,idempotency_key,to?,empty?}`; returns HTTP 202 and the job. `to` is a string: an account number (`"4"`) or a transparent Regtest address that receives the coinbase. `empty` leaves mempool transactions out. Unknown fields are rejected (HTTP 400). |
 | `GET /api/v1/mining/jobs`, `/mining/jobs/{id}` | Read the latest job or a specific job; see [Chapter 5](mining-and-sync.md). |
 | `POST /api/v1/zip321/parse` | Parse one Regtest payment URI into its address, pool, optional amount, and memo; moves no funds. |
 | `POST /api/v1/zip321/request` | Generate a payment URI from `{account_id}` and an optional amount and memo; moves no funds. |

@@ -125,6 +125,12 @@ pub(crate) enum Command {
         /// Number of blocks to mine.
         #[arg(value_parser = clap::value_parser!(u32).range(1..=10_000))]
         blocks: u32,
+        /// Pay the coinbase to account 1-5's transparent address or to a transparent Regtest address.
+        #[arg(long, value_name = "ACCOUNT|ADDRESS")]
+        to: Option<String>,
+        /// Mine blocks that leave every mempool transaction out.
+        #[arg(long)]
+        empty: bool,
     },
     /// Replace recent Regtest blocks with a new branch.
     Reorg {
