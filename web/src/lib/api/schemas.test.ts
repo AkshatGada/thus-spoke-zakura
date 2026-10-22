@@ -135,6 +135,25 @@ describe('activitySchema', () => {
     expect(activity.recipient_addresses).toEqual(['uregtest1external1', 'uregtest1external2']);
   });
 
+  it('keeps the text memos the wallet decoded', () => {
+    const activity = activitySchema.parse({
+      id: 'wallet:memo',
+      kind: 'transaction',
+      direction: 'internal',
+      from_account: 1,
+      to_account: 2,
+      source_pool: 'ironwood',
+      destination_pool: 'ironwood',
+      amount_zatoshi: 10_000_000,
+      txid: 'ab'.repeat(32),
+      status: 'confirmed',
+      created_at: null,
+      memos: ['order 42'],
+    });
+
+    expect(activity.memos).toEqual(['order 42']);
+  });
+
   it('preserves every known source and destination pool', () => {
     const activity = activitySchema.parse({
       id: 'wallet:multi-pool',

@@ -824,8 +824,8 @@ account's keys can read it.
 The server stores the supplied memo separately in its idempotency record.
 An omitted memo and a `null` memo are equivalent; explicitly empty text is a
 different payment intent. Changing the memo under an existing direct API key
-returns HTTP 409. Activity has no memo field, and
-dashboard transaction views do not decrypt received memos. ZIP-321 parsing can
+returns HTTP 409. Activity's `memos` lists the text memos the wallet can
+decrypt, and the dashboard shows them on activity rows. ZIP-321 parsing can
 return a supplied URI memo without reading one from a transaction.
 
 `GET /api/v1/accounts` returns a `unified_full_viewing_key` for each user

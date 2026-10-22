@@ -144,8 +144,8 @@ the server rejects a present memo there too.
 
 The server stores the supplied memo in its idempotency record to compare
 replayed requests. An absent memo and an explicit empty text memo are different
-payment identities. Activity has no memo field, and the dashboard's transaction views do not
-decrypt received memos. ZIP-321 parsing can return a memo supplied in its input;
+payment identities. Recent activity shows the text memos the wallet can decrypt
+under each transfer. ZIP-321 parsing can return a memo supplied in its input;
 that does not read a memo from the chain.
 
 `GET /api/v1/accounts` provides a `unified_full_viewing_key` for each user

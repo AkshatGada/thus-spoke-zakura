@@ -63,6 +63,8 @@ export const activitySchema = z.object({
   status: z.string(),
   last_error: z.string().nullable().default(null),
   created_at: z.string().nullable(),
+  /** Decoded text memos the wallet can read; non-text memos are omitted. */
+  memos: z.array(z.string()).optional(),
 });
 export type Activity = z.infer<typeof activitySchema>;
 
