@@ -115,7 +115,9 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
         "depth":3,"old_tip":{"height":108,"hash":"old-tip"},
         "new_tip":{"height":108,"hash":"new-tip"},
         "removed_hashes":["a","b","c"],"replacement_hashes":["d","e","f"],
-        "retained_txids":["kept"],"failed_transactions":[{"txid":"dropped","error":"invalid anchor"}]
+        "retained_txids":["kept"],"retained_transactions":[{"txid":"kept","height":106}],
+        "failed_transactions":[{"txid":"dropped","error":"invalid anchor"}],
+        "dropped_txids":["dropped"],"unconfirmed_txids":["dropped"]
     });
     for (operation, keep_txs, body) in [
         (
@@ -136,7 +138,10 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
             &reqwest::blocking::Client::new(),
             operation,
             3,
-            keep_txs,
+            &ChainPlan {
+                keep_txs,
+                ..ChainPlan::default()
+            },
         )
         .unwrap();
         let (request_line, request_body) = requests.recv().unwrap();
@@ -154,6 +159,8 @@ fn chain_changes_forward_the_command_and_report_retention_failures_in_both_outpu
         assert!(text.contains("3 blocks on alpha"));
         assert!(text.contains("New tip: 108 (new-tip)"));
         assert!(text.contains("Not retained: dropped: invalid anchor"));
+        assert!(text.contains("Now unconfirmed: dropped"));
+        assert!(text.contains("inputs stay reserved until each transaction expires"));
         assert!(text.starts_with(if operation == "reorg" {
             "Reorganized"
         } else {
@@ -194,8 +201,14 @@ fn explorer_tip_lookup_fails_without_fetching_another_block() {
 fn chain_changes_do_not_retry_rejected_or_lost_responses() {
     for status in ["409 Conflict", "drop"] {
         let (url, requests) = serve(vec![(status, "busy")]);
-        let error =
-            change_chain(&url, &reqwest::blocking::Client::new(), "reorg", 3, false).unwrap_err();
+        let error = change_chain(
+            &url,
+            &reqwest::blocking::Client::new(),
+            "reorg",
+            3,
+            &ChainPlan::default(),
+        )
+        .unwrap_err();
         assert!(
             error
                 .to_string()
@@ -2327,4 +2340,84 @@ fn address_send_submits_the_address_and_its_pool() {
         json_stdout(&out)["to_address"],
         "tmXzrDnkD3c38xn8CRzSqg8azgK24iuvzFZ"
     );
+}
+
+#[test]
+fn per_transaction_reorgs_send_their_plan_and_report_placements() {
+    let response = serde_json::json!({
+        "depth":3,"old_tip":{"height":108,"hash":"old-tip"},
+        "new_tip":{"height":108,"hash":"new-tip"},
+        "removed_hashes":["a","b","c"],"replacement_hashes":["d","e","f"],
+        "retained_txids":["placed"],
+        "retained_transactions":[{"txid":"placed","height":108}],
+        "failed_transactions":[],
+        "dropped_txids":["left-out"],
+        "unconfirmed_txids":[]
+    });
+    let (url, requests) = serve(vec![("200 OK", response.to_string())]);
+    let plan = ChainPlan {
+        keep_txs: true,
+        drop: vec!["left-out".into()],
+        place: vec![("placed".into(), 3)],
+    };
+    let result = change_chain(&url, &reqwest::blocking::Client::new(), "reorg", 3, &plan).unwrap();
+    let (_, request_body) = requests.recv().unwrap();
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&request_body).unwrap(),
+        serde_json::json!({"depth":3,"keep_txs":true,"drop":["left-out"],"place":{"placed":3}})
+    );
+    let text = render_chain_change(&result, &name("alpha"), "reorg", false).unwrap();
+    assert!(text.contains("Retained: placed at height 108"), "{text}");
+    assert!(text.contains("Dropped: left-out"), "{text}");
+    let json = render_chain_change(&result, &name("alpha"), "reorg", true).unwrap();
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&json).unwrap(),
+        response
+    );
+}
+
+#[test]
+fn a_per_transaction_reorg_refuses_a_server_that_ignored_the_plan() {
+    let response = serde_json::json!({
+        "depth":1,"old_tip":{"height":108,"hash":"a"},"new_tip":{"height":108,"hash":"b"},
+        "removed_hashes":["a"],"replacement_hashes":["b"],
+        "retained_txids":[],"failed_transactions":[],"unconfirmed_txids":[]
+    });
+    let (url, _requests) = serve(vec![("200 OK", response.to_string())]);
+    let plan = ChainPlan {
+        place: vec![("tx".into(), 1)],
+        ..ChainPlan::default()
+    };
+    let error =
+        change_chain(&url, &reqwest::blocking::Client::new(), "reorg", 1, &plan).unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("does not support --drop or --place"),
+        "{error:#}"
+    );
+}
+
+#[test]
+fn reorg_json_always_lists_retained_and_dropped_transactions() {
+    let response = serde_json::json!({
+        "depth":1,"old_tip":{"height":108,"hash":"a"},"new_tip":{"height":108,"hash":"b"},
+        "removed_hashes":["a"],"replacement_hashes":["b"],
+        "retained_txids":[],"failed_transactions":[],"unconfirmed_txids":[]
+    });
+    let (url, _requests) = serve(vec![("200 OK", response.to_string())]);
+    let result = change_chain(
+        &url,
+        &reqwest::blocking::Client::new(),
+        "rollback",
+        1,
+        &ChainPlan::default(),
+    )
+    .unwrap();
+    let json: serde_json::Value = serde_json::from_str(
+        &render_chain_change(&result, &name("alpha"), "rollback", true).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(json["dropped_txids"], serde_json::json!([]));
+    assert_eq!(json["retained_transactions"], serde_json::json!([]));
 }

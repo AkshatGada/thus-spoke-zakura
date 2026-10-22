@@ -415,25 +415,59 @@ chain operation causes HTTP 409.
 ```console
 ths reorg --depth 3
 ths reorg --depth 3 --keep-txs --json
+ths reorg --depth 3 --keep-txs --drop "$TXID_A" --place "$TXID_B=3"
 ths rollback --depth 3
 ths wait
 ```
 
 Without `--keep-txs`, ths does not rebroadcast dropped transactions; replacement
-mining still uses the node's mempool. Zakura can independently requeue a prior
+mining still uses the node's mempool. Invalidating a block does not return its
+transactions to Zakura's mempool, but Zakura can independently requeue a prior
 RPC submission, so neither rollback nor reorg guarantees an empty mempool or
 prevents later inclusion of a dropped transaction. With `--keep-txs`, ths
 attempts to reinclude the original non-coinbase transactions and verifies their
-replacement-block inclusion.
+replacement-block inclusion; one already back in the mempool is not
+rebroadcast.
 Invalid anchors or other admission failures may prevent reinclusion. Failures
-are reported in both output modes; `--json` also lists `retained_txids` and
-`failed_transactions`. The CLI exits nonzero if any transaction was not retained,
+are reported in both output modes; `--json` also lists `retained_txids`,
+`retained_transactions` (each retained txid with the replacement height that now
+holds it; `retained_txids` remains for compatibility) and `failed_transactions`.
+The CLI exits nonzero if any transaction it tried to retain was not retained,
 even though the chain changed.
 
+Both output modes also list every non-coinbase transaction from the removed
+blocks that is not in a replacement block (`dropped_txids` in `--json`),
+whether or not it belongs to the development wallet. A dropped transaction that
+was rebroadcast but not mined may still wait in the mempool.
+
+Two options choose what happens to individual transactions from the removed
+blocks. Each names a txid that a removed block contained, otherwise the request
+is rejected with HTTP 400 before the chain changes:
+
+- `--drop <TXID>` (with `--keep-txs`) leaves that transaction out, so it is
+  reported as dropped while the others are retained. Repeat it to drop several.
+- `--place <TXID>=<K>` withholds the transaction until replacement block K,
+  where K is 1 to `--depth`, then rebroadcasts it, so a payment confirmed at
+  height H moves to a later height of the same branch. It works with or without
+  `--keep-txs`. If the node mines it earlier anyway (a requeued submission), it
+  is reported as not retained. A shielded transaction may be refused, for example
+  with "unknown Ironwood anchor", when its anchor is a note-commitment tree state
+  that the replacement blocks do not recreate. Keeping the transactions mined
+  before it, in order, recreates that state.
+
+A rebroadcast transaction that depends on another removed transaction is
+retried before each later replacement block, so place a dependent transaction at
+or after its parent.
+
 Affected payment records become `unconfirmed`, keeping their txids and keys.
-The server observes them but does not automatically rebroadcast, replace, or
-mine them. Later canonical inclusion can restore `confirmed`. This is not a
-wallet snapshot restore: unexpired local transactions can still reserve inputs.
+Both output modes list them (`unconfirmed_txids` in `--json`). The server
+observes them but does not automatically rebroadcast, replace, or mine them.
+Later canonical inclusion can restore `confirmed`. This is not a wallet
+snapshot restore: an unconfirmed payment still reserves its inputs until its
+transaction expires. Until then the sending account's balance includes those
+funds, but its quotes and sends cannot use them. Mine past the expiry height
+that `ths tx <TXID>` shows to release them, or use `--keep-txs` to keep the
+payments in the replacement blocks.
 The server owns admitted work after client disconnection. An error or lost
 response can follow a partial chain change; inspect the current tip before
 retrying. Neither invalidation nor replacement mining is automatically retried.
@@ -908,7 +942,7 @@ compinit
 | `ths tx <TXID> [--json]` | Show explorer transaction data |
 | `ths block [ID] [--json]` | Show a block by height or hash, or the chain tip when omitted |
 | `ths mine <N>` | Mine blocks and synchronize the wallet |
-| `ths reorg --depth N [--keep-txs]` | Replace recent blocks, optionally attempting transaction reinclusion |
+| `ths reorg --depth N [--keep-txs] [--drop TXID] [--place TXID=K]` | Replace recent blocks, optionally retaining, dropping, or placing individual transactions |
 | `ths rollback --depth N` | Remove recent blocks without replacements |
 | `ths faucet <ADDRESS> [--amount]` | Send disposable ZEC to any Regtest address |
 | `ths wallet balances [--json]` | Print the five accounts' balances and addresses |

@@ -6,6 +6,7 @@ use clap::CommandFactory;
 
 use crate::{
     args::{Cli, Command, CompletionShell, Pool, SendArgs, WalletCommand},
+    client::ChainPlan,
     runtime::{InstanceName, MiningConfig, Runtime},
     updater,
 };
@@ -80,11 +81,31 @@ pub(crate) fn run(cli: Cli) -> anyhow::Result<ExitCode> {
         Command::Tx { txid } => runtime.explorer(&name, "transactions", Some(&txid), cli.json),
         Command::Block { id } => runtime.explorer(&name, "blocks", id.as_deref(), cli.json),
         Command::Mine { blocks } => runtime.mine(&name, blocks, cli.json),
-        Command::Reorg { depth, keep_txs } => {
-            runtime.change_chain(&name, "reorg", depth, keep_txs, cli.json)
+        Command::Reorg {
+            depth,
+            keep_txs,
+            drop,
+            place,
+        } => {
+            if let Some((txid, _)) = place
+                .iter()
+                .enumerate()
+                .find(|(index, (txid, _))| {
+                    place[..*index].iter().any(|(earlier, _)| earlier == txid)
+                })
+                .map(|(_, placement)| placement)
+            {
+                anyhow::bail!("--place names {txid} more than once");
+            }
+            let plan = ChainPlan {
+                keep_txs,
+                drop,
+                place,
+            };
+            runtime.change_chain(&name, "reorg", depth, &plan, cli.json)
         }
         Command::Rollback { depth } => {
-            runtime.change_chain(&name, "rollback", depth, false, cli.json)
+            runtime.change_chain(&name, "rollback", depth, &ChainPlan::default(), cli.json)
         }
         Command::Faucet { address, amount } => {
             runtime.faucet(&name, &address, amount.zatoshi(), cli.json)

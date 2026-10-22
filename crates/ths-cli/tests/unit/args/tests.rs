@@ -69,11 +69,14 @@ fn separates_building_from_starting() {
     assert!(matches!(cli.command, Some(Command::Uninstall)));
 
     let cli = Cli::try_parse_from(["ths", "mine", "10"]).unwrap();
-    assert!(matches!(cli.command, Some(Command::Mine { blocks: 10 })));
+    assert!(matches!(
+        cli.command,
+        Some(Command::Mine { blocks: 10, .. })
+    ));
 
     let cli = Cli::try_parse_from(["ths", "--name", "alice", "mine", "3"]).unwrap();
     assert_eq!(cli.name.unwrap().to_string(), "alice");
-    assert!(matches!(cli.command, Some(Command::Mine { blocks: 3 })));
+    assert!(matches!(cli.command, Some(Command::Mine { blocks: 3, .. })));
 
     let cli = Cli::try_parse_from(["ths", "mine", "3", "--name", "alice"]).unwrap();
     assert_eq!(cli.name.unwrap().to_string(), "alice");
@@ -593,4 +596,61 @@ fn send_to_address_excludes_other_destinations() {
     ] {
         assert!(send(conflicting).is_err(), "{conflicting:?}");
     }
+}
+
+#[test]
+fn parses_per_transaction_reorg_options() {
+    let cli = Cli::try_parse_from([
+        "ths",
+        "reorg",
+        "--depth",
+        "3",
+        "--keep-txs",
+        "--drop",
+        "aa",
+        "--drop",
+        "bb",
+        "--place",
+        "cc=2",
+    ])
+    .unwrap();
+    let Some(Command::Reorg {
+        depth,
+        keep_txs,
+        drop,
+        place,
+    }) = cli.command
+    else {
+        panic!("expected reorg");
+    };
+    assert_eq!(depth, 3);
+    assert!(keep_txs);
+    assert_eq!(drop, ["aa", "bb"]);
+    assert_eq!(place, [("cc".to_owned(), 2)]);
+
+    // --place works without --keep-txs; --drop only narrows --keep-txs.
+    assert!(Cli::try_parse_from(["ths", "reorg", "--depth", "2", "--place", "cc=1"]).is_ok());
+    assert!(Cli::try_parse_from(["ths", "reorg", "--depth", "2", "--drop", "aa"]).is_err());
+    for invalid in ["cc", "=2", "cc=0", "cc=x"] {
+        assert!(
+            Cli::try_parse_from(["ths", "reorg", "--depth", "2", "--place", invalid]).is_err(),
+            "{invalid}"
+        );
+    }
+    assert!(Cli::try_parse_from(["ths", "rollback", "--depth", "1", "--place", "cc=1"]).is_err());
+}
+
+#[test]
+fn a_reorg_may_name_each_placed_transaction_once() {
+    let cli = Cli::try_parse_from([
+        "ths", "reorg", "--depth", "2", "--place", "aa=1", "--place", "aa=2",
+    ])
+    .unwrap();
+    let error = crate::commands::run(cli).unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("--place names aa more than once"),
+        "{error:#}"
+    );
 }

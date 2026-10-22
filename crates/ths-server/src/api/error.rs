@@ -59,7 +59,8 @@ impl From<anyhow::Error> for ApiError {
     fn from(error: anyhow::Error) -> Self {
         let status = if let Some(error) = error.downcast_ref::<crate::chain::ChainChangeError>() {
             match error {
-                crate::chain::ChainChangeError::InvalidDepth => StatusCode::BAD_REQUEST,
+                crate::chain::ChainChangeError::InvalidDepth
+                | crate::chain::ChainChangeError::InvalidPlan(_) => StatusCode::BAD_REQUEST,
                 crate::chain::ChainChangeError::Busy => StatusCode::CONFLICT,
             }
         } else if error.downcast_ref::<IdempotencyConflict>().is_some() {
@@ -216,6 +217,14 @@ fn friendly_parse_message(raw: &str, path: &str) -> String {
     if let Some(field) = missing_field(detail) {
         return format!("{field} is required");
     }
+    // A misspelled field must be named as unknown, not as a supported field
+    // with a bad value.
+    if let Some(message) = unknown_field(detail) {
+        return message;
+    }
+    if detail.starts_with("place.") {
+        return "place values must be replacement block numbers".into();
+    }
     if let Some((field, problem)) = field_problem(detail) {
         return field_message(field, problem, path);
     }
@@ -264,6 +273,25 @@ fn missing_field(detail: &str) -> Option<&str> {
         .strip_prefix("missing field `")
         .and_then(|rest| rest.split('`').next())
         .filter(|field| !field.is_empty())
+}
+
+fn unknown_field(detail: &str) -> Option<String> {
+    let (_, rest) = detail.split_once("unknown field `")?;
+    let (field, rest) = rest.split_once('`')?;
+    let allowed: Vec<&str> = rest
+        .split('`')
+        .skip(1)
+        .step_by(2)
+        .filter(|name| !name.is_empty())
+        .collect();
+    Some(if allowed.is_empty() {
+        format!("unknown field {field}")
+    } else {
+        format!(
+            "unknown field {field}; allowed fields are {}",
+            allowed.join(", ")
+        )
+    })
 }
 
 fn field_problem(detail: &str) -> Option<(&str, &str)> {
