@@ -110,7 +110,8 @@ pub(crate) struct PublicEndpoints {
 
 /// `ths run` lets Docker choose the dashboard's host port when the app container starts, so the
 /// launcher can only configure port 0. The request's Host, already restricted to loopback by the
-/// router, then names the port the caller actually reached.
+/// router, then names the port the caller actually reached. A Host without a nonzero port, such
+/// as `localhost`, doesn't say which port that was, so the configured value is kept.
 fn public_dashboard_endpoint(configured: Option<&str>, request: &HeaderMap) -> String {
     let configured = configured.unwrap_or("http://127.0.0.1:8080");
     let unassigned = configured
@@ -119,8 +120,8 @@ fn public_dashboard_endpoint(configured: Option<&str>, request: &HeaderMap) -> S
     let request_host = request.get(HOST).and_then(|host| host.to_str().ok());
     match request_host.and_then(|host| host.parse::<Authority>().ok()) {
         Some(host) if unassigned => match host.port_u16() {
-            Some(port) => format!("http://{}:{port}", host.host()),
-            None => format!("http://{}", host.host()),
+            Some(port) if port != 0 => format!("http://{}:{port}", host.host()),
+            _ => configured.to_owned(),
         },
         _ => configured.to_owned(),
     }

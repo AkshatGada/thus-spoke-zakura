@@ -517,6 +517,15 @@ fn public_dashboard_endpoint_reports_the_reached_port_when_run_assigned_none() {
         public_dashboard_endpoint(unassigned, &HeaderMap::new()),
         "http://127.0.0.1:0"
     );
+    // A Host without a nonzero port doesn't name the reached port; `localhost` would
+    // otherwise become http://localhost, which is port 80.
+    for host_without_port in ["localhost", "127.0.0.1", "[::1]", "127.0.0.1:0"] {
+        assert_eq!(
+            public_dashboard_endpoint(unassigned, &host(host_without_port)),
+            "http://127.0.0.1:0",
+            "{host_without_port}"
+        );
+    }
     assert_eq!(
         public_dashboard_endpoint(unassigned, &host("not a host")),
         "http://127.0.0.1:0"
