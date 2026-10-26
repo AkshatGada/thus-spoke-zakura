@@ -1,18 +1,25 @@
 import { EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable, NumCell, Row, type Column } from '@/components/ui/DataTable';
-import { DataRow, Panel, PanelNote } from '@/components/ui/Panel';
+import { PanelNote } from '@/components/ui/Panel';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/StateBlock';
 import { useWalletTransaction } from '@/hooks/queries';
 import { errorMessage, type WalletOutput, type WalletTransaction } from '@/lib/api';
 import { formatZecAmount } from '@/lib/money';
 import { shortHash } from '@/lib/format';
 
-const COLUMNS: Column[] = [
+const OUTPUT_COLUMNS: Column[] = [
   { key: 'output', header: 'Output', width: '120px' },
   { key: 'route', header: 'From → To', width: '200px' },
   { key: 'address', header: 'To address', collapse: true },
   { key: 'memo', header: 'Memo' },
+  { key: 'value', header: 'Value', align: 'right', width: '150px' },
+];
+
+const SPEND_COLUMNS: Column[] = [
+  { key: 'account', header: 'Spent by', width: '200px' },
+  { key: 'pool', header: 'Pool', width: '120px' },
+  { key: 'notes', header: 'Notes' },
   { key: 'value', header: 'Value', align: 'right', width: '150px' },
 ];
 
@@ -33,6 +40,12 @@ const DETAILS_WARNING: Record<
 function partyLabel(party: WalletOutput['from'], unknown: string): string {
   if (party === null) return unknown;
   return party === 'faucet' ? 'Faucet' : `Account ${party}`;
+}
+
+function PoolLabel({ pool }: { pool: string }) {
+  return (
+    <span className="text-ink-muted text-[11px] font-bold tracking-[0.04em] uppercase">{pool}</span>
+  );
 }
 
 function MemoCell({ memo }: { memo: WalletOutput['memo'] }) {
@@ -66,28 +79,36 @@ function DetailsWarning({ details }: { details: WalletTransaction['details'] }) 
   );
 }
 
+/** One row per account and pool, so several spent notes read as one line. */
+function groupSpends(spends: WalletTransaction['spends']) {
+  const groups = new Map<string, { account: number; pool: string; notes: number; value: bigint }>();
+  for (const spend of spends) {
+    const key = `${spend.account}:${spend.pool}`;
+    const group = groups.get(key) ?? {
+      account: spend.account,
+      pool: spend.pool,
+      notes: 0,
+      value: 0n,
+    };
+    group.notes += 1;
+    group.value += spend.value_zatoshi;
+    groups.set(key, group);
+  }
+  return [...groups.values()];
+}
+
 /**
  * What this environment's wallet recorded about the transaction for accounts
  * 1-5. Unlike the rest of the page, this is local wallet state, not public
- * chain data.
+ * chain data, so it is read only when asked for.
  */
-export function LocalAccountsPanel({ txid }: { txid: string }) {
+export function DecryptedActions({ txid, id }: { txid: string; id: string }) {
   const view = useWalletTransaction(txid);
   const data = view.data;
   const involved = data !== undefined && (data.outputs.length > 0 || data.spends.length > 0);
 
   return (
-    <Panel
-      eyebrow="LOCAL ACCOUNTS"
-      title="What accounts 1–5 sent and received"
-      meta={
-        involved && (
-          <Badge>
-            {data.outputs.length} output{data.outputs.length === 1 ? '' : 's'}
-          </Badge>
-        )
-      }
-    >
+    <section id={id} aria-label="Decrypted actions" className="border-line border-b">
       {view.isPending && <LoadingState label="Reading the local wallet…" />}
       {view.isError && (
         <div className="p-4">
@@ -100,14 +121,11 @@ export function LocalAccountsPanel({ txid }: { txid: string }) {
       )}
 
       {data && data.outputs.length > 0 && (
-        <DataTable columns={COLUMNS}>
+        <DataTable columns={OUTPUT_COLUMNS}>
           {data.outputs.map((output, index) => (
             <Row key={`${output.pool}:${output.index}`} index={index}>
               <td className="tabular-nums">
-                <span className="text-ink-muted text-[11px] font-bold tracking-[0.04em] uppercase">
-                  {output.pool}
-                </span>{' '}
-                #{output.index}
+                <PoolLabel pool={output.pool} /> #{output.index}
               </td>
               <td>
                 <span className="font-semibold">
@@ -137,26 +155,21 @@ export function LocalAccountsPanel({ txid }: { txid: string }) {
         </DataTable>
       )}
 
-      {data && involved && (
-        <dl className="border-line border-t">
-          {data.spends.length > 0 && (
-            <DataRow label="Notes spent">
-              <ul className="grid gap-1">
-                {data.spends.map((spend, index) => (
-                  <li key={index}>
-                    Account {spend.account} spent {formatZecAmount(spend.value_zatoshi)} from{' '}
-                    {spend.pool}
-                  </li>
-                ))}
-              </ul>
-            </DataRow>
-          )}
-          <DataRow label="Fee">
-            {data.fee_zatoshi === null
-              ? 'Not recorded by the wallet'
-              : formatZecAmount(data.fee_zatoshi)}
-          </DataRow>
-        </dl>
+      {data && data.spends.length > 0 && (
+        <DataTable columns={SPEND_COLUMNS}>
+          {groupSpends(data.spends).map((group, index) => (
+            <Row key={`${group.account}:${group.pool}`} index={index}>
+              <td className="font-semibold">Account {group.account}</td>
+              <td>
+                <PoolLabel pool={group.pool} />
+              </td>
+              <td className="text-ink-muted tabular-nums">
+                {group.notes} note{group.notes === 1 ? '' : 's'}
+              </td>
+              <NumCell className="font-semibold">{formatZecAmount(group.value)}</NumCell>
+            </Row>
+          ))}
+        </DataTable>
       )}
 
       {data && (
@@ -165,6 +178,6 @@ export function LocalAccountsPanel({ txid }: { txid: string }) {
           accounts 1–5 appears here only after it is mined and the wallet has scanned its block.
         </PanelNote>
       )}
-    </Panel>
+    </section>
   );
 }

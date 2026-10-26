@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AddressDetail } from '@/features/explorer/AddressDetail';
@@ -275,10 +276,16 @@ describe('useServerEvents', () => {
         ],
         spends: [],
       }),
-      [`/transactions/${TXID}`]: () => ({ txid: TXID, height: 106, confirmations: 1 }),
+      [`/transactions/${TXID}`]: () => ({
+        txid: TXID,
+        height: 106,
+        confirmations: 1,
+        ironwood: { actions: [{}, {}] },
+      }),
     };
     renderPage(`/explorer/tx/${TXID}`, '/explorer/tx/:txid', <TransactionDetail />);
     await screen.findByText('1 conf');
+    await userEvent.click(await screen.findByRole('button', { name: 'Decrypt actions' }));
     await screen.findByText('order 4');
 
     // The local wallet view follows wallet updates; public chain data does not.

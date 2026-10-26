@@ -144,15 +144,16 @@ the server rejects a present memo there too.
 
 The server stores the supplied memo in its idempotency record to compare
 replayed requests. An absent memo and an explicit empty text memo are different
-payment identities. Recent activity shows the text memos the wallet can decrypt
-under each transfer. ZIP-321 parsing can return a memo supplied in its input;
+payment identities. To read a payment's memo, open its transaction ID from
+Recent activity and select **Decrypt actions**. ZIP-321 parsing can return a
+memo supplied in its input;
 that does not read a memo from the chain.
 
 `GET /api/v1/accounts` provides a `unified_full_viewing_key` for each user
 account. An external wallet imported with that key can decrypt memos sent to
 that account. Public Explorer data reveals neither memo plaintext nor private
-Ironwood recipient addresses; the Explorer's **Local accounts** panel, described
-below, shows what this environment's wallet recorded.
+Ironwood recipient addresses; the Explorer's **Decrypt actions** button,
+described below, shows what this environment's wallet recorded.
 
 ## Create a request for another sender
 
@@ -213,14 +214,16 @@ not exposed as the user-account transfer shown by Recent activity. The
 server's activity record knows the development account IDs, while the
 Explorer follows the public chain.
 
-Below the disclosure summary, the **Local accounts** panel shows what this
-environment's wallet recorded about the transaction for accounts 1–5. It is
-local wallet state, not public chain data. Each output lists its pool and
-index, sender and recipient (**Faucet** for a treasury payment, **External**
-for an address outside the accounts), the address the wallet recorded, the
-memo, and the value. Change returned to the sending account is marked
-**Change**; a non-text memo is shown as hex. Below the outputs are the notes
-the accounts spent and the fee the wallet stored. A transaction none of the
+A transaction with shielded actions has a **Decrypt actions** button on its
+**Ironwood actions** row. It shows what this environment's wallet recorded
+about the transaction for accounts 1–5, below that row. It is local wallet
+state, not public chain data, and is read only when you select the button.
+Each output lists its pool and index, sender and recipient (**Faucet** for a
+treasury payment, **External** for an address outside the accounts), the
+address the wallet recorded, the memo, and the value. Change returned to the
+sending account is marked **Change**; a non-text memo is shown as hex. Below
+the outputs, the notes the accounts spent are grouped by account and pool. The
+fee is the **Fee** row of the disclosure summary. A transaction none of the
 accounts sent or received shows **No local account is involved in this
 transaction.** A warning appears while the wallet has not fetched the full
 transaction yet, because a memo can be missing until then, and when it could

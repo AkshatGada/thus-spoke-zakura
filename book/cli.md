@@ -843,7 +843,7 @@ account's keys can read it.
 - The memo is attached to the recipient's output only. Change returned to the
   sender has no memo.
 - The block explorer's public transaction data never shows memo plaintext.
-  `ths wallet tx` and the Explorer's **Local accounts** panel show the memos
+  `ths wallet tx` and the Explorer's **Decrypt actions** button show the memos
   the local wallet recorded for accounts 1–5.
 - All five accounts and the treasury come from one seed as separate ZIP-32
   accounts. A viewing-only wallet imported with one account's viewing key can
@@ -853,7 +853,8 @@ The server stores the supplied memo separately in its idempotency record.
 An omitted memo and a `null` memo are equivalent; explicitly empty text is a
 different payment intent. Changing the memo under an existing direct API key
 returns HTTP 409. Activity's `memos` lists the text memos the wallet can
-decrypt, and the dashboard shows them on activity rows. ZIP-321 parsing can
+decrypt; the dashboard shows memos on the Explorer transaction page instead of
+on activity rows. ZIP-321 parsing can
 return a supplied URI memo without reading one from a transaction.
 
 `GET /api/v1/accounts` returns a `unified_full_viewing_key` for each user
