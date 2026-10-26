@@ -1,4 +1,5 @@
 import { EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable, NumCell, Row, type Column } from '@/components/ui/DataTable';
 import { PanelNote } from '@/components/ui/Panel';
@@ -7,21 +8,29 @@ import { useWalletTransaction } from '@/hooks/queries';
 import { errorMessage, type WalletOutput, type WalletTransaction } from '@/lib/api';
 import { formatZecAmount } from '@/lib/money';
 import { shortHash } from '@/lib/format';
+import { accountPath } from '@/lib/accounts';
+
+// Both tables share their first two widths, so Pool sits under From.
+const FIRST_WIDTH = '170px';
+const SECOND_WIDTH = '160px';
+const VALUE_WIDTH = '150px';
 
 const OUTPUT_COLUMNS: Column[] = [
-  { key: 'output', header: 'Output', width: '120px' },
-  { key: 'route', header: 'From → To', width: '200px' },
-  { key: 'address', header: 'To address', collapse: true },
+  { key: 'output', header: 'Output', width: FIRST_WIDTH },
+  { key: 'from', header: 'From', width: SECOND_WIDTH },
+  { key: 'to', header: 'To' },
   { key: 'memo', header: 'Memo' },
-  { key: 'value', header: 'Value', align: 'right', width: '150px' },
+  { key: 'value', header: 'Value', align: 'right', width: VALUE_WIDTH },
 ];
 
 const SPEND_COLUMNS: Column[] = [
-  { key: 'account', header: 'Spent by', width: '200px' },
-  { key: 'pool', header: 'Pool', width: '120px' },
+  { key: 'account', header: 'Spent by', width: FIRST_WIDTH },
+  { key: 'pool', header: 'Pool', width: SECOND_WIDTH },
   { key: 'notes', header: 'Notes' },
-  { key: 'value', header: 'Value', align: 'right', width: '150px' },
+  { key: 'value', header: 'Value', align: 'right', width: VALUE_WIDTH },
 ];
+
+const LINK = 'text-accent-strong font-semibold hover:underline';
 
 const DETAILS_WARNING: Record<
   Exclude<WalletTransaction['details'], 'complete'>,
@@ -37,9 +46,55 @@ const DETAILS_WARNING: Record<
   },
 };
 
-function partyLabel(party: WalletOutput['from'], unknown: string): string {
-  if (party === null) return unknown;
-  return party === 'faucet' ? 'Faucet' : `Account ${party}`;
+function AccountLink({ account }: { account: number }) {
+  return (
+    <Link to={accountPath(account)} className={LINK}>
+      Account {account}
+    </Link>
+  );
+}
+
+/** The sender. A shielded sender outside accounts 1-5 never reveals an address. */
+function FromCell({ from }: { from: WalletOutput['from'] }) {
+  if (from === null) return <span className="text-ink-muted">External</span>;
+  if (from === 'faucet') return <span className="font-semibold">Faucet</span>;
+  return <AccountLink account={from} />;
+}
+
+/**
+ * The recipient: a development account, or the address the wallet recorded.
+ * Only transparent addresses have a public explorer page; a unified address
+ * outside accounts 1-5 has no public history to link to.
+ */
+function ToCell({ output }: { output: WalletOutput }) {
+  const change = output.change && (
+    <Badge className="ml-2" tone="neutral">
+      Change
+    </Badge>
+  );
+  if (output.to !== null) {
+    return (
+      <span title={output.to_address ?? undefined}>
+        <AccountLink account={output.to} />
+        {change}
+      </span>
+    );
+  }
+  if (output.to_address === null) return <span className="text-ink-muted">External</span>;
+  const label = shortHash(output.to_address, 14, 8);
+  return output.to_address.startsWith('t') ? (
+    <Link
+      to={`/explorer/address/${output.to_address}`}
+      className="text-accent-strong font-mono hover:underline"
+      title={output.to_address}
+    >
+      {label}
+    </Link>
+  ) : (
+    <code className="text-ink font-mono" title={output.to_address}>
+      {label}
+    </code>
+  );
 }
 
 function PoolLabel({ pool }: { pool: string }) {
@@ -121,30 +176,17 @@ export function DecryptedActions({ txid, id }: { txid: string; id: string }) {
       )}
 
       {data && data.outputs.length > 0 && (
-        <DataTable columns={OUTPUT_COLUMNS}>
+        <DataTable columns={OUTPUT_COLUMNS} fixed>
           {data.outputs.map((output, index) => (
             <Row key={`${output.pool}:${output.index}`} index={index}>
               <td className="tabular-nums">
                 <PoolLabel pool={output.pool} /> #{output.index}
               </td>
               <td>
-                <span className="font-semibold">
-                  {partyLabel(output.from, 'External')} → {partyLabel(output.to, 'External')}
-                </span>
-                {output.change && (
-                  <Badge className="ml-2" tone="neutral">
-                    Change
-                  </Badge>
-                )}
+                <FromCell from={output.from} />
               </td>
-              <td className="max-sm:hidden">
-                {output.to_address ? (
-                  <code className="text-ink font-mono" title={output.to_address}>
-                    {shortHash(output.to_address, 14, 8)}
-                  </code>
-                ) : (
-                  <span className="text-ink-muted">—</span>
-                )}
+              <td className="min-w-0 truncate">
+                <ToCell output={output} />
               </td>
               <td>
                 <MemoCell memo={output.memo} />
@@ -156,10 +198,12 @@ export function DecryptedActions({ txid, id }: { txid: string; id: string }) {
       )}
 
       {data && data.spends.length > 0 && (
-        <DataTable columns={SPEND_COLUMNS}>
+        <DataTable columns={SPEND_COLUMNS} fixed>
           {groupSpends(data.spends).map((group, index) => (
             <Row key={`${group.account}:${group.pool}`} index={index}>
-              <td className="font-semibold">Account {group.account}</td>
+              <td>
+                <AccountLink account={group.account} />
+              </td>
               <td>
                 <PoolLabel pool={group.pool} />
               </td>

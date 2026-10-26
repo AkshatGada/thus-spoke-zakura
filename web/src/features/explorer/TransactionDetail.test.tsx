@@ -397,6 +397,16 @@ describe('TransactionDetail decrypted actions', () => {
             change: false,
             memo: { text: '' },
           },
+          {
+            pool: 'transparent',
+            index: 0,
+            value_zatoshi: 3,
+            from: 1,
+            to: null,
+            to_address: 'tmExternalTransparentAddress',
+            change: false,
+            memo: null,
+          },
         ],
         spends: [
           { account: 1, pool: 'ironwood', value_zatoshi: 100_000_000 },
@@ -408,20 +418,39 @@ describe('TransactionDetail decrypted actions', () => {
 
     const decrypted = await screen.findByRole('region', { name: 'Decrypted actions' });
     await within(decrypted).findByText('order 42');
+    const cells = (row: HTMLElement) => within(row).getAllByRole('cell');
     const payment = within(decrypted).getByText('order 42').closest('tr')!;
-    expect(within(payment).getByText('Account 1 → Account 2')).toBeInTheDocument();
+    // From and To name accounts 1-5 and link to their account pages.
+    expect(within(cells(payment)[1]!).getByRole('link', { name: 'Account 1' })).toHaveAttribute(
+      'href',
+      '/wallet/accounts/1',
+    );
+    expect(within(cells(payment)[2]!).getByRole('link', { name: 'Account 2' })).toHaveAttribute(
+      'href',
+      '/wallet/accounts/2',
+    );
     expect(within(payment).queryByText('Change')).not.toBeInTheDocument();
-    const change = within(decrypted).getByText('Account 1 → Account 1').closest('tr')!;
-    expect(within(change).getByText('Change')).toBeInTheDocument();
-    const faucet = within(decrypted).getByText('Faucet → Account 3').closest('tr')!;
+    const change = within(decrypted).getByText('Change').closest('tr')!;
+    expect(within(cells(change)[2]!).getByRole('link', { name: 'Account 1' })).toBeInTheDocument();
+    const faucet = within(decrypted).getByText('0xff01').closest('tr')!;
+    expect(within(cells(faucet)[1]!).getByText('Faucet')).toBeInTheDocument();
     expect(within(faucet).getByText('Not text:')).toBeInTheDocument();
-    expect(within(faucet).getByText('0xff01')).toBeInTheDocument();
-    const external = within(decrypted).getByText('Account 1 → External').closest('tr')!;
-    expect(within(external).getByText('Empty text')).toBeInTheDocument();
+    // A unified address outside the accounts has no public page, so it is plain text.
+    const external = within(decrypted).getByText('Empty text').closest('tr')!;
+    expect(within(cells(external)[2]!).getByText('uregtest1external')).toBeInTheDocument();
+    expect(within(cells(external)[2]!).queryByRole('link')).not.toBeInTheDocument();
+    // A transparent address links to its public explorer page.
+    const transparent = within(decrypted).getByText('tmExternalTran…tAddress').closest('tr')!;
+    expect(
+      within(transparent).getByRole('link', { name: 'tmExternalTran…tAddress' }),
+    ).toHaveAttribute('href', '/explorer/address/tmExternalTransparentAddress');
 
     // Two notes from the same account and pool read as one row.
     const spent = within(decrypted).getByText('2 notes').closest('tr')!;
-    expect(within(spent).getByText('Account 1')).toBeInTheDocument();
+    expect(within(spent).getByRole('link', { name: 'Account 1' })).toHaveAttribute(
+      'href',
+      '/wallet/accounts/1',
+    );
     expect(within(spent).getByText('ironwood')).toBeInTheDocument();
     expect(within(spent).getByText('2 ZEC')).toBeInTheDocument();
     // The public fee row above already shows the fee.
@@ -454,7 +483,8 @@ describe('TransactionDetail decrypted actions', () => {
     await decrypt();
 
     expect(await screen.findByText(warning)).toBeInTheDocument();
-    expect(screen.getByText('External → Account 2')).toBeInTheDocument();
+    expect(screen.getByText('External')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Account 2' })).toBeInTheDocument();
   });
 
   it('shows a wallet read failure in place of the decrypted actions', async () => {

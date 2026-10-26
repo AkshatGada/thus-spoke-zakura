@@ -218,11 +218,14 @@ A transaction with shielded actions has a **Decrypt actions** button on its
 **Ironwood actions** row. It shows what this environment's wallet recorded
 about the transaction for accounts 1–5, below that row. It is local wallet
 state, not public chain data, and is read only when you select the button.
-Each output lists its pool and index, sender and recipient (**Faucet** for a
-treasury payment, **External** for an address outside the accounts), the
-address the wallet recorded, the memo, and the value. Change returned to the
-sending account is marked **Change**; a non-text memo is shown as hex. Below
-the outputs, the notes the accounts spent are grouped by account and pool. The
+Each output lists its pool and index, **From**, **To**, the memo, and the
+value. **From** is an account, **Faucet** for a treasury payment, or
+**External**; a shielded sender outside the accounts never reveals an address.
+**To** is an account, or else the address the wallet recorded. Accounts link to
+their account page and transparent addresses to their Explorer page; a unified
+address outside the accounts has no public page. Change returned to the sending
+account is marked **Change**; a non-text memo is shown as hex. Below the
+outputs, the notes the accounts spent are grouped by account and pool. The
 fee is the **Fee** row of the disclosure summary. A transaction none of the
 accounts sent or received shows **No local account is involved in this
 transaction.** A warning appears while the wallet has not fetched the full
