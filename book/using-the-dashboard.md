@@ -8,7 +8,9 @@ fresh chain with the same five accounts.
 
 The dashboard has **Wallet**, **Explorer**, and **Network** pages. Use `ths
 open` to bring it up. On desktop, the **Mine** button sits at the top of
-each page; on a narrow screen you can always use `ths mine`.
+each page; on a narrow screen you can always use `ths mine`. If the browser
+blocks clipboard access, a copy button shows a notification with the value to
+copy by hand.
 
 ## First, observe the starting state
 
