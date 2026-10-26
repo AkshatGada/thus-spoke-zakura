@@ -225,6 +225,9 @@ fn read_canonical_activity(
     limit: u32,
 ) -> Result<Vec<CanonicalActivity>> {
     let tip: Option<u32> = db.query_row("SELECT MAX(height) FROM blocks", [], |row| row.get(0))?;
+    // A transaction that was never mined and whose expiry height the wallet has passed can no
+    // longer confirm (a rolled-back or replaced original). Listing it would leave a permanent
+    // `pending` row at the top of history; the replacement or the balance already reflects it.
     let mut query = db.prepare(
         "SELECT DISTINCT vt.txid,vt.mined_height,vt.tx_index,
                 b.hash,t.created
@@ -232,6 +235,7 @@ fn read_canonical_activity(
          JOIN transactions t ON t.txid=vt.txid
          LEFT JOIN blocks b ON b.height=vt.mined_height
          WHERE account_uuid IN (?1,?2,?3,?4,?5)
+           AND COALESCE(vt.expired_unmined,0)=0
          ORDER BY vt.mined_height DESC,vt.tx_index DESC LIMIT ?6",
     )?;
     let mut rows = query.query(params![
