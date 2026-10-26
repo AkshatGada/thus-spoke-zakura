@@ -108,7 +108,8 @@ prints only user Accounts 1–5. `100000000` zatoshi is 1 ZEC.
 has `name`, `unified_address`, `transparent_address`, and
 `unified_full_viewing_key`. The addresses are what you pay from outside the
 dashboard; the viewing key lets an external wallet read the Ironwood memos
-sent to that account. Inside this environment, Recent activity and
+sent to that account. Inside this environment, the Explorer's
+**Decrypt actions** button and
 [`GET /api/v1/transactions/{txid}/wallet`](#read-what-the-wallet-recorded-about-a-transaction)
 show the memos the wallet recorded. Because the
 seed is fixed (see [Chapter 3](accounts-and-balances.md#an-account-is-a-wallet-identity)),
